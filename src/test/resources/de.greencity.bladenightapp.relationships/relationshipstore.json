@@ -1,0 +1,17 @@
+{
+  "pending": {
+    "885989": {
+      "deviceId1": "pending-device-1",
+      "creationTimestamp": 1359316441804
+    }
+  },
+  "finalized": [
+    {
+      "deviceId1": "existing-device-1",
+      "deviceId2": "existing-device-2",
+      "creationTimestamp": 1359316441804
+    }
+  ],
+  "idsLength": 6,
+  "requestTimeout": 300000
+}
