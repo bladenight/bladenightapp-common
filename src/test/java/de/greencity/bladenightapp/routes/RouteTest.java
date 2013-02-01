@@ -32,7 +32,9 @@ public class RouteTest {
 	public void checkLoad() {
 		assertEquals(16727, route.getLength(), 1.0);
 		assertEquals(81, route.getNumberOfSegments());
-		assertTrue(route.getFilePath().endsWith(path));
+		String filePath = route.getFilePath();
+		filePath = filePath.replace("\\", "/"); // For Windows
+		assertTrue(filePath.endsWith(path));
 		LatLong firstNode = route.getNodesLatLong().get(0);
 		assertEquals(48.13236655362276, firstNode.lat, 0.0000001);
 		assertEquals(11.53957684075901, firstNode.lon, 0.0000001);
