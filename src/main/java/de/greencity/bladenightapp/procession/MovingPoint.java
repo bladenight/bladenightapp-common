@@ -4,7 +4,26 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 // Representation of an (optionally) moving point in the procession
 public final class MovingPoint {
+	public interface Clock {
+		long currentTimeMillis();
+	}
+
 	public MovingPoint() {
+		clock = new Clock() {
+			@Override
+			public long currentTimeMillis() {
+				return System.currentTimeMillis();
+			}
+		};
+		init();
+	}
+
+	public MovingPoint(Clock clock) {
+		this.clock = clock;
+		init();
+	}
+
+	private void init() {
 		isOnRoute = false;
 		isInProcession = false;
 		timestamp = getNewStamp();
@@ -44,17 +63,17 @@ public final class MovingPoint {
 	}
 
 	private long getNewStamp() {
-		return System.currentTimeMillis();
+		return clock.currentTimeMillis();
 	}
-	
+
 	public long getTimestamp() {
 		return timestamp;
 	}
-	
+
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
-	
+
 	public boolean isOnRoute() {
 		return isOnRoute;
 	}
@@ -101,9 +120,13 @@ public final class MovingPoint {
 
 
 	public long getAge() {
-		return System.currentTimeMillis() - timestamp;
+		return clock.currentTimeMillis() - timestamp;
 	}
-	
+
+	public void setClock(Clock clock) {
+		this.clock = clock;
+	}
+
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
@@ -117,5 +140,6 @@ public final class MovingPoint {
 	private double linearPosition;
 	private double linearSpeed;
 	private long   timestamp; // in ms
+	private Clock clock;
 
 }

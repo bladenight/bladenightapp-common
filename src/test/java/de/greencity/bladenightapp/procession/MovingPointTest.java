@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import de.greencity.bladenightapp.procession.MovingPoint.Clock;
 import de.greencity.bladenightapp.utils.Sleep;
 
 public class MovingPointTest {
@@ -30,18 +31,37 @@ public class MovingPointTest {
 		assertTrue(movingPoint.isOnRoute());
 	}
 
+	private class MyClock implements Clock {
+		MyClock(long interval) {
+			this.interval = interval;
+		}
+		@Override
+		public long currentTimeMillis() {
+			invokationCounter++;
+			if ( invokationCounter == 1 ) {
+				start = System.currentTimeMillis();
+				return start;
+			}
+			else {
+				return start + (invokationCounter - 1) * interval;
+			}
+		}
+		private int invokationCounter = 0;
+		private long start;
+		private long interval;
+	}
+	
 	@Test
 	public void testSpeed() throws InterruptedException {
 		double initialPosition = 100;
 		double finalPosition = 101;
-		long sleep = 50;
-		double theoriticalSpeed = (finalPosition - initialPosition) * 3600 / sleep;
-		MovingPoint movingPoint = new MovingPoint();
+		long interval = 50;
+		double theoriticalSpeed = (finalPosition - initialPosition) * 3600 / interval;
+		MovingPoint movingPoint = new MovingPoint(new MyClock(interval));
 		movingPoint.update(10.1, 10.2, initialPosition);
-		Sleep.sleep(sleep);
 		movingPoint.update(20.1, 20.2, finalPosition);
 		assertEquals(finalPosition, movingPoint.getLinearPosition(), 0);
-		double precision = sleep / 5; // The longer the sleep period, the better the precision must get
+		double precision = interval / 5; // The longer the sleep period, the better the precision must get
 		assertEquals(theoriticalSpeed, movingPoint.getLinearSpeed(), movingPoint.getLinearPosition() / precision );
 	}
 }
