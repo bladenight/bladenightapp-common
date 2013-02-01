@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import de.greencity.bladenightapp.events.EventsList;
+import de.greencity.bladenightapp.utils.Sleep;
 
 public class RelationshipsTest {
 	@Test
@@ -124,7 +125,8 @@ public class RelationshipsTest {
 		String deviceId2 = UUID.randomUUID().toString();
 		long relationshipId = store.newRequest(deviceId1);
 
-		Thread.sleep(2);
+		Sleep.sleep(2);
+
 		store.finalize(relationshipId, deviceId2);
 	}
 

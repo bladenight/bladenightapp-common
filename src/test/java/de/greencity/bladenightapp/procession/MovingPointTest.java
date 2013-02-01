@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import de.greencity.bladenightapp.utils.Sleep;
+
 public class MovingPointTest {
 
 	@Test
@@ -36,7 +38,7 @@ public class MovingPointTest {
 		double theoriticalSpeed = (finalPosition - initialPosition) * 3600 / sleep;
 		MovingPoint movingPoint = new MovingPoint();
 		movingPoint.update(10.1, 10.2, initialPosition);
-		Thread.sleep(sleep);
+		Sleep.sleep(sleep);
 		movingPoint.update(20.1, 20.2, finalPosition);
 		assertEquals(finalPosition, movingPoint.getLinearPosition(), 0);
 		double precision = sleep / 5; // The longer the sleep period, the better the precision must get

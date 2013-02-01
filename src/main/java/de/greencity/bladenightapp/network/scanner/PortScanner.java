@@ -6,6 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.greencity.bladenightapp.utils.Sleep;
+
 /***
  * Scans the given hosts and subnets for the given open port. 
  * To speed up the scan of subnets, it starts up to  MAX_RUNNING_JOBS threads in parallel
@@ -63,7 +65,7 @@ public class PortScanner {
 		while ( runningPortKnockersJobs.size() > maxRunning ) {
 			long sleepInterval = Math.min(10, timeout / 2);
 			// System.out.println(System.currentTimeMillis() + " Still " + runningPortKnockersJobs.size() + " knockers running, sleeping for " + sleepInterval + "ms");
-			Thread.sleep(sleepInterval);
+			Sleep.sleep(sleepInterval);
 		}
 	}
 
