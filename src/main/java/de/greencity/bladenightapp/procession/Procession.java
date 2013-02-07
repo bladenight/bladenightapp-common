@@ -20,6 +20,7 @@ public class Procession {
 		headMovingPoint = new MovingPoint();
 		tailMovingPoint = new MovingPoint();
 		route = new Route();
+		route.setName("<undefined default route>");
 	}
 
 	public Route getRoute() {
