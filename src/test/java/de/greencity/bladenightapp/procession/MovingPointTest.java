@@ -1,11 +1,12 @@
 package de.greencity.bladenightapp.procession;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import de.greencity.bladenightapp.procession.MovingPoint.Clock;
-import de.greencity.bladenightapp.utils.Sleep;
 
 public class MovingPointTest {
 

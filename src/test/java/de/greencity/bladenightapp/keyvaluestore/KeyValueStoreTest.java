@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNull;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 import org.apache.commons.logging.impl.NoOpLog;
@@ -16,12 +15,10 @@ import org.junit.Test;
 public class KeyValueStoreTest {
 
 	private KeyValueStore store;
-	static private Random random;
 
 	@BeforeClass
 	static public void initializeClass() {
 		KeyValueStore.setLog(new NoOpLog());
-		random = new Random();
 	}
 
 	@Before

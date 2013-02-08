@@ -45,18 +45,6 @@ public class Procession {
 	public void updateParticipant(ParticipantInput input) {
 		Participant participant = getOrCreateParticipant(input.getParticipantId());
 		getLog().debug("updateParticipant: " + input);
-		List<Route.ProjectedLocation> projectedLocations = route.projectPosition(input.getLatitude(), input.getLongitude());
-		//		if ( projectedLocations.size() == 0 ) {
-		//			getLog().debug("Could not project location. User is probably not on route. " + input);
-		//			p.getLastKnownPoint().isOnRoute(false);
-		//			p.getLastKnownPoint().isOnRoute(false);
-		//		}
-		//		else {
-		//			getLog().debug("Projected location: " + projectedLocations.get(0));
-		//			p.getLastKnownPoint().update(input.lat, input.lon, projectedLocations.get(0).linearPosition);
-		//			p.getLastKnownPoint().isOnRoute(true);
-		//			p.getLastKnownPoint().isInProcession(true);
-		//		}
 		ParticipantUpdater updater = new ParticipantUpdater(this, participant, input);
 		updater.updateParticipant();
 		computeProcession();

@@ -1,13 +1,13 @@
 package de.greencity.bladenightapp.network;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
-import java.lang.IllegalStateException;
 
 import org.junit.Before;
 import org.junit.BeforeClass;

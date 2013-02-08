@@ -1,10 +1,10 @@
 package de.greencity.bladenightapp.events;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

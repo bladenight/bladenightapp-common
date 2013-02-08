@@ -98,10 +98,6 @@ public final class MovingPoint {
 		linearSpeed = computeLinearSpeed(newLinearPosition, newTimestamp);
 	}
 
-	private void updateLinearSpeed(MovingPoint previous) {
-		linearSpeed = computeLinearSpeed(previous.getLinearPosition(), previous.getTimestamp());
-	}
-
 	public double computeLinearSpeed(double newLinearPosition, long newTimestamp) {
 		double deltaT = (newTimestamp - timestamp) / ( 3600.0 * 1000.0); // in hours
 		double deltaP = (newLinearPosition - linearPosition) / 1000.0; // in km

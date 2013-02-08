@@ -1,6 +1,5 @@
 package de.greencity.bladenightapp.network.messages;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,6 +12,7 @@ import de.greencity.bladenightapp.routes.Route;
 
 public class RouteMessage {
 	private LatLong[] nod; // node list
+	@SuppressWarnings("unused")
 	private int len;
 
 	public RouteMessage() {
