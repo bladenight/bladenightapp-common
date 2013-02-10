@@ -45,11 +45,10 @@ class SegmentedProcession {
 
 	private void addParticipant(Participant participant) {
 		MovingPoint lastPos = participant.getLastKnownPoint();
-		getLog().debug("computeProcession: " + lastPos);
+		getLog().debug("SegmentedProcession: " + lastPos);
 		if ( lastPos != null && lastPos.isOnRoute() ) {
-			getLog().debug("computeProcession: a user is at " + lastPos.getLinearPosition());
+			getLog().debug("SegmentedProcession: a user is at " + lastPos.getLinearPosition());
 			int segment = getSegmentForLinearPosition(lastPos.getLinearPosition());
-			getLog().debug("computeProcession: segment="+segment);
 			scores[segment]++;
 			participantPositions.add(lastPos.getLinearPosition());
 			// Moving participants get a bonus:
@@ -57,9 +56,13 @@ class SegmentedProcession {
 				scores[segment]++;
 			// More recent updates get a bonus:
 			double referenceUpdateAge = 2 * meanUpdateAge;
-			if ( participant.getLastLifeSignAge() <= referenceUpdateAge )
-				scores[segment] += 0.5 * ( 1.0 - participant.getLastLifeSignAge() / referenceUpdateAge );
+			double age = participant.getLastLifeSignAge(); 
+			if ( age <= referenceUpdateAge && referenceUpdateAge > 0) {
+				double bonus = 0.5 * ( 1.0 - age / referenceUpdateAge );
+				scores[segment] += bonus;
+			}
 			globalScore += scores[segment]; 
+			getLog().debug("SegmentedProcession: score="+scores[segment]);
 		}
 	}
 	
@@ -81,8 +84,9 @@ class SegmentedProcession {
 		int bestTailSegment = -1, bestHeadSegment = -1;
 		double bestScore = 0;
 
+		getLog().debug("SegmentedProcession: nSegment="+nSegment);
 		for ( int tailSegment=0; tailSegment<nSegment; tailSegment++) {
-			getLog().debug("computeProcession: segment " + tailSegment + "  score: " + scores[tailSegment]);
+			getLog().debug("SegmentedProcession: segment " + tailSegment + "  score: " + scores[tailSegment]);
 			for ( int headSegment=tailSegment; headSegment<nSegment; headSegment++) {
 				double localSum = 0;
 				for ( int i=tailSegment; i<=headSegment ; i++ ) {
@@ -99,13 +103,13 @@ class SegmentedProcession {
 		}
 		
 		if ( bestHeadSegment < 0 || bestTailSegment < 0 ) {
-			getLog().debug("computeProcession: could not find the procession position");
+			getLog().debug("SegmentedProcession: could not find the procession position");
 			return false;
 		}
 		if ( bestHeadSegment < nSegment - 1)
 			bestHeadSegment++; // let's put the head at the head of the segment we found
 
-		getLog().debug("computeProcession: Best: " + bestTailSegment+"-"+bestHeadSegment+" : " + bestScore);
+		getLog().debug("SegmentedProcession: Best: " + bestTailSegment+"-"+bestHeadSegment+" : " + bestScore);
 
 		double tailSegmentPosition = bestTailSegment * routeLength / nSegment;
 		double headSegmentPosition = bestHeadSegment * routeLength / nSegment;
@@ -120,7 +124,7 @@ class SegmentedProcession {
 			}
 		}
 		
-		getLog().debug("computeProcession: final positions: " + tailPosition + "-"  + headPosition);
+		getLog().debug("SegmentedProcession: final positions: " + tailPosition + "-"  + headPosition);
 		
 		return true;
 	}

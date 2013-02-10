@@ -23,7 +23,7 @@ public class ProcessionTest {
 
 	@BeforeClass
 	static public void initClass() {
-		Procession.setLog(new NoOpLog());
+		 Procession.setLog(new NoOpLog());
 	}
 
 	@Before
