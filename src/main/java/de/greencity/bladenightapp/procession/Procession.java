@@ -47,7 +47,7 @@ public class Procession {
 		getLog().debug("updateParticipant: " + input);
 		ParticipantUpdater updater = new ParticipantUpdater(this, participant, input);
 		updater.updateParticipant();
-		computeProcession();
+		computeProcessionIfTooOld();
 	}
 
 	private Participant getOrCreateParticipant(String id) {
@@ -61,16 +61,27 @@ public class Procession {
 	}
 
 	public MovingPoint getHead() {
+		computeProcessionIfTooOld();
 		return headMovingPoint;
 	}
 
 	public MovingPoint getTail() {
+		computeProcessionIfTooOld();
 		return tailMovingPoint;
 	}
 
 	public double getLength() {
+		computeProcessionIfTooOld();
 		return headMovingPoint.getLinearPosition() - tailMovingPoint.getLinearPosition();
 	}
+
+	private void computeProcessionIfTooOld() {
+		long age = System.currentTimeMillis() - lastComputeTimestamp; 
+		getLog().debug("computeProcessionIfTooOld: age="+age);
+		if ( age > 1000)
+			computeProcession();
+	}
+	
 
 	public synchronized void computeProcession() {
 		synchronized (participants) {
@@ -78,8 +89,10 @@ public class Procession {
 		}
 	}
 	
+
 	private void computeProcessionInternal() {
 		getLog().info("computeProcession");
+		lastComputeTimestamp = System.currentTimeMillis(); 
 
 		new GarbageCollector(participants.values()).collect();
 
@@ -178,6 +191,8 @@ public class Procession {
 	private Map<String, Participant> participants;
 
 	private static Log log;
+
+	private long lastComputeTimestamp;
 
 	public static void setLog(Log log) {
 		Procession.log = log;

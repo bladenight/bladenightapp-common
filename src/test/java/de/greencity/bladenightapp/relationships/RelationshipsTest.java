@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import de.greencity.bladenightapp.events.EventsList;
+import de.greencity.bladenightapp.exceptions.BadStateException;
 import de.greencity.bladenightapp.utils.Sleep;
 
 public class RelationshipsTest {
@@ -60,7 +61,7 @@ public class RelationshipsTest {
 	}
 
 	@Test
-	public void finalizeRelation() throws IllegalArgumentException, TimeoutException {
+	public void finalizeRelation() throws BadStateException, TimeoutException {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
 		String deviceId2 = UUID.randomUUID().toString();
@@ -89,8 +90,8 @@ public class RelationshipsTest {
 		}
 	}
 
-	@Test(expected=IllegalArgumentException.class)
-	public void duplicateFinalization() throws IllegalArgumentException, TimeoutException {
+	@Test(expected=BadStateException.class)
+	public void duplicateFinalization() throws BadStateException, TimeoutException {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
 		String deviceId2 = UUID.randomUUID().toString();
@@ -99,8 +100,8 @@ public class RelationshipsTest {
 		store.finalize(relationshipId, deviceId2);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
-	public void invalidFinalization() throws IllegalArgumentException, TimeoutException {
+	@Test(expected=BadStateException.class)
+	public void invalidFinalization() throws BadStateException, TimeoutException {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
 		String deviceId2 = UUID.randomUUID().toString();
@@ -108,8 +109,8 @@ public class RelationshipsTest {
 		store.finalize(relationshipId+1, deviceId2);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
-	public void selfRelationship() throws IllegalArgumentException, TimeoutException {
+	@Test(expected=BadStateException.class)
+	public void selfRelationship() throws BadStateException, TimeoutException {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
 		long relationshipId = store.newRequest(deviceId1);
@@ -117,7 +118,7 @@ public class RelationshipsTest {
 	}
 
 	@Test(expected=TimeoutException.class)
-	public void testTimeout() throws InterruptedException, IllegalArgumentException, TimeoutException {
+	public void testTimeout() throws InterruptedException, BadStateException, TimeoutException {
 		RelationshipStore store = new RelationshipStore();
 
 		store.setRequestTimeOut(1);
@@ -131,7 +132,7 @@ public class RelationshipsTest {
 	}
 
 	@Test
-	public void readWrite() throws IOException, IllegalArgumentException, TimeoutException {
+	public void readWrite() throws IOException, BadStateException, TimeoutException {
 		File file = FileUtils.toFile(EventsList.class.getResource("/de.greencity.bladenightapp.relationships/relationshipstore.json"));
 
 		RelationshipStore store = RelationshipStore.newFromFile(file);
@@ -145,7 +146,7 @@ public class RelationshipsTest {
 		verifyReadStore(store2);
 	}
 
-	void verifyReadStore(RelationshipStore store) throws IllegalArgumentException, TimeoutException {
+	void verifyReadStore(RelationshipStore store) throws BadStateException, TimeoutException {
 		store.setRequestTimeOut(0);
 
 		assertTrue(store.exists("existing-device-1", "existing-device-2"));

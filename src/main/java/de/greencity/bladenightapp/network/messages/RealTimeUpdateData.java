@@ -6,7 +6,18 @@ public class RealTimeUpdateData {
 	public RealTimeUpdateData() {
 		hea = new PointOnRoute();
 		tai = new PointOnRoute();
+		up = new PointOnRoute();
 	}
+
+	public PointOnRoute getUserPosition() {
+		return up;
+	}
+
+	public void setUserPosition(double position, double speed) {
+		up.setPosition(position);
+		up.setSpeed(speed);
+	}
+
 
 	public PointOnRoute getHead() {
 		return hea;
@@ -14,16 +25,16 @@ public class RealTimeUpdateData {
 
 	public void setHead(double position, double speed) {
 		hea.setPosition(position);
-		hea.setSpeed(0);
+		hea.setSpeed(speed);
 	}
 
-	public PointOnRoute getTai() {
+	public PointOnRoute getTail() {
 		return tai;
 	}
 
 	public void setTail(double position, double speed) {
 		tai.setPosition(position);
-		tai.setSpeed(0);
+		tai.setSpeed(speed);
 	}
 	
 	public int getUserTotal() {
@@ -40,7 +51,23 @@ public class RealTimeUpdateData {
 	public void setUserOnRoute(int count) {
 		this.usr = count;
 	}
-	
+
+	public double getRouteLength() {
+		return rle;
+	}
+
+	public void setRouteLength(double length) {
+		this.rle = length;
+	}
+
+	public String getRouteName() {
+		return rna;
+	}
+
+	public void setRouteName(String routeName) {
+		this.rna = routeName;
+	}
+
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
@@ -48,6 +75,10 @@ public class RealTimeUpdateData {
 
 	private PointOnRoute hea; // Head
 	private PointOnRoute tai; // Tail
-	private int ust; // Total number of clients connected
-	private int usr; // Total number of clients on the route
+	private PointOnRoute up;  // User position
+
+	private double rle; 	// Route length
+	private String rna; 	// Route name
+	private int ust; 		// Total number of clients connected
+	private int usr; 		// Total number of clients on the route
 }

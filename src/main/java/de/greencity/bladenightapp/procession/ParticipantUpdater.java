@@ -24,17 +24,17 @@ public class ParticipantUpdater {
 	}
 
 	public boolean updateParticipant() {
-		
+
 		long timestamp = getNewTimestamp();
 
 		participant.setLastLifeSign(timestamp);
 
 		String deviceId = input.getParticipantId();
 
-//		if ( input.getTimestamp() == 0 ) {
-//			getLog().debug("User doesn't have a proper fix.");
-//			return true;
-//		}
+		//		if ( input.getTimestamp() == 0 ) {
+		//			getLog().debug("User doesn't have a proper fix.");
+		//			return true;
+		//		}
 
 		ProjectedLocation locationOnRoute = findBestNewLocationOnRoute();
 
@@ -54,7 +54,7 @@ public class ParticipantUpdater {
 			point.isInProcession(false);
 			point.setTimestamp(point.getTimestamp());
 		}
-		
+
 		return true;
 	}
 
@@ -72,17 +72,12 @@ public class ParticipantUpdater {
 			return null;
 		}
 
-		getLog().debug("Found following candidates:");
 		for ( ProjectedLocation l : currentCandidateList ) {
-			getLog().debug("segment="+l.segment);
-			getLog().debug("  pos="+l.linearPosition);
-			getLog().debug("  dist="+l.distanceToSegment);
 			l.evaluation = 1.0;
 			l.evaluation *= evaluateCandidateOnDistanceToSegment(l);
 			l.evaluation *= evaluateCandidateOnDistanceToStart(l);
 			l.evaluation *= evaluateCandidateOnDistanceToPrevious(l);
 			l.evaluation *= evaluateCandidateOnDistanceToProcession(l);
-			getLog().debug("  final eval="+l.evaluation);
 		}
 
 
@@ -95,11 +90,12 @@ public class ParticipantUpdater {
 				);
 
 
-		getLog().debug("After evaluation:");
+		getLog().debug("Evaluated potential new locations for " + participant.getDeviceId());
 		for ( ProjectedLocation l : currentCandidateList ) {
-			getLog().debug("segment="+l.segment);
-			getLog().debug("dist="+l.distanceToSegment);
-			getLog().debug("evaluation="+l.evaluation);
+			getLog().debug("pos="+l.linearPosition);
+			getLog().debug("  segm="+l.segment);
+			getLog().debug("  dist="+l.distanceToSegment);
+			getLog().debug("  eval="+l.evaluation);
 		}
 
 		return currentCandidateList.get(0);
@@ -121,7 +117,7 @@ public class ParticipantUpdater {
 		getLog().debug("evaluateCandidateOnDistanceToStart: "+evaluation);
 		return capEvaluation(evaluation);
 	}
-	
+
 	protected double evaluateCandidateOnDistanceToPrevious(ProjectedLocation candidate) {
 
 		if ( ! participant.getLastKnownPoint().isOnRoute() )
@@ -130,9 +126,11 @@ public class ParticipantUpdater {
 		getLog().debug("evaluateCandidateOnDistanceToPrevious: several segments available, and previous position is known " + participant.getLinearPosition());
 
 		double evaluation = 1.0;
-		if ( candidate.linearPosition < participant.getLinearPosition() )
-			evaluation = 0.7;
-		
+		if ( candidate.linearPosition < participant.getLinearPosition() ) {
+			evaluation =  1.0 - ( participant.getLinearPosition() - candidate.linearPosition  ) / route.getLength();
+			evaluation = Math.pow(evaluation,3.0);
+		}
+
 		getLog().debug("evaluateCandidateOnDistanceToPrevious: "+evaluation);
 		return evaluation;
 	}
@@ -179,7 +177,7 @@ public class ParticipantUpdater {
 			setLog(LogFactory.getLog(ParticipantUpdater.class));
 		return log;
 	}
-	
+
 	private Route route;
 	private Procession procession;
 	private Participant participant;

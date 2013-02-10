@@ -15,6 +15,8 @@ import org.apache.commons.io.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import de.greencity.bladenightapp.exceptions.BadStateException;
+
 public class RelationshipStore {
 
 	public RelationshipStore() {
@@ -41,12 +43,12 @@ public class RelationshipStore {
 		return id;
 	}
 
-	public void finalize(long requestId, String deviceId2) throws IllegalArgumentException, TimeoutException {
+	public void finalize(long requestId, String deviceId2) throws BadStateException, TimeoutException {
 		Relationship rel = pending.get(requestId);
 		if ( rel == null )
-			throw new IllegalArgumentException("Not a valid pending relationship id: " + requestId);
+			throw new BadStateException("Not a valid pending relationship id: " + requestId);
 		if ( rel.getDeviceId1() == deviceId2 )
-			throw new IllegalArgumentException("Relationship with self is not allowed: "+rel);
+			throw new BadStateException("Relationship with self is not allowed: "+rel);
 		if ( requestTimeout > 0 && rel.getAge() > requestTimeout ) {
 			pending.remove(requestId);
 			throw new TimeoutException("Relationship request has timed out: "+rel);
