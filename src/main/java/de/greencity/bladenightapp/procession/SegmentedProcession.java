@@ -37,7 +37,10 @@ class SegmentedProcession {
 			if ( diff > 0 )
 				sum += diff; 
 		}
-		meanUpdateAge = (long) (sum / count);
+		if (count > 0 )
+			meanUpdateAge = (long) (sum / count);
+		else
+			meanUpdateAge = 0;
 	}
 
 	private void addParticipant(Participant participant) {
@@ -54,7 +57,7 @@ class SegmentedProcession {
 				scores[segment]++;
 			// More recent updates get a bonus:
 			double referenceUpdateAge = 2 * meanUpdateAge;
-			if ( participant.getLastLifeSignAge() < referenceUpdateAge )
+			if ( participant.getLastLifeSignAge() <= referenceUpdateAge )
 				scores[segment] += 0.5 * ( 1.0 - participant.getLastLifeSignAge() / referenceUpdateAge );
 			globalScore += scores[segment]; 
 		}

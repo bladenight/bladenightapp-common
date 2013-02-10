@@ -94,7 +94,8 @@ public class Procession {
 		getLog().info("computeProcession");
 		lastComputeTimestamp = System.currentTimeMillis(); 
 
-		new GarbageCollector(participants.values()).collect();
+		// TODO check if we need this line. It fails under Linux
+		// new GarbageCollector(participants.values()).collect();
 
 		if ( route == null ) {
 			getLog().error("computeProcession: no route available");
