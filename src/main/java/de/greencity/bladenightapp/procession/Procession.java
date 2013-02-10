@@ -33,8 +33,19 @@ public class Procession {
 
 	// Returned list is read-only!
 	public List<Participant> getParticipants() {
-		synchronized (participants) {
-			return new ArrayList<Participant>(participants.values());
+		return new ArrayList<Participant>(participants.values());
+	}
+
+	public synchronized void removeOutdatedParticipants(double factor) {
+		if ( meanParticipantUpdatePeriod <= 0 )
+			return;
+		for ( String id : participants.keySet()) {
+			Participant p = participants.get(id);
+			long age = p.getLastLifeSignAge();
+			if ( age > factor * meanParticipantUpdatePeriod  ) {
+				participants.remove(id);
+				getLog().info("Removing participant " + id + " " + age + " > " + factor * meanParticipantUpdatePeriod );
+			}
 		}
 	}
 
@@ -42,12 +53,19 @@ public class Procession {
 		return participants.size();
 	}
 
-	public void updateParticipant(ParticipantInput input) {
-		Participant participant = getOrCreateParticipant(input.getParticipantId());
+	public synchronized void updateParticipant(ParticipantInput input) {
 		getLog().debug("updateParticipant: " + input);
+		String participantId = input.getParticipantId();
+		Participant participant = participants.get(participantId);
+		if ( participant == null ) {
+			participant = getOrCreateParticipant(participantId);
+		}
+		else {
+			long age = participant.getLastLifeSignAge();
+			meanParticipantUpdatePeriod = ( 9 * meanParticipantUpdatePeriod + age) / 10;
+		}
 		ParticipantUpdater updater = new ParticipantUpdater(this, participant, input);
 		updater.updateParticipant();
-		computeProcessionIfTooOld();
 	}
 
 	private Participant getOrCreateParticipant(String id) {
@@ -61,36 +79,18 @@ public class Procession {
 	}
 
 	public MovingPoint getHead() {
-		computeProcessionIfTooOld();
 		return headMovingPoint;
 	}
 
 	public MovingPoint getTail() {
-		computeProcessionIfTooOld();
 		return tailMovingPoint;
 	}
 
 	public double getLength() {
-		computeProcessionIfTooOld();
 		return headMovingPoint.getLinearPosition() - tailMovingPoint.getLinearPosition();
 	}
 
-	private void computeProcessionIfTooOld() {
-		long age = System.currentTimeMillis() - lastComputeTimestamp; 
-		getLog().debug("computeProcessionIfTooOld: age="+age);
-		if ( age > 1000)
-			computeProcession();
-	}
-	
-
 	public synchronized void computeProcession() {
-		synchronized (participants) {
-			computeProcessionInternal();
-		}
-	}
-	
-
-	private void computeProcessionInternal() {
 		getLog().info("computeProcession");
 		lastComputeTimestamp = System.currentTimeMillis(); 
 
@@ -194,6 +194,7 @@ public class Procession {
 	private static Log log;
 
 	private long lastComputeTimestamp;
+	private double meanParticipantUpdatePeriod;
 
 	public static void setLog(Log log) {
 		Procession.log = log;
