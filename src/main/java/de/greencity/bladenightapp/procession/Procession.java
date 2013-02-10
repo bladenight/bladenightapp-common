@@ -59,10 +59,16 @@ public class Procession {
 		Participant participant = participants.get(participantId);
 		if ( participant == null ) {
 			participant = getOrCreateParticipant(participantId);
+			// Reset statistic:
+			meanParticipantUpdatePeriod = 0;
 		}
 		else {
 			long age = participant.getLastLifeSignAge();
-			meanParticipantUpdatePeriod = ( 9 * meanParticipantUpdatePeriod + age) / 10;
+			if ( meanParticipantUpdatePeriod > 0 )
+				meanParticipantUpdatePeriod = ( 9 * meanParticipantUpdatePeriod + age) / 10;
+			else
+				// No statistic available. Just use the actual as a reference
+				meanParticipantUpdatePeriod = age;
 		}
 		ParticipantUpdater updater = new ParticipantUpdater(this, participant, input);
 		updater.updateParticipant();
@@ -120,6 +126,8 @@ public class Procession {
 
 		if ( ! segmentedProcesion.computeHeadAndTail() ) {
 			getLog().info("computeProcession: could not find the procession position");
+			headMovingPoint = new MovingPoint();
+			tailMovingPoint = new MovingPoint();
 			return;
 		}
 
