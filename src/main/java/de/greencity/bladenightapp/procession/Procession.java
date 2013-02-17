@@ -115,10 +115,6 @@ public class Procession {
 
 	public synchronized void computeProcession() {
 		getLog().info("computeProcession");
-		lastComputeTimestamp = System.currentTimeMillis(); 
-
-		// TODO check if we need this line. It fails under Linux
-		// new GarbageCollector(participants.values()).collect();
 
 		if ( route == null ) {
 			getLog().error("computeProcession: no route available");
@@ -223,7 +219,6 @@ public class Procession {
 
 	private static Log log;
 
-	private long lastComputeTimestamp;
 	private double meanParticipantUpdatePeriod;
 
 	public static void setLog(Log log) {
