@@ -70,7 +70,7 @@ public class ProcessionNordKurzTest {
 	private void updateParticipant(String participantId, double lat, double lon) {
 		ParticipantInput input = new ParticipantInput(participantId, lat, lon); 
 		procession.updateParticipant(input);
-		procession.computeProcession();
+		procession.compute();
 	}
 
 	private String generateParticipantId() {

@@ -8,10 +8,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import de.greencity.bladenightapp.procession.tasks.ComputeSchedulerClient;
+import de.greencity.bladenightapp.procession.tasks.ParticipantCollectorClient;
 import de.greencity.bladenightapp.routes.Route;
 import de.greencity.bladenightapp.routes.Route.ProjectedLocation;
 
-public class Procession {
+public class Procession implements ComputeSchedulerClient, ParticipantCollectorClient {
 	public Procession() {
 		init();
 	}
@@ -37,6 +39,7 @@ public class Procession {
 		return new ArrayList<Participant>(participants.values());
 	}
 
+	@Override
 	public synchronized void removeOutdatedParticipants(double factor) {
 		if ( meanParticipantUpdatePeriod <= 0 )
 			return;
@@ -113,7 +116,8 @@ public class Procession {
 		return headMovingPoint.getLinearPosition() - tailMovingPoint.getLinearPosition();
 	}
 
-	public synchronized void computeProcession() {
+	@Override
+	public synchronized void compute() {
 		getLog().info("computeProcession");
 
 		if ( route == null ) {

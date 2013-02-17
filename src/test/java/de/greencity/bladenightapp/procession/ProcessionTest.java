@@ -45,7 +45,7 @@ public class ProcessionTest {
 		addParticipant(48.134750, 11.531566);
 		assertEquals(1, procession.getParticipantCount());
 
-		procession.computeProcession();
+		procession.compute();
 
 		assertProcessionIn(850, 1000);
 		assertTrue(procession.getLength() < 100);
@@ -100,7 +100,7 @@ public class ProcessionTest {
 		}
 		assertEquals(nParticipants, procession.getParticipantCount());
 
-		procession.computeProcession();
+		procession.compute();
 
 		assertProcessionIn(1600, 2300);
 
@@ -116,7 +116,7 @@ public class ProcessionTest {
 	private void updateParticipant(String participantId, double lat, double lon) {
 		ParticipantInput input = new ParticipantInput(participantId, lat, lon); 
 		procession.updateParticipant(input);
-		procession.computeProcession();
+		procession.compute();
 	}
 
 	private String generateParticipantId() {

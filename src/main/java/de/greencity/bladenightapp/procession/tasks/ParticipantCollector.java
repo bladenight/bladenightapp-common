@@ -1,9 +1,8 @@
 package de.greencity.bladenightapp.procession.tasks;
 
-import de.greencity.bladenightapp.procession.Procession;
 
 public class ParticipantCollector implements Runnable {
-	public ParticipantCollector(Procession procession, double factor, long period) {
+	public ParticipantCollector(ParticipantCollectorClient procession, double factor, long period) {
 		this.procession = procession;
 		this.factor = factor;
 		this.period = period;
@@ -22,7 +21,7 @@ public class ParticipantCollector implements Runnable {
 		}
 	}
 	
-	private Procession procession;
+	private ParticipantCollectorClient procession;
 	private double factor;
 	private long period;
 

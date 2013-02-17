@@ -1,9 +1,8 @@
 package de.greencity.bladenightapp.procession.tasks;
 
-import de.greencity.bladenightapp.procession.Procession;
 
 public class ComputeScheduler implements Runnable {
-	public ComputeScheduler(Procession procession, long period) {
+	public ComputeScheduler(ComputeSchedulerClient procession, long period) {
 		this.procession = procession;
 		this.period = period;
 	}
@@ -12,7 +11,7 @@ public class ComputeScheduler implements Runnable {
 	public void run() {
 		boolean cont = true;
 		while (cont) {
-			procession.computeProcession();
+			procession.compute();
 			try {
 				Thread.sleep(period);
 			} catch (InterruptedException e) {
@@ -21,6 +20,10 @@ public class ComputeScheduler implements Runnable {
 		}
 	}
 	
-	private Procession procession;
+	public boolean shallContinue() {
+		return true;
+	}
+	
+	private ComputeSchedulerClient procession;
 	private long period;
 }

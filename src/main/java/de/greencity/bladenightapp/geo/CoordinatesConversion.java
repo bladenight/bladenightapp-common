@@ -65,7 +65,7 @@ public class CoordinatesConversion {
 
 	}
 
-	public static DirectPosition2D getPointOnLatLongSegment(double relativeLocation, double lat1, double long1, double lat2, double long2) throws MismatchedDimensionException, NoSuchAuthorityCodeException, TransformException, FactoryException {
+	public static DirectPosition2D interpolateLatLongSegment(double relativeLocation, double lat1, double long1, double lat2, double long2) throws MismatchedDimensionException, NoSuchAuthorityCodeException, TransformException, FactoryException {
 		DirectPosition2D dp1 = fromLatLong(lat1, long1);
 		DirectPosition2D dp2 = fromLatLong(lat2, long2);
 		return toLatLong(dp1.x + relativeLocation*(dp2.x-dp1.x), dp1.y + relativeLocation*(dp2.y-dp1.y));
