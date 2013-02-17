@@ -3,7 +3,7 @@ package de.greencity.bladenightapp.network.messages;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class GpsInfo {
-	public GpsInfo(String deviceId, long lat, long lon) {
+	public GpsInfo(String deviceId, double lat, double lon) {
 		coo = new LatLong(lat, lon);
 		this.deviceId = deviceId;
 	}

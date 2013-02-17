@@ -7,7 +7,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import de.greencity.bladenightapp.routes.Route;
 import de.greencity.bladenightapp.routes.Route.ProjectedLocation;
 
 /**
@@ -16,12 +15,64 @@ import de.greencity.bladenightapp.routes.Route.ProjectedLocation;
  */
 public class ParticipantUpdater {
 
-	public ParticipantUpdater(Procession procession, Participant participant, ParticipantInput input) {
-		this.procession = procession;
-		this.participant = participant;
-		this.route = procession.getRoute();
-		this.input = input;
+	static public class Builder {
+		
+		Builder() {
+			updater = new ParticipantUpdater();
+		}
+		
+		Builder setPotentialLocations(List<ProjectedLocation> potentialLocations) {
+			updater.setPotentialLocations(potentialLocations);
+			return this;
+		}
+		Builder setParticipant(Participant participant) {
+			updater.setParticipant(participant);
+			return this;
+		}
+		Builder setParticipantInput(ParticipantInput participantInput) {
+			updater.setParticipantInput(participantInput);
+			return this;
+		}
+		Builder setProcessionEnds(double tailPosition, double headPosition) {
+			updater.setProcessionEnds(tailPosition, headPosition);
+			return this;
+		}
+		Builder setRouteLength(double routeLength) {
+			updater.setRouteLength(routeLength);
+			return this;
+		}
+		ParticipantUpdater build() {
+			return updater;
+		}
+		
+		ParticipantUpdater updater;
 	}
+
+	public ParticipantUpdater() {
+		
+	}
+
+	void setPotentialLocations(List<ProjectedLocation> potentialLocations) {
+		this.potentialLocations = potentialLocations;
+	}
+	
+	public void setParticipant(Participant participant) {
+		this.participant = participant;
+	}
+	
+	void setParticipantInput(ParticipantInput participantInput) {
+		this.participantInput = participantInput;
+	}
+	
+	public void setProcessionEnds(double tailPosition, double headPosition) {
+		this.processionTailPosition = tailPosition;
+		this.processionHeadPosition = headPosition;
+	}
+
+	public void setRouteLength(double routeLength) {
+		this.routeLength = routeLength;
+	}
+
 
 	public boolean updateParticipant() {
 
@@ -29,7 +80,7 @@ public class ParticipantUpdater {
 
 		participant.setLastLifeSign(timestamp);
 
-		String deviceId = input.getParticipantId();
+		String deviceId = participantInput.getParticipantId();
 
 		//		if ( input.getTimestamp() == 0 ) {
 		//			getLog().debug("User doesn't have a proper fix.");
@@ -42,14 +93,14 @@ public class ParticipantUpdater {
 
 		if ( locationOnRoute != null ) {
 			getLog().debug("update: findBestNewLocationOnRoute("+deviceId+") returned " + locationOnRoute.linearPosition);
-			point.update(input.getLatitude(), input.getLongitude(), locationOnRoute.linearPosition);
+			point.update(participantInput.getLatitude(), participantInput.getLongitude(), locationOnRoute.linearPosition);
 			point.isOnRoute(true);
 			point.isInProcession(true);
 		}
 		else {
 			getLog().debug("Position on the route couldn't be determined");
-			point.setLatitude(input.getLatitude());
-			point.setLongitude(input.getLongitude());
+			point.setLatitude(participantInput.getLatitude());
+			point.setLongitude(participantInput.getLongitude());
 			point.isOnRoute(false);
 			point.isInProcession(false);
 			point.setTimestamp(point.getTimestamp());
@@ -65,14 +116,13 @@ public class ParticipantUpdater {
 
 	protected ProjectedLocation findBestNewLocationOnRoute() {
 
-		List<ProjectedLocation> currentCandidateList = route.projectPosition(input.getLatitude(), input.getLongitude());
 
-		if ( currentCandidateList.size() == 0 ) {
+		if ( potentialLocations.size() == 0 ) {
 			getLog().debug("findBestNewLocationOnRoute: User is out of corridor !");
 			return null;
 		}
 
-		for ( ProjectedLocation l : currentCandidateList ) {
+		for ( ProjectedLocation l : potentialLocations ) {
 			l.evaluation = 1.0;
 			l.evaluation *= evaluateCandidateOnDistanceToSegment(l);
 			l.evaluation *= evaluateCandidateOnDistanceToStart(l);
@@ -82,7 +132,7 @@ public class ParticipantUpdater {
 
 
 		// Sort by evaluation:
-		Collections.sort(currentCandidateList, new Comparator<ProjectedLocation>() {
+		Collections.sort(potentialLocations, new Comparator<ProjectedLocation>() {
 			public int compare(ProjectedLocation o1, ProjectedLocation o2) {
 				return (int)Math.signum(o2.evaluation - o1.evaluation);
 			}
@@ -91,14 +141,14 @@ public class ParticipantUpdater {
 
 
 		getLog().debug("Evaluated potential new locations for " + participant.getDeviceId());
-		for ( ProjectedLocation l : currentCandidateList ) {
+		for ( ProjectedLocation l : potentialLocations ) {
 			getLog().debug("pos="+l.linearPosition);
 			getLog().debug("  segm="+l.segment);
 			getLog().debug("  dist="+l.distanceToSegment);
 			getLog().debug("  eval="+l.evaluation);
 		}
 
-		return currentCandidateList.get(0);
+		return potentialLocations.get(0);
 	}
 
 	protected double evaluateCandidateOnDistanceToSegment(ProjectedLocation candidate) {
@@ -112,7 +162,6 @@ public class ParticipantUpdater {
 	}
 
 	protected double evaluateCandidateOnDistanceToStart(ProjectedLocation candidate) {
-		double routeLength = route.getLength();
 		double evaluation = capEvaluation(1.0 -  0.5 * candidate.linearPosition / routeLength);
 		getLog().debug("evaluateCandidateOnDistanceToStart: "+evaluation);
 		return capEvaluation(evaluation);
@@ -127,7 +176,7 @@ public class ParticipantUpdater {
 
 		double evaluation = 1.0;
 		if ( candidate.linearPosition < participant.getLinearPosition() ) {
-			evaluation =  1.0 - ( participant.getLinearPosition() - candidate.linearPosition  ) / route.getLength();
+			evaluation =  1.0 - ( participant.getLinearPosition() - candidate.linearPosition  ) / routeLength;
 			evaluation = Math.pow(evaluation,3.0);
 		}
 
@@ -136,17 +185,21 @@ public class ParticipantUpdater {
 	}
 
 	protected double evaluateCandidateOnDistanceToProcession(ProjectedLocation candidate) {
-		if ( ! procession.isValid() )
+		if ( ! hasValidProcession() ) {
+			getLog().debug("evaluateCandidateOnDistanceToProcession: no valid procession data available ("+processionTailPosition+"/"+processionHeadPosition+")");
 			return 1.0;
+		}
 
-		double head = procession.getHeadPosition();
-		double tail = procession.getTailPosition();
+		getLog().debug("evaluateCandidateOnDistanceToProcession: procession position is known ( "+processionHeadPosition+" / " + processionTailPosition + " )");
 
-		getLog().debug("evaluateCandidateOnDistanceToProcession: procession position is known ( "+tail+" / " + head + " )");
-
-		double processionLength = procession.getLength();
-		double processionMiddle = (head + tail)/2.0;
+		double processionLength = (processionHeadPosition - processionTailPosition);
+		double processionMiddle = (processionTailPosition + processionHeadPosition)/2.0;
 		double distanceToMiddle = Math.abs(processionMiddle - candidate.linearPosition);
+		
+		if ( distanceToMiddle < processionLength * 1.2)
+			// Boost candidates that are in the procession or almost:
+			return 2.0;
+		
 		final double referenceDistance = processionLength * 1.5;
 		final double referenceEvaluation = 0.1;
 		final double alpha = ( 1 - referenceEvaluation ) / ( referenceDistance * referenceEvaluation);
@@ -156,6 +209,14 @@ public class ParticipantUpdater {
 		return evaluation;
 	}
 
+	public boolean hasValidProcession() {
+		return processionHeadPosition > processionTailPosition; 
+	}
+	
+	public boolean hasValidRouteLength() {
+		return routeLength > 0.0;
+	}
+	
 	protected double capEvaluation(double evaluation) {
 		if ( evaluation < 0.0 )
 			return 0.0;
@@ -178,10 +239,11 @@ public class ParticipantUpdater {
 		return log;
 	}
 
-	private Route route;
-	private Procession procession;
 	private Participant participant;
-	private ParticipantInput input;
-
+	private ParticipantInput participantInput;
+	private List<ProjectedLocation> potentialLocations;
+	private double processionTailPosition;
+	private double processionHeadPosition;
+	private double routeLength;
 
 }

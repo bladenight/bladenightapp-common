@@ -23,7 +23,7 @@ public final class Route {
 
 		public double lat, lon;
 
-		LatLong(double lat, double lon) {
+		public LatLong(double lat, double lon) {
 			this.lat = lat;
 			this.lon = lon;
 		}

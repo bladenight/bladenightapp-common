@@ -40,6 +40,7 @@ public class RealTimeUpdateData {
 	public int getUserTotal() {
 		return ust;
 	}
+
 	public void setUserTotal(int count) {
 		this.ust = count;
 	}

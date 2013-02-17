@@ -9,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import de.greencity.bladenightapp.routes.Route;
+import de.greencity.bladenightapp.routes.Route.ProjectedLocation;
 
 public class Procession {
 	public Procession() {
@@ -53,9 +54,9 @@ public class Procession {
 		return participants.size();
 	}
 
-	public synchronized void updateParticipant(ParticipantInput input) {
-		getLog().debug("updateParticipant: " + input);
-		String participantId = input.getParticipantId();
+	public synchronized Participant updateParticipant(ParticipantInput participantInput) {
+		getLog().debug("updateParticipant: " + participantInput);
+		String participantId = participantInput.getParticipantId();
 		Participant participant = participants.get(participantId);
 		if ( participant == null ) {
 			participant = getOrCreateParticipant(participantId);
@@ -70,8 +71,24 @@ public class Procession {
 				// No statistic available. Just use the actual as a reference
 				meanParticipantUpdatePeriod = age;
 		}
-		ParticipantUpdater updater = new ParticipantUpdater(this, participant, input);
+
+		List<ProjectedLocation> potentialLocations = route.projectPosition(participantInput.getLatitude(), participantInput.getLongitude());
+
+		ParticipantUpdater updater = new ParticipantUpdater.Builder().
+				setProcessionEnds(getTailPosition(), getHeadPosition()).
+				setParticipantInput(participantInput).
+				setParticipant(participant).
+				setPotentialLocations(potentialLocations).
+				setRouteLength(route.getLength()).
+				build();
+
 		updater.updateParticipant();
+		return participant;
+	}
+
+	// Result is read-only
+	public Participant getParticipant(String id) {
+		return participants.get(id);
 	}
 
 	private Participant getOrCreateParticipant(String id) {
@@ -134,12 +151,11 @@ public class Procession {
 		MovingPoint newHeadMovingPoint = new MovingPoint();
 		MovingPoint newTailMovingPoint = new MovingPoint();
 
-		// TODO set also latitude and longitude
 		newHeadMovingPoint.update(0, 0, segmentedProcesion.getHeadPosition());
 		newTailMovingPoint.update(0, 0, segmentedProcesion.getTailPosition());
 
-		// completeEndMovingPoint(newHeadMovingPoint, headMovingPoint);
-		// completeEndMovingPoint(newTailMovingPoint, tailMovingPoint);
+		completeEndMovingPoint(newHeadMovingPoint, headMovingPoint);
+		completeEndMovingPoint(newTailMovingPoint, tailMovingPoint);
 
 		headMovingPoint = newHeadMovingPoint;
 		tailMovingPoint = newTailMovingPoint;
@@ -155,22 +171,13 @@ public class Procession {
 
 		// Compute the speed of the head or the tail, but don't allow it to jump too much
 		if ( lastMp != null && lastMp.isOnRoute() ) {
-			//			getLog().info("timestamp1="+newMp.timestamp);
-			//			getLog().info("timestamp2="+ lastMp.timestamp);
-			double deltaT = newMp.getTimestamp() - lastMp.getTimestamp();
-			double computedSpeed = newMp.computeLinearSpeed(lastMp.getLinearPosition(), lastMp.getTimestamp());
-			//			getLog().info("computedSpeed="+computedSpeed);
-			//			getLog().info("previousP="+lastMp.linearPosition);
-			//			getLog().info("currentP="+newMp.linearPosition);
-			double ratio;
-			// TODO put this setting in the configuration file
-			double maxTime = 60000;
-			if ( deltaT > maxTime )
-				ratio = 0;
-			else
-				ratio = (maxTime - deltaT) / maxTime; 
-			//			getLog().debug("ratio="+ratio);
-			newMp.setLinearPosition( (1-ratio) * computedSpeed  + ratio * lastMp.getLinearSpeed() );
+			double oldPos = lastMp.getLinearPosition();
+			double newPos = newMp.getLinearPosition();
+			newMp.setLinearPosition( updateSmoothingFactor * oldPos  + (1-updateSmoothingFactor) * newPos );
+
+			double deltaT = (newMp.getTimestamp() - lastMp.getTimestamp()) / (3600.0 * 1000.0);
+			double newSpeed = ( newPos - oldPos) / ( 1000.0 * deltaT);
+			newMp.setLinearSpeed( updateSmoothingFactor * lastMp.getLinearSpeed() + (1-updateSmoothingFactor) * newSpeed );
 		}
 		getLog().info("newMp.linearPosition="+newMp.getLinearPosition());
 		getLog().info("newMp.linearSpeed="+newMp.getLinearSpeed());
@@ -192,10 +199,25 @@ public class Procession {
 				getHead().getLinearPosition() >= getTail().getLinearPosition();  
 	}
 
+	public double getUpdateSmoothingFactor() {
+		return updateSmoothingFactor;
+	}
+
+	/***
+	 * Smoothen jumps of the head and the tail
+	 * 0.0  : no smoothing
+	 * 0.99 : unreasonable smoothing
+	 */
+	public void setUpdateSmoothingFactor(double updateSmoothingFactor) {
+		this.updateSmoothingFactor = updateSmoothingFactor;
+	}
 
 	private Route route;
 	protected MovingPoint headMovingPoint;
 	protected MovingPoint tailMovingPoint;
+	
+	protected double updateSmoothingFactor = 0.0;
+
 
 	private Map<String, Participant> participants;
 
