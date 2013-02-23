@@ -89,7 +89,7 @@ public class EventsManagerTest {
 
 	@Test
 	public void writeEvents() throws IOException, ParseException {
-		String referenceDate = "2013-02-17T23:00";
+		String referenceDate = "2020-02-17T23:00";
 		File tempFile = File.createTempFile("EventsManagerTest-writeEvents", ".json");
 		Event event1 = new Event.Builder().setStart("2012-02-03T20:00").setMinutes(60).setRouteName("route1.gpx").build();
 		Event event2 = new Event.Builder().setStart("2012-02-10T21:00").setMinutes(120).setRouteName("route2.gpx").build();
@@ -100,11 +100,18 @@ public class EventsManagerTest {
 		manager.addEvent(event3);
 		manager.write(tempFile);
 
+//		System.out.println(tempFile.getAbsolutePath());
+//		try {
+//			Thread.sleep(10000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		EventsList manager2 = EventsList.newFromFile(tempFile);
 		Event returnedEvent = manager2.getNextEvent();
 		assertNotNull(returnedEvent);
 		assertEquals(new DateTime(referenceDate), returnedEvent.getStartDate());		
-		assertEquals(new DateTime("2013-02-17T23:00").plus(180*60*1000), returnedEvent.getEndDate());		
+		assertEquals(new DateTime(referenceDate).plus(180*60*1000), returnedEvent.getEndDate());		
 		assertEquals(event3, returnedEvent);		
 	}
 }
