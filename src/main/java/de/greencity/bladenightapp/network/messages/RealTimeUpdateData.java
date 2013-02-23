@@ -49,6 +49,15 @@ public class RealTimeUpdateData {
 		return usr;
 	}
 
+	public boolean isUserOnRoute() {
+		return onr;
+	}
+
+	public void isUserOnRoute(boolean isOnRoute) {
+		onr = isOnRoute;
+	}
+
+
 	public void setUserOnRoute(int count) {
 		this.usr = count;
 	}
@@ -76,6 +85,7 @@ public class RealTimeUpdateData {
 
 	private PointOnRoute hea; // Head
 	private PointOnRoute tai; // Tail
+	private boolean onr; 	// Is user on route. If not, "up" data is not relevant
 	private PointOnRoute up;  // User position
 
 	private double rle; 	// Route length

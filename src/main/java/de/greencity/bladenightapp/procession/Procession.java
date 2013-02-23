@@ -117,6 +117,14 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		return p;
 	}
 
+	public boolean isParticipantOnRoute(String deviceId) {
+		Participant participant = getParticipant(deviceId);
+		if ( participant == null)
+			return false;
+		return participant.isOnRoute();
+	}
+
+
 	public MovingPoint getHead() {
 		return headMovingPoint;
 	}
