@@ -57,7 +57,6 @@ public class RouteTest {
 		ProjectedLocation l = projectedLocations.get(0);
 		assertEquals(95, l.distanceToSegment, 1);
 		assertEquals(3856, l.linearPosition, 1);
-		assertEquals(9, l.segment);
 	}
 
 

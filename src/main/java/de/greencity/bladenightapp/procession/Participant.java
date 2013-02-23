@@ -13,7 +13,7 @@ public class Participant {
 		this.deviceId = deviceId;
 	}
 
-	public MovingPoint getLastKnownPoint() {
+	MovingPoint getLastKnownPoint() {
 		if ( lastKnownPoint == null)
 			lastKnownPoint = new MovingPoint();
 		return lastKnownPoint;
@@ -61,6 +61,10 @@ public class Participant {
 
 	public boolean isOnRoute() {
 		return lastKnownPoint.isOnRoute();
+	}
+
+	public double getLinearSpeed() {
+		return lastKnownPoint.getLinearSpeed();
 	}
 
 	private String deviceId;

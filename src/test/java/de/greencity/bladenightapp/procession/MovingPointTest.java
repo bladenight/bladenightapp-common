@@ -59,6 +59,7 @@ public class MovingPointTest {
 		long interval = 50;
 		double theoriticalSpeed = (finalPosition - initialPosition) * 3600 / interval;
 		MovingPoint movingPoint = new MovingPoint(new MyClock(interval));
+		movingPoint.isOnRoute(true);
 		movingPoint.update(10.1, 10.2, initialPosition);
 		movingPoint.update(20.1, 20.2, finalPosition);
 		assertEquals(finalPosition, movingPoint.getLinearPosition(), 0);

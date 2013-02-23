@@ -54,11 +54,19 @@ public final class Route {
 		}
 	}
 
-	public class ProjectedLocation {
+	public static class ProjectedLocation {
 		public double linearPosition;
 		public double distanceToSegment;
-		public int segment;
 		public double evaluation;
+
+		public ProjectedLocation() {
+			
+		}
+
+		public ProjectedLocation(double distanceToSegment, double linearPosition) {
+			this.distanceToSegment = distanceToSegment;
+			this.linearPosition = linearPosition;
+		}
 		
 		@Override
 		public boolean equals(Object obj) {
@@ -182,9 +190,8 @@ public final class Route {
 				double distanceOnSegment = dp1.distance(projectedPt);
 				positionOnRoute.linearPosition = totalLength + distanceOnSegment;
 				positionOnRoute.distanceToSegment = distance;
-				positionOnRoute.segment = i - 1;
 				getLog().debug("Found possible location on route:");
-				getLog().debug("  segment=" + positionOnRoute.segment);
+				getLog().debug("  segment=" + (i - 1));
 				getLog().debug("  linearPosition=" + positionOnRoute.linearPosition);
 				getLog().debug("  distanceOnSegment=" + distanceOnSegment);
 				getLog().debug("  distanceToSegment=" + positionOnRoute.distanceToSegment);

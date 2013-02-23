@@ -143,7 +143,6 @@ public class ParticipantUpdater {
 		getLog().debug("Evaluated potential new locations for " + participant.getDeviceId());
 		for ( ProjectedLocation l : potentialLocations ) {
 			getLog().debug("pos="+l.linearPosition);
-			getLog().debug("  segm="+l.segment);
 			getLog().debug("  dist="+l.distanceToSegment);
 			getLog().debug("  eval="+l.evaluation);
 		}

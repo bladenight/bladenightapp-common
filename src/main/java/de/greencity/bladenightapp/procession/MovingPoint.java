@@ -50,7 +50,7 @@ public final class MovingPoint {
 	}
 
 	public void update(double latitude, double longitude, double newLinearPosition) {
-		long newTimestamp = getNewStamp(); 
+		long newTimestamp = getNewStamp();
 		updateLinearSpeed(newLinearPosition, newTimestamp);
 		this.timestamp = newTimestamp;
 		this.linearPosition = newLinearPosition;
@@ -95,7 +95,10 @@ public final class MovingPoint {
 	}
 
 	private void updateLinearSpeed(double newLinearPosition, long newTimestamp) {
-		linearSpeed = computeLinearSpeed(newLinearPosition, newTimestamp);
+		if ( this.isOnRoute )
+			linearSpeed = computeLinearSpeed(newLinearPosition, newTimestamp);
+		else
+			linearSpeed = 0.0;
 	}
 
 	public double computeLinearSpeed(double newLinearPosition, long newTimestamp) {
