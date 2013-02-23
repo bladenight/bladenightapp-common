@@ -36,7 +36,7 @@ public class RealTimeUpdateData {
 		tai.setPosition(position);
 		tai.setSpeed(speed);
 	}
-	
+
 	public int getUserTotal() {
 		return ust;
 	}

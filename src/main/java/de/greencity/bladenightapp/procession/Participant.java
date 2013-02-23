@@ -55,6 +55,14 @@ public class Participant {
 		return lastKnownPoint.getLongitude();
 	}
 
+	public void isOnRoute(boolean isOnRoute) {
+		lastKnownPoint.isOnRoute(isOnRoute);
+	}
+
+	public boolean isOnRoute() {
+		return lastKnownPoint.isOnRoute();
+	}
+
 	private String deviceId;
 	private MovingPoint lastKnownPoint;
 	private long lastLifeSign;

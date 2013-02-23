@@ -57,14 +57,26 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		return participants.size();
 	}
 
+	public int getParticipantOnRoute() {
+		int count = 0;
+		for ( Participant p : participants.values()) {
+			if ( p.isOnRoute() ) {
+				count++;
+			}
+		}
+		return count;
+	}
+
 	public synchronized Participant updateParticipant(ParticipantInput participantInput) {
 		getLog().debug("updateParticipant: " + participantInput);
 		String participantId = participantInput.getParticipantId();
 		Participant participant = participants.get(participantId);
 		if ( participant == null ) {
+			if ( participants.size() == 0 ) {
+				// Reset statistic:
+				meanParticipantUpdatePeriod = 0;
+			}
 			participant = getOrCreateParticipant(participantId);
-			// Reset statistic:
-			meanParticipantUpdatePeriod = 0;
 		}
 		else {
 			long age = participant.getLastLifeSignAge();
@@ -86,6 +98,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 				build();
 
 		updater.updateParticipant();
+
 		return participant;
 	}
 
@@ -215,7 +228,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	private Route route;
 	protected MovingPoint headMovingPoint;
 	protected MovingPoint tailMovingPoint;
-	
+
 	protected double updateSmoothingFactor = 0.0;
 
 
