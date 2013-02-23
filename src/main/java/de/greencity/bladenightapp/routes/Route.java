@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.LogFactory;
 import org.geotoolkit.display.shape.ShapeUtilities;
 import org.geotoolkit.geometry.DirectPosition2D;
@@ -96,6 +97,7 @@ public final class Route {
 		}
 		updateRouteLength();
 		setFilePath(file.getAbsolutePath());
+		setName(FilenameUtils.removeExtension(file.getName()));
 		return true;
 	}
 
