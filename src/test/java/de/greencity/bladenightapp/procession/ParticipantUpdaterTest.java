@@ -9,11 +9,12 @@ import java.util.List;
 import org.junit.Test;
 
 import de.greencity.bladenightapp.routes.Route.ProjectedLocation;
+import de.greencity.bladenightapp.utils.Sleep;
 
 public class ParticipantUpdaterTest {
 
 	@Test
-	public void test() {
+	public void test() throws InterruptedException {
 		double tailPosition = 1000.0;
 		double headPosition = 2000.0;
 		double routeLength  = 5000.0;
@@ -37,7 +38,9 @@ public class ParticipantUpdaterTest {
 		
 		double expectedLocation2 = expectedLocation1 + 100;
 		updater.setPotentialLocations(createPotentialLocations(expectedLocation2, 3000));
+		Sleep.sleep(1); // the speed can not be computed unless some time elapsed
 		updater.updateParticipant();
+		assertEquals(expectedLocation2, participant.getLinearPosition(), 0.0);
 		assertTrue(participant.getLinearSpeed() > 0.0);
 	}
 	

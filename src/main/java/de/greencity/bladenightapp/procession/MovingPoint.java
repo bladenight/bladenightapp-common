@@ -103,10 +103,11 @@ public final class MovingPoint {
 
 	public double computeLinearSpeed(double newLinearPosition, long newTimestamp) {
 		double deltaT = (newTimestamp - timestamp) / ( 3600.0 * 1000.0); // in hours
-		double deltaP = (newLinearPosition - linearPosition) / 1000.0; // in km
-		if ( deltaT > 0 )
+		if ( deltaT > 0 ) {
+			double deltaP = (newLinearPosition - linearPosition) / 1000.0; // in km
 			return deltaP / deltaT;
-		return 0;
+		}
+		return 0.0;
 	}
 
 	public void setLatitude(double latitude) {

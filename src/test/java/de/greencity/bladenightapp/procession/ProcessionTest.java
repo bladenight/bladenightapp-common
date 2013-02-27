@@ -31,6 +31,7 @@ public class ProcessionTest {
 		File file = FileUtils.toFile(EventsList.class.getResource(path));
 		route = new Route();
 		assertTrue(route.load(file));
+		assertTrue(route.getLength() > 0);
 		procession = new Procession();
 		procession.setRoute(route);
 	}
@@ -55,17 +56,23 @@ public class ProcessionTest {
 	public void singleParticipantEvolvingOnOverlappingSegments() {
 		String participantId = generateParticipantId();
 		
+		// assertEquals(0.0, procession.evaluateTravelTimeBetween(0.0, 10000.0), 0.0);
+		
 		// Start on an overlap to make it hard
 		double lat1 = 48.128642;
 		double lon1 = 11.555716;
 		updateParticipant(participantId, lat1, lon1);
 		assertProcessionIn(6080, 6095);
 
+		// assertEquals(0.0, procession.evaluateTravelTimeBetween(0.0, 10000.0), 0.0);
+
 		// Move further on the overlapping segment:
 		double lat2 = 48.124311;
 		double lon2 = 11.563947;
 		updateParticipant(participantId, lat2, lon2);
 		assertProcessionIn(6880, 6900);
+
+		// assertTrue(procession.evaluateTravelTimeBetween(0.0, 10000.0) > 0.0);
 
 		// Further, but not on the overlap anymore:
 		double lat3 = 48.100605;
@@ -105,7 +112,8 @@ public class ProcessionTest {
 		assertProcessionIn(1600, 2300);
 
 		assertTrue(procession.getLength() > 500);
-	}
+
+}
 
 	private String addParticipant(double lat, double lon) {
 		String participantId = generateParticipantId();

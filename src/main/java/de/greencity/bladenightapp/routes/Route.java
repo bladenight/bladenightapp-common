@@ -148,6 +148,11 @@ public final class Route {
 		return length;
 	}
 
+	public double updateRouteLength(double routeLength) {
+		length = routeLength;
+		return length;
+	}
+
 
 	private void updateNodesInMetricSystem() throws Exception {
 		nodesInMetricSystem = new ArrayList<DirectPosition2D>();

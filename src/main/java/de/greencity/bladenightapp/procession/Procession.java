@@ -24,6 +24,10 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		tailMovingPoint = new MovingPoint();
 		route = new Route();
 		route.setName("<undefined default route>");
+
+		// TODO move to the application configuration
+		int nSegments = 200;
+		headAndTailComputer = new HeadAndTailComputer(nSegments);
 	}
 
 	public Route getRoute() {
@@ -51,6 +55,11 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 				getLog().info("Removing participant " + id + " " + age + " > " + factor * meanParticipantUpdatePeriod );
 			}
 		}
+	}
+	
+	public void removeParticipant(String deviceId) {
+		participants.remove(deviceId);
+		headAndTailComputer.removeParticipant(deviceId);
 	}
 
 	public int getParticipantCount() {
@@ -98,6 +107,11 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 				build();
 
 		updater.updateParticipant();
+		
+		if ( participant.isOnRoute() )
+			headAndTailComputer.updateParticipant(participantId, participant.getLinearPosition(), participant.getLinearSpeed());
+		else
+			headAndTailComputer.removeParticipant(participantId);
 
 		return participant;
 	}
@@ -151,18 +165,14 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 			return;
 		}
 
-		// TODO move to the application configuration
-		int nSegments = 200;
-		SegmentedProcession segmentedProcesion = new SegmentedProcession(routeLength, nSegments);
+		headAndTailComputer.setRouteLength(route.getLength());
 
 		long startTime = System.currentTimeMillis();
 
 		List<Participant> participantList = new ArrayList<Participant>(participants.values());
 		getLog().info("computeProcession: " + participantList.size() + " participants are registered");
 
-		segmentedProcesion.addParticipants(participantList);
-
-		if ( ! segmentedProcesion.computeHeadAndTail() ) {
+		if ( ! headAndTailComputer.compute() ) {
 			getLog().info("computeProcession: could not find the procession position");
 			headMovingPoint = new MovingPoint();
 			tailMovingPoint = new MovingPoint();
@@ -172,8 +182,8 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		MovingPoint newHeadMovingPoint = new MovingPoint();
 		MovingPoint newTailMovingPoint = new MovingPoint();
 
-		newHeadMovingPoint.update(0, 0, segmentedProcesion.getHeadPosition());
-		newTailMovingPoint.update(0, 0, segmentedProcesion.getTailPosition());
+		newHeadMovingPoint.update(0, 0, headAndTailComputer.getHeadPosition());
+		newTailMovingPoint.update(0, 0, headAndTailComputer.getTailPosition());
 
 		completeEndMovingPoint(newHeadMovingPoint, headMovingPoint);
 		completeEndMovingPoint(newTailMovingPoint, tailMovingPoint);
@@ -224,6 +234,10 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		return updateSmoothingFactor;
 	}
 
+	public double evaluateTravelTimeBetween(double pos1, double pos2) {
+		return 0;
+	}
+	
 	/***
 	 * Smoothen jumps of the head and the tail
 	 * 0.0  : no smoothing
@@ -234,8 +248,9 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	}
 
 	private Route route;
-	protected MovingPoint headMovingPoint;
-	protected MovingPoint tailMovingPoint;
+	private MovingPoint headMovingPoint;
+	private MovingPoint tailMovingPoint;
+	private HeadAndTailComputer headAndTailComputer;
 
 	protected double updateSmoothingFactor = 0.0;
 
