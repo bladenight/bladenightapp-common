@@ -28,6 +28,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		// TODO move to the application configuration
 		int nSegments = 200;
 		headAndTailComputer = new HeadAndTailComputer(nSegments);
+		travelTimeComputer = new TravelTimeComputer(nSegments);
 	}
 
 	public Route getRoute() {
@@ -60,6 +61,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	public void removeParticipant(String deviceId) {
 		participants.remove(deviceId);
 		headAndTailComputer.removeParticipant(deviceId);
+		travelTimeComputer.removeParticipant(deviceId);
 	}
 
 	public int getParticipantCount() {
@@ -108,10 +110,14 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 		updater.updateParticipant();
 		
-		if ( participant.isOnRoute() )
+		if ( participant.isOnRoute() ) {
 			headAndTailComputer.updateParticipant(participantId, participant.getLinearPosition(), participant.getLinearSpeed());
-		else
+			travelTimeComputer.updateParticipant(participantId, participant.getLinearPosition(), participant.getLinearSpeed());
+		}
+		else {
 			headAndTailComputer.removeParticipant(participantId);
+			travelTimeComputer.updateParticipant(participantId, participant.getLinearPosition(), participant.getLinearSpeed());
+		}
 
 		return participant;
 	}
@@ -166,6 +172,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		}
 
 		headAndTailComputer.setRouteLength(route.getLength());
+		travelTimeComputer.setRouteLength(route.getLength());
 
 		long startTime = System.currentTimeMillis();
 
@@ -234,8 +241,8 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		return updateSmoothingFactor;
 	}
 
-	public double evaluateTravelTimeBetween(double pos1, double pos2) {
-		return 0;
+	public double evaluateTravelTimeBetween(double position1, double position2) {
+		return travelTimeComputer.evaluateTravelTimeBetween(position1, position2);
 	}
 	
 	/***
@@ -251,6 +258,8 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	private MovingPoint headMovingPoint;
 	private MovingPoint tailMovingPoint;
 	private HeadAndTailComputer headAndTailComputer;
+	private TravelTimeComputer travelTimeComputer;
+
 
 	protected double updateSmoothingFactor = 0.0;
 

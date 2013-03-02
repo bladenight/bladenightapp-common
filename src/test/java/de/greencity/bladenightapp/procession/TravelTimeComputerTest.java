@@ -11,8 +11,8 @@ import org.junit.Test;
 
 import de.greencity.bladenightapp.time.ControlledClock;
 
-public class SpeedMapComputerTest {
-	SpeedMapComputer computer;
+public class TravelTimeComputerTest {
+	TravelTimeComputer computer;
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -23,13 +23,13 @@ public class SpeedMapComputerTest {
 
 	@Before
 	public void before() {
-		computer = new SpeedMapComputer(100);
+		computer = new TravelTimeComputer(100);
 		computer.setRouteLength(10000.0);
 	}
 
 	@Test(expected=IllegalStateException.class)
 	public void noRouteLength() {
-		computer = new SpeedMapComputer(100);
+		computer = new TravelTimeComputer(100);
 		computer.evaluateTravelTimeBetween(0.0, 2000.0);
 	}
 

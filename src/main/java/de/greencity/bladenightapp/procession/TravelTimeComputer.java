@@ -8,7 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import de.greencity.bladenightapp.time.Clock;
 import de.greencity.bladenightapp.time.SystemClock;
 
-public class SpeedMapComputer extends SegmentedLinearRoute implements ProcessionParticipantsListener {
+public class TravelTimeComputer extends SegmentedLinearRoute implements ProcessionParticipantsListener {
 
 	private static class Segment {
 		public double meanTravelTime;
@@ -28,7 +28,7 @@ public class SpeedMapComputer extends SegmentedLinearRoute implements Procession
 
 	private Segment[] segments;
 
-	SpeedMapComputer(int nSegment) {
+	TravelTimeComputer(int nSegment) {
 		super(nSegment);
 		segments = new Segment[nSegment];
 		for(int segment=0; segment<nSegment;segment++)
@@ -61,8 +61,12 @@ public class SpeedMapComputer extends SegmentedLinearRoute implements Procession
 			getLog().warn("Clock skew detected: " + currentTime + "/" + data.lastUpdate);
 			return;
 		}
-		
+
 		double oldPosition = data.position;
+
+		if ( newPosition == oldPosition )
+			return;
+		
 		double meanSegmentTravelTime =  deltaTime * (getSegmentLength() / Math.abs(newPosition - oldPosition));
 		int startSegment = getSegmentForLinearPosition(Math.min(oldPosition, newPosition));
 		int endSegment = getSegmentForLinearPosition(Math.max(oldPosition, newPosition));
@@ -125,12 +129,12 @@ public class SpeedMapComputer extends SegmentedLinearRoute implements Procession
 	private static Log log;
 
 	public static void setLog(Log log) {
-		SpeedMapComputer.log = log;
+		TravelTimeComputer.log = log;
 	}
 
 	protected static Log getLog() {
 		if (log == null)
-			setLog(LogFactory.getLog(SpeedMapComputer.class));
+			setLog(LogFactory.getLog(TravelTimeComputer.class));
 		return log;
 	}
 }
