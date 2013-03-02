@@ -4,6 +4,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import de.greencity.bladenightapp.time.Sleep;
+
 public class SleepTest {
 
 	@Test

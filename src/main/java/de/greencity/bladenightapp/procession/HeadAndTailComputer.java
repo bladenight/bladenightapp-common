@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class HeadAndTailComputer {
+public class HeadAndTailComputer extends SegmentedLinearRoute implements ProcessionParticipantsListener {
 	// TODO put the greeediness in the config file
 	// final double processionGreediness = 3.8;
 	final double processionGreediness = 3.8;
@@ -15,7 +15,7 @@ public class HeadAndTailComputer {
 		public double score;
 	}
 
-	private static class ParticipantData {
+	static class ParticipantData {
 		ParticipantData(double position, double speed) {
 			this.position = position;
 			this.speed = speed;
@@ -27,35 +27,29 @@ public class HeadAndTailComputer {
 		// public long lastUpdate;
 	}
 
-	HeadAndTailComputer(int nSegment) {
-		this.nSegment = nSegment;
+	HeadAndTailComputer(int nSegments) {
+		super(nSegments);
 		participantPositions = new ConcurrentHashMap<String, ParticipantData>();
 	}
 
+	@Override
 	public void updateParticipant(String deviceId, double position, double speed) {
 		participantPositions.put(deviceId, new ParticipantData(position,speed));
 	}
 
+	@Override
 	public void removeParticipant(String deviceId) {
-		log.debug("Removing participant " + deviceId);
+		getLog().debug("Removing participant " + deviceId);
 		participantPositions.remove(deviceId);
 	}
 
-	public double getRouteLength() {
-		return routeLength;
-	}
-
-	public void setRouteLength(double routeLength) {
-		this.routeLength = routeLength;
-	}
-
 	private void prepareScoreMap() {
-		segments = new Segment[nSegment];
-		for(int segment=0; segment<nSegment;segment++)
+		segments = new Segment[getNumberOfSegments()];
+		for(int segment=0; segment<getNumberOfSegments();segment++)
 			segments[segment] = new Segment();
 		for ( String deviceId : participantPositions.keySet() ) {
 			ParticipantData data = participantPositions.get(deviceId);
-			if ( data.position >= 0 && data.position <= routeLength ) {
+			if ( data.position >= 0 && data.position <= getRouteLength() ) {
 				getLog().debug("User " + deviceId + " is at " + data.position);
 				int segment = getSegmentForLinearPosition(data.position);
 				segments[segment].score++;
@@ -83,8 +77,8 @@ public class HeadAndTailComputer {
 	 * @return false in case of failure
 	 */
 	public boolean compute() {
-		if ( routeLength <= 0 )
-			throw new IllegalStateException("Invalid route length: " + routeLength);
+		if ( getRouteLength() <= 0 )
+			throw new IllegalStateException("Invalid route length: " + getRouteLength());
 
 		prepareScoreMap();
 		
@@ -99,16 +93,16 @@ public class HeadAndTailComputer {
 		double bestScore = 0;
 		double globalScore = getGlobalScore();
 
-		getLog().debug("nSegment="+nSegment);
-		for ( int tailSegment=0; tailSegment<nSegment; tailSegment++) {
+		getLog().debug("getNumberOfSegments()="+getNumberOfSegments());
+		for ( int tailSegment=0; tailSegment<getNumberOfSegments(); tailSegment++) {
 			getLog().debug("segment " + tailSegment + "  score: " + segments[tailSegment].score);
-			for ( int headSegment=tailSegment; headSegment<nSegment; headSegment++) {
+			for ( int headSegment=tailSegment; headSegment<getNumberOfSegments(); headSegment++) {
 				double localSum = 0;
 				for ( int i=tailSegment; i<=headSegment ; i++ ) {
 					localSum += segments[i].score;
 				}
 				double relativeSum = localSum/globalScore;
-				double score = Math.pow(relativeSum, processionGreediness) / ((headSegment-tailSegment+1)*1.0/nSegment);
+				double score = Math.pow(relativeSum, processionGreediness) / ((headSegment-tailSegment+1)*1.0/getNumberOfSegments());
 				if ( score > bestScore ) {
 					bestScore = score;
 					bestTailSegment = tailSegment;
@@ -122,13 +116,13 @@ public class HeadAndTailComputer {
 			return false;
 		}
 		
-		if ( bestHeadSegment < nSegment - 1)
+		if ( bestHeadSegment < getNumberOfSegments() - 1)
 			bestHeadSegment++; // let's put the head at the head of the segment we found
 
 		getLog().debug("Best: " + bestTailSegment+"-"+bestHeadSegment+" : " + bestScore);
 
-		double tailSegmentPosition = bestTailSegment * routeLength / nSegment;
-		double headSegmentPosition = bestHeadSegment * routeLength / nSegment;
+		double tailSegmentPosition = bestTailSegment * getRouteLength() / getNumberOfSegments();
+		double headSegmentPosition = bestHeadSegment * getRouteLength() / getNumberOfSegments();
 
 		tailPosition = headSegmentPosition;
 		headPosition = tailSegmentPosition;
@@ -154,38 +148,15 @@ public class HeadAndTailComputer {
 		return tailPosition;
 	}
 
-	public int getSegmentForLinearPosition(double linearPosition) {
-		int segment = (int)( linearPosition * nSegment / routeLength);
-		if ( segment >= nSegment )
-			segment = nSegment - 1;
-		if ( segment <= 0 )
-			segment = 0;
-		return segment;
-	}
-
-	public double getPositionOfSegmentStart(int segment) {
-		return segment * getSegmentLength(); 
-	}
-
-	public double getPositionOfSegmentEnd(int segment) {
-		return getPositionOfSegmentStart(segment+1); 
-	}
-
-	public double getSegmentLength() {
-		return routeLength / nSegment; 
-	}
-
 	private double getGlobalScore() {
 		double globalScore = 0;
-		for(int segment=0; segment<nSegment; segment++)
+		for(int segment=0; segment<getNumberOfSegments(); segment++)
 			globalScore += segments[segment].score;
 		return globalScore;
 	}
 
 
-	private int nSegment;
 	private Segment[] segments;
-	private double routeLength;
 	private Map<String, ParticipantData> participantPositions;
 	private double headPosition;
 	private double tailPosition;

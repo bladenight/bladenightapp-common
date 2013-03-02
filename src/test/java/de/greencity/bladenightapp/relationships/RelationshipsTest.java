@@ -19,7 +19,7 @@ import org.junit.rules.TemporaryFolder;
 
 import de.greencity.bladenightapp.events.EventsList;
 import de.greencity.bladenightapp.exceptions.BadStateException;
-import de.greencity.bladenightapp.utils.Sleep;
+import de.greencity.bladenightapp.time.Sleep;
 
 public class RelationshipsTest {
 	@Test

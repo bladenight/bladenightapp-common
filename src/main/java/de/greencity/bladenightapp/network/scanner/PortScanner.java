@@ -6,7 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import de.greencity.bladenightapp.utils.Sleep;
+import de.greencity.bladenightapp.time.Sleep;
 
 /***
  * Scans the given hosts and subnets for the given open port. 

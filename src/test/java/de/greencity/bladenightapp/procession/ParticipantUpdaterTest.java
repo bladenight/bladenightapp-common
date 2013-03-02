@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.Test;
 
 import de.greencity.bladenightapp.routes.Route.ProjectedLocation;
-import de.greencity.bladenightapp.utils.Sleep;
+import de.greencity.bladenightapp.time.Sleep;
 
 public class ParticipantUpdaterTest {
 

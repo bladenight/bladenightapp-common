@@ -1,4 +1,4 @@
-package de.greencity.bladenightapp.utils;
+package de.greencity.bladenightapp.time;
 
 public class Sleep {
 	/*** Sleeps for at least the time given (ms).
