@@ -13,13 +13,13 @@ import de.greencity.bladenightapp.time.ControlledClock;
 
 public class TravelTimeComputerTest {
 	TravelTimeComputer computer;
-
+	
 	@BeforeClass
 	public static void beforeClass() {
 		TravelTimeComputer.setLog(new NoOpLog());
-//		SimpleLog log = new SimpleLog("SpeedMapComputerTest");
-//		log.setLevel(3);
-//		TravelTimeComputer.setLog(log);
+		//		SimpleLog log = new SimpleLog("SpeedMapComputerTest");
+		//		log.setLevel(3);
+		//		TravelTimeComputer.setLog(log);
 	}
 
 	@Before
@@ -49,10 +49,10 @@ public class TravelTimeComputerTest {
 
 	@Test
 	public void singleMovingParticipantMultipleUpdates() {
-		double initialPosition = 5000.0;
-		double newPosition = 6000.0;
-		long deltaTime = 60000;
-		double speedKmh = 3600.0 * (newPosition - initialPosition) / deltaTime;
+		final double initialPosition = 5000.0;
+		final double newPosition = 6000.0;
+		final long deltaTime = 60000;
+		final double speedKmh = 3600.0 * (newPosition - initialPosition) / deltaTime;
 		String deviceId = generateParticipantId();
 		ControlledClock clock = new ControlledClock();
 		computer.setClock(clock);
@@ -61,11 +61,20 @@ public class TravelTimeComputerTest {
 		computer.updateParticipant(deviceId, newPosition, speedKmh);
 
 		computer.computeTravelTimeForAllSegments();
-		
-		double oneThird = (newPosition - initialPosition) / 3.0;
-		double expectedTime =  deltaTime / 3.0;
-		assertEquals(expectedTime, computer.evaluateTravelTimeBetween(initialPosition + oneThird, initialPosition+ 2.0*oneThird), expectedTime/100.0);
-	}
+
+		// evaluate time required for one third of the stretch we just passed through
+		{
+			double oneThird = (newPosition - initialPosition) / 3.0;
+			double expectedTime =  deltaTime / 3.0;
+			assertEquals(expectedTime, computer.evaluateTravelTimeBetween(initialPosition + oneThird, initialPosition+ 2.0*oneThird), expectedTime/100.0);
+		}
+
+		// Evaluate time required for the full route. This verifies the interpolation for the uncovered segments. 
+		{
+			double expectedTime =  deltaTime * computer.getRouteLength() / (newPosition - initialPosition);
+			assertEquals(expectedTime, computer.evaluateTravelTimeBetween(0, computer.getRouteLength()), expectedTime/100.0);
+		}
+}
 
 	@Test
 	public void multipleMovingParticipantMultipleUpdates() {
@@ -96,7 +105,7 @@ public class TravelTimeComputerTest {
 			assertEquals(expectedTime, computer.evaluateTravelTimeBetween(initialPosition, maxPos), expectedTime / 100);
 		}
 		{
-			assertEquals(0.0, computer.evaluateTravelTimeBetween(maxPos + 2 * computer.getSegmentLength(), computer.getRouteLength()), 0.0);
+			assertEquals(470200.0, computer.evaluateTravelTimeBetween(maxPos + 2 * computer.getSegmentLength(), computer.getRouteLength()), 0.1);
 		}
 	}
 

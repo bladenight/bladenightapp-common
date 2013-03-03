@@ -128,12 +128,14 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 		long clockTime = clock.currentTimeMillis();				
 		long startTime = System.currentTimeMillis();				
 
+		Segment[] newSegments = TravelTimeComputer.newSegmentArray(getNumberOfSegments());
+
 		for ( int segment = 0 ; segment < getNumberOfSegments() ; segment ++) {
 			getLog().trace("** computeTravelTimeForAllSegments segment="+segment);
 			MedianFinder medianFinder = new MedianFinder();
 			List<WeightedValue> weightedValues = new ArrayList<WeightedValue>();
 
-			segments[segment].lastUpdate = clockTime;
+			newSegments[segment].lastUpdate = clockTime;
 
 			long minLastUpdate = 0;
 			for (ParticipantData participantData : participantPositions.values()) {
@@ -149,10 +151,12 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 			}
 			getLog().trace("  computeTravelTimeForAllSegments: got " + medianFinder.sampleCount() + " participant samples for segment " + segment);
 			if ( medianFinder.sampleCount() > 0 )
-				segments[segment].meanTravelTime = medianFinder.findMedian(quantil);
+				newSegments[segment].meanTravelTime = medianFinder.findMedian(quantil);
 			else
-				segments[segment].meanTravelTime = 0.0;
+				newSegments[segment].meanTravelTime = 0.0;
 		}
+		segments = newSegments;
+		updateMeanTravelTimeOverAllSegments();
 		getLog().info("** computeTravelTimeForAllSegments finished in "+ (System.currentTimeMillis() - startTime) + "ms");
 	}
 
@@ -163,11 +167,10 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 		double time = 0;
 		int startSegment = getSegmentForLinearPosition(position1);
 		int endSegment = getSegmentForLinearPosition(position2);
-		double meanSegmentTravelTime = getMeanSegmentTravelTime(startSegment, endSegment);
 		for ( int segment = startSegment ; segment <= endSegment ; segment ++) {
 			double segmentMtt = segments[segment].meanTravelTime;
 			if ( segmentMtt <= 0 )
-				segmentMtt = meanSegmentTravelTime;
+				segmentMtt = meanTravelTimeOverAllSegments;
 			double weight;
 			if ( segment == startSegment && segment == endSegment ) {
 				weight = ( position2 - position1 ) / getSegmentLength(); 
@@ -187,24 +190,25 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 		return time;
 	}
 
-	private double getMeanSegmentTravelTime(int startSegment, int endSegment) {
-		double sum = 0;
-		int count = 0;
-		//		for ( int segment = startSegment ; segment <= endSegment ; segment ++) {
-		//			if ( segments[segment].meanTravelTime > 0) {
-		//				sum += segments[segment].meanTravelTime;
-		//				count++;
-		//			}
-		//		}
-		if ( count == 0 )
-			return 0.0;
-		return sum / count;
+	private void updateMeanTravelTimeOverAllSegments() {
+		MedianFinder medianFinder = new MedianFinder();
+		for ( int segment = 0 ; segment < getNumberOfSegments() ; segment ++) {
+			double segmentMtt = segments[segment].meanTravelTime;
+			if ( segmentMtt > 0.0 )
+				medianFinder.addValue(segmentMtt);
+		}
+		if ( medianFinder.sampleCount() > 0)
+			meanTravelTimeOverAllSegments = medianFinder.findMedian();
+		getLog().trace("meanTravelTimeOverAllSegments = "+meanTravelTimeOverAllSegments);
 	}
+	
 
 	private Clock clock = new SystemClock();
 	private ConcurrentHashMap<String, ParticipantData> participantPositions;
 	private static Log log;
 	private Segment[] segments;
+	private double meanTravelTimeOverAllSegments = 0;
+
 
 
 	public static void setLog(Log log) {
