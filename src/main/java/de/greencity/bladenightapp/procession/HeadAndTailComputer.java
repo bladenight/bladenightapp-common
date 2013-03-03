@@ -8,8 +8,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class HeadAndTailComputer extends SegmentedLinearRoute implements ProcessionParticipantsListener {
 	// TODO put the greeediness in the config file
-	// final double processionGreediness = 3.8;
-	final double processionGreediness = 3.8;
+	final double processionGreediness = 4.5;
 
 	private static class Segment {
 		public double score;

@@ -15,14 +15,12 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 	}
 
 	private static class ParticipantData {
-		ParticipantData(long lastUpdate, double position, double speed) {
+		ParticipantData(long lastUpdate, double position) {
 			this.position = position;
-			this.speed = speed;
 			this.lastUpdate = lastUpdate;
 
 		}
 		public double position;
-		public double speed;
 		public long lastUpdate;
 	}
 
@@ -40,17 +38,18 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 	public synchronized void updateParticipant(String deviceId, double position, double speed) {
 		ParticipantData data = participantPositions.get(deviceId);
 		if ( data == null ) {
-			participantPositions.put(deviceId, new ParticipantData(clock.currentTimeMillis(), position,speed));
+			participantPositions.put(deviceId, new ParticipantData(clock.currentTimeMillis(), position));
 			return;
 		}
 		long updateTime = clock.currentTimeMillis();
+		getLog().debug("deviceId="+deviceId);
 		updateMapBasedOnParticipantUpdate(updateTime, data, deviceId, position);
-		data.speed = speed;
 		data.position = position;
 		data.lastUpdate = updateTime;
 	}
 
 	private void updateMapBasedOnParticipantUpdate(long updateTime, ParticipantData data, String deviceId, double newPosition) {
+		getLog().debug("** updateMapBasedOnParticipantUpdate for "+deviceId);
 		long currentTime = clock.currentTimeMillis();
 		long deltaTime = (currentTime -  data.lastUpdate);
 		
@@ -58,7 +57,7 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 			return;
 		}
 		if ( deltaTime < 0 ) {
-			getLog().warn("Clock skew detected: " + currentTime + "/" + data.lastUpdate);
+			getLog().error("Clock skew detected: " + currentTime + "/" + data.lastUpdate);
 			return;
 		}
 
@@ -67,14 +66,25 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 		if ( newPosition == oldPosition )
 			return;
 		
-		double meanSegmentTravelTime =  deltaTime * (getSegmentLength() / Math.abs(newPosition - oldPosition));
-		int startSegment = getSegmentForLinearPosition(Math.min(oldPosition, newPosition));
-		int endSegment = getSegmentForLinearPosition(Math.max(oldPosition, newPosition));
+		if (newPosition < oldPosition) {
+			getLog().debug("Participant going back " + deviceId + "  " + oldPosition + " -> " + newPosition);
+			return;
+		}
+
+		double meanSegmentTravelTime =  deltaTime * (getSegmentLength() / (newPosition - oldPosition) );
+			
+		getLog().debug("oldPosition           = "+oldPosition);
+		getLog().debug("newPosition           = "+newPosition);
+		getLog().debug("segmentLength         = "+getSegmentLength());
+		getLog().debug("deltaTime             = "+deltaTime);
+		getLog().debug("meanSegmentTravelTime = "+meanSegmentTravelTime);
+		int startSegment = getSegmentForLinearPosition(oldPosition);
+		int endSegment = getSegmentForLinearPosition(newPosition);
 		for ( int segment = startSegment ; segment <= endSegment ; segment++ ) {
 			if ( segments[segment].meanTravelTime == 0 )
 				segments[segment].meanTravelTime = meanSegmentTravelTime;
 			else
-				segments[segment].meanTravelTime = ( meanSegmentTravelTime + segments[segment].meanTravelTime ) / 2.0;
+				segments[segment].meanTravelTime = ( meanSegmentTravelTime + 9 * segments[segment].meanTravelTime ) / 10.0;
 			getLog().debug("segment="+segment + " " + segments[segment].meanTravelTime);
 		}
 			
@@ -102,8 +112,11 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 		double time = 0;
 		int startSegment = getSegmentForLinearPosition(position1);
 		int endSegment = getSegmentForLinearPosition(position2);
+		double meanSegmentTravelTime = getMeanSegmentTravelTime(startSegment, endSegment);
 		for ( int segment = startSegment ; segment <= endSegment ; segment ++) {
 			double segmentMtt = segments[segment].meanTravelTime;
+			if ( segmentMtt <= 0 )
+				segmentMtt = meanSegmentTravelTime;
 			double weight;
 			if ( segment == startSegment && segment == endSegment ) {
 				weight = ( position2 - position1 ) / getSegmentLength(); 
@@ -123,6 +136,20 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 		return time;
 	}
 
+	private double getMeanSegmentTravelTime(int startSegment, int endSegment) {
+		double sum = 0;
+		int count = 0;
+		for ( int segment = startSegment ; segment <= endSegment ; segment ++) {
+			if ( segments[segment].meanTravelTime > 0) {
+				sum += segments[segment].meanTravelTime;
+				count++;
+			}
+		}
+		if ( count == 0 )
+			return 0.0;
+		return sum / count;
+	}
+	
 	private Clock clock = new SystemClock();
 	private ConcurrentHashMap<String, ParticipantData> participantPositions;
 	

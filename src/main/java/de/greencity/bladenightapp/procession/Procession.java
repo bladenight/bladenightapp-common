@@ -159,7 +159,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 	@Override
 	public synchronized void compute() {
-		getLog().info("computeProcession");
+		getLog().debug("computeProcession");
 
 		if ( route == null ) {
 			getLog().error("computeProcession: no route available");
@@ -177,7 +177,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		long startTime = System.currentTimeMillis();
 
 		List<Participant> participantList = new ArrayList<Participant>(participants.values());
-		getLog().info("computeProcession: " + participantList.size() + " participants are registered");
+		getLog().debug("computeProcession: " + participantList.size() + " participants are registered");
 
 		if ( ! headAndTailComputer.compute() ) {
 			getLog().info("computeProcession: could not find the procession position");
@@ -200,7 +200,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 		long endTime = System.currentTimeMillis();
 
-		getLog().info("computeProcession: compute time: " + (endTime-startTime)+"ms");
+		getLog().debug("computeProcession: compute time: " + (endTime-startTime)+"ms");
 	}
 
 	protected void completeEndMovingPoint(MovingPoint newMp, MovingPoint lastMp) {
@@ -217,8 +217,8 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 			double newSpeed = ( newPos - oldPos) / ( 1000.0 * deltaT);
 			newMp.setLinearSpeed( updateSmoothingFactor * lastMp.getLinearSpeed() + (1-updateSmoothingFactor) * newSpeed );
 		}
-		getLog().info("newMp.linearPosition="+newMp.getLinearPosition());
-		getLog().info("newMp.linearSpeed="+newMp.getLinearSpeed());
+		getLog().debug("newMp.linearPosition="+newMp.getLinearPosition());
+		getLog().debug("newMp.linearSpeed="+newMp.getLinearSpeed());
 		Route.LatLong latLong = route.convertLinearPositionToLatLong(newMp.getLinearPosition());
 		newMp.setLatLong(latLong.lat, latLong.lon);
 	}
