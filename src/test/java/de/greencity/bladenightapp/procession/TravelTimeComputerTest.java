@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.UUID;
 
+import org.apache.commons.logging.impl.NoOpLog;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -16,9 +17,10 @@ public class TravelTimeComputerTest {
 
 	@BeforeClass
 	public static void beforeClass() {
+		TravelTimeComputer.setLog(new NoOpLog());
 //		SimpleLog log = new SimpleLog("SpeedMapComputerTest");
-//		log.setLevel(0);
-//		SpeedMapComputer.setLog(log);
+//		log.setLevel(3);
+//		TravelTimeComputer.setLog(log);
 	}
 
 	@Before
@@ -59,6 +61,8 @@ public class TravelTimeComputerTest {
 		clock.increment(deltaTime);
 		computer.updateParticipant(deviceId, newPosition, speedKmh);
 
+		computer.computeTravelTimeForAllSegments();
+		
 		double oneThird = (newPosition - initialPosition) / 3.0;
 		double expectedTime =  deltaTime / 3.0;
 		assertEquals(expectedTime, computer.evaluateTravelTimeBetween(initialPosition + oneThird, initialPosition+ 2.0*oneThird), expectedTime/100.0);
@@ -87,6 +91,7 @@ public class TravelTimeComputerTest {
 			}
 			clock.increment(deltaTime);
 		}
+		computer.computeTravelTimeForAllSegments();
 		{
 			double expectedTime =  3600 * (maxPos - initialPosition) / (speedKmh);
 			assertEquals(expectedTime, computer.evaluateTravelTimeBetween(initialPosition, maxPos), expectedTime / 100);

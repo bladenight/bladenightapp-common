@@ -1,44 +1,58 @@
 package de.greencity.bladenightapp.procession;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import de.greencity.bladenightapp.math.MedianFinder;
+import de.greencity.bladenightapp.math.MedianFinder.WeightedValue;
 import de.greencity.bladenightapp.time.Clock;
 import de.greencity.bladenightapp.time.SystemClock;
 
 public class TravelTimeComputer extends SegmentedLinearRoute implements ProcessionParticipantsListener {
 
 	private static class Segment {
+		public long lastUpdate;
 		public double meanTravelTime;
 	}
 
 	private static class ParticipantData {
-		ParticipantData(long lastUpdate, double position) {
+		ParticipantData(int nSegments, long lastUpdate, double position) {
 			this.position = position;
 			this.lastUpdate = lastUpdate;
-
+			this.segments = TravelTimeComputer.newSegmentArray(nSegments);
+		}
+		@Override
+		public String toString() {
+			return ToStringBuilder.reflectionToString(this);
 		}
 		public double position;
 		public long lastUpdate;
+		public Segment[] segments;
 	}
 
-	private Segment[] segments;
-
-	TravelTimeComputer(int nSegment) {
-		super(nSegment);
-		segments = new Segment[nSegment];
-		for(int segment=0; segment<nSegment;segment++)
-			segments[segment] = new Segment();
+	TravelTimeComputer(int nSegments) {
+		super(nSegments);
+		this.segments = TravelTimeComputer.newSegmentArray(nSegments);
 		participantPositions = new ConcurrentHashMap<String, ParticipantData>();
 	}
 
+	static Segment[] newSegmentArray(int size) {
+		Segment[] segments = new Segment[size];
+		for(int segment=0; segment<size;segment++)
+			segments[segment] = new Segment();
+		return segments;
+	}
+	
 	@Override
 	public synchronized void updateParticipant(String deviceId, double position, double speed) {
 		ParticipantData data = participantPositions.get(deviceId);
 		if ( data == null ) {
-			participantPositions.put(deviceId, new ParticipantData(clock.currentTimeMillis(), position));
+			participantPositions.put(deviceId, new ParticipantData(getNumberOfSegments(), clock.currentTimeMillis(), position));
 			return;
 		}
 		long updateTime = clock.currentTimeMillis();
@@ -52,7 +66,7 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 		getLog().debug("** updateMapBasedOnParticipantUpdate for "+deviceId);
 		long currentTime = clock.currentTimeMillis();
 		long deltaTime = (currentTime -  data.lastUpdate);
-		
+
 		if ( deltaTime == 0 ) {
 			return;
 		}
@@ -65,14 +79,14 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 
 		if ( newPosition == oldPosition )
 			return;
-		
+
 		if (newPosition < oldPosition) {
 			getLog().debug("Participant going back " + deviceId + "  " + oldPosition + " -> " + newPosition);
 			return;
 		}
 
 		double meanSegmentTravelTime =  deltaTime * (getSegmentLength() / (newPosition - oldPosition) );
-			
+
 		getLog().debug("oldPosition           = "+oldPosition);
 		getLog().debug("newPosition           = "+newPosition);
 		getLog().debug("segmentLength         = "+getSegmentLength());
@@ -81,19 +95,20 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 		int startSegment = getSegmentForLinearPosition(oldPosition);
 		int endSegment = getSegmentForLinearPosition(newPosition);
 		for ( int segment = startSegment ; segment <= endSegment ; segment++ ) {
-			if ( segments[segment].meanTravelTime == 0 )
-				segments[segment].meanTravelTime = meanSegmentTravelTime;
+			if ( data.segments[segment].meanTravelTime == 0 )
+				data.segments[segment].meanTravelTime = meanSegmentTravelTime;
 			else
-				segments[segment].meanTravelTime = ( meanSegmentTravelTime + 9 * segments[segment].meanTravelTime ) / 10.0;
-			getLog().debug("segment="+segment + " " + segments[segment].meanTravelTime);
+				data.segments[segment].meanTravelTime = ( meanSegmentTravelTime + data.segments[segment].meanTravelTime ) / 2.0;
+			data.segments[segment].lastUpdate = updateTime;
+			getLog().debug("final mtt["+segment + "] for part = " + data.segments[segment].meanTravelTime);
 		}
-			
+
 	}
-	
+
 	@Override
 	public void removeParticipant(String deviceId) {
-		getLog().debug("Removing participant " + deviceId);
-		participantPositions.remove(deviceId);
+		// getLog().debug("Removing participant " + deviceId);
+		// participantPositions.remove(deviceId);
 	}
 
 
@@ -105,10 +120,42 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 		this.clock = clock;
 	}
 
+	public synchronized void computeTravelTimeForAllSegments() {
+		long clockTime = clock.currentTimeMillis();				
+		long startTime = System.currentTimeMillis();				
+
+		for ( int segment = 0 ; segment < getNumberOfSegments() ; segment ++) {
+			getLog().trace("** computeTravelTimeForAllSegments segment="+segment);
+			MedianFinder medianFinder = new MedianFinder();
+			List<WeightedValue> weightedValues = new ArrayList<WeightedValue>();
+
+			segments[segment].lastUpdate = clockTime;
+
+			long minLastUpdate = 0;
+			for (ParticipantData participantData : participantPositions.values()) {
+				getLog().trace("  computeTravelTimeForAllSegments: meanTravelTime=" + participantData.segments[segment].meanTravelTime);
+				if ( participantData.segments[segment].meanTravelTime > 0.0 )
+					weightedValues.add(new WeightedValue(participantData.segments[segment].meanTravelTime, participantData.segments[segment].lastUpdate));
+				minLastUpdate = Math.min(participantData.segments[segment].lastUpdate, minLastUpdate);
+			}
+			
+			for (WeightedValue weightedValue : weightedValues ) {
+				weightedValue.weight = (weightedValue.weight - minLastUpdate ) * 1.0 / (clockTime - minLastUpdate + 1);
+				medianFinder.addWeightedValue(weightedValue);
+			}
+			getLog().trace("  computeTravelTimeForAllSegments: got " + medianFinder.sampleCount() + " participant samples for segment " + segment);
+			if ( medianFinder.sampleCount() > 0 )
+				segments[segment].meanTravelTime = medianFinder.findMedian();
+			else
+				segments[segment].meanTravelTime = 0.0;
+		}
+		getLog().info("** computeTravelTimeForAllSegments finished in "+ (System.currentTimeMillis() - startTime) + "ms");
+	}
+
 	public double evaluateTravelTimeBetween(double position1, double position2) {
 		if ( position2 <= position1 )
 			return 0.0;
-		
+
 		double time = 0;
 		int startSegment = getSegmentForLinearPosition(position1);
 		int endSegment = getSegmentForLinearPosition(position2);
@@ -136,24 +183,32 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 		return time;
 	}
 
+	private double getMeanSegmentTravelTime(int segment) {
+		for (ParticipantData participantData : participantPositions.values()) {
+
+		}
+		return 0.0;
+	}
+
 	private double getMeanSegmentTravelTime(int startSegment, int endSegment) {
 		double sum = 0;
 		int count = 0;
-		for ( int segment = startSegment ; segment <= endSegment ; segment ++) {
-			if ( segments[segment].meanTravelTime > 0) {
-				sum += segments[segment].meanTravelTime;
-				count++;
-			}
-		}
+		//		for ( int segment = startSegment ; segment <= endSegment ; segment ++) {
+		//			if ( segments[segment].meanTravelTime > 0) {
+		//				sum += segments[segment].meanTravelTime;
+		//				count++;
+		//			}
+		//		}
 		if ( count == 0 )
 			return 0.0;
 		return sum / count;
 	}
-	
+
 	private Clock clock = new SystemClock();
 	private ConcurrentHashMap<String, ParticipantData> participantPositions;
-	
 	private static Log log;
+	private Segment[] segments;
+
 
 	public static void setLog(Log log) {
 		TravelTimeComputer.log = log;

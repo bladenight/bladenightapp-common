@@ -25,10 +25,20 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		route = new Route();
 		route.setName("<undefined default route>");
 
+		initComputers();
+	}
+
+	private void initComputers() {
 		// TODO move to the application configuration
 		int nSegments = 200;
 		headAndTailComputer = new HeadAndTailComputer(nSegments);
 		travelTimeComputer = new TravelTimeComputer(nSegments);
+		double routeLenght = route.getLength(); 
+		if ( routeLenght <= 0.0) {
+			routeLenght = 9999.0;
+		}
+		headAndTailComputer.setRouteLength(route.getLength());
+		travelTimeComputer.setRouteLength(route.getLength());
 	}
 
 	public Route getRoute() {
@@ -37,6 +47,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 	public void setRoute(Route route) {
 		this.route = route;
+		initComputers();
 	}
 
 	// Returned list is read-only!
@@ -57,7 +68,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 			}
 		}
 	}
-	
+
 	public void removeParticipant(String deviceId) {
 		participants.remove(deviceId);
 		headAndTailComputer.removeParticipant(deviceId);
@@ -109,7 +120,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 				build();
 
 		updater.updateParticipant();
-		
+
 		if ( participant.isOnRoute() ) {
 			headAndTailComputer.updateParticipant(participantId, participant.getLinearPosition(), participant.getLinearSpeed());
 			travelTimeComputer.updateParticipant(participantId, participant.getLinearPosition(), participant.getLinearSpeed());
@@ -159,7 +170,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 	@Override
 	public synchronized void compute() {
-		getLog().debug("computeProcession");
+		getLog().debug("compute");
 
 		if ( route == null ) {
 			getLog().error("computeProcession: no route available");
@@ -197,6 +208,8 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 		headMovingPoint = newHeadMovingPoint;
 		tailMovingPoint = newTailMovingPoint;
+
+		travelTimeComputer.computeTravelTimeForAllSegments();
 
 		long endTime = System.currentTimeMillis();
 
@@ -244,7 +257,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	public double evaluateTravelTimeBetween(double position1, double position2) {
 		return travelTimeComputer.evaluateTravelTimeBetween(position1, position2);
 	}
-	
+
 	/***
 	 * Smoothen jumps of the head and the tail
 	 * 0.0  : no smoothing
