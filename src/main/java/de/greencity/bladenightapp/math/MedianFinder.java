@@ -41,10 +41,14 @@ public class MedianFinder {
 		weightedValues.add(new WeightedValue(value, weight));
 	}
 
-	public Double findMedian() {
+	public double findMedian() {
+		return findMedian(0.5);
+	}
+	
+	public double findMedian(double quantil) {
 		double weightCumul = 0;
 		double weightTotal = getTotalWeight();
-		double weightTarget = weightTotal / 2;
+		double weightTarget = weightTotal * quantil;
 
 		if ( weightedValues.size() == 0.0 )
 			throw new IllegalStateException("No data has been provided");

@@ -121,6 +121,10 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 	}
 
 	public synchronized void computeTravelTimeForAllSegments() {
+		computeTravelTimeForAllSegments(0.5);
+	}
+
+	public synchronized void computeTravelTimeForAllSegments(double quantil) {
 		long clockTime = clock.currentTimeMillis();				
 		long startTime = System.currentTimeMillis();				
 
@@ -145,7 +149,7 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 			}
 			getLog().trace("  computeTravelTimeForAllSegments: got " + medianFinder.sampleCount() + " participant samples for segment " + segment);
 			if ( medianFinder.sampleCount() > 0 )
-				segments[segment].meanTravelTime = medianFinder.findMedian();
+				segments[segment].meanTravelTime = medianFinder.findMedian(quantil);
 			else
 				segments[segment].meanTravelTime = 0.0;
 		}
@@ -181,13 +185,6 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 			getLog().debug("segment="+segment + " mtt=" + segmentMtt + " sum=" + time);
 		}
 		return time;
-	}
-
-	private double getMeanSegmentTravelTime(int segment) {
-		for (ParticipantData participantData : participantPositions.values()) {
-
-		}
-		return 0.0;
 	}
 
 	private double getMeanSegmentTravelTime(int startSegment, int endSegment) {

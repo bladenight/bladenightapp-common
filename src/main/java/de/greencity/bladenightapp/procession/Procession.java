@@ -63,13 +63,14 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 			Participant p = participants.get(id);
 			long age = p.getLastLifeSignAge();
 			if ( age > factor * meanParticipantUpdatePeriod  ) {
-				participants.remove(id);
 				getLog().info("Removing participant " + id + " " + age + " > " + factor * meanParticipantUpdatePeriod );
+				removeParticipant(id);
 			}
 		}
 	}
 
 	public void removeParticipant(String deviceId) {
+		getLog().info("Removing participant " + deviceId);
 		participants.remove(deviceId);
 		headAndTailComputer.removeParticipant(deviceId);
 		travelTimeComputer.removeParticipant(deviceId);
@@ -173,25 +174,22 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		getLog().debug("compute");
 
 		if ( route == null ) {
-			getLog().error("computeProcession: no route available");
+			getLog().error("compute: no route available");
 			return;
 		}
 		double routeLength = route.getLength();
 		if ( routeLength == 0 ) {
-			getLog().warn("computeProcession: route has zero length");
+			getLog().warn("compute: route has zero length");
 			return;
 		}
-
-		headAndTailComputer.setRouteLength(route.getLength());
-		travelTimeComputer.setRouteLength(route.getLength());
 
 		long startTime = System.currentTimeMillis();
 
 		List<Participant> participantList = new ArrayList<Participant>(participants.values());
-		getLog().debug("computeProcession: " + participantList.size() + " participants are registered");
+		getLog().debug("compute: " + participantList.size() + " participants are registered");
 
 		if ( ! headAndTailComputer.compute() ) {
-			getLog().info("computeProcession: could not find the procession position");
+			getLog().info("compute: could not find the procession position");
 			headMovingPoint = new MovingPoint();
 			tailMovingPoint = new MovingPoint();
 			return;
@@ -209,11 +207,14 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		headMovingPoint = newHeadMovingPoint;
 		tailMovingPoint = newTailMovingPoint;
 
-		travelTimeComputer.computeTravelTimeForAllSegments();
+		getLog().info("headMovingPoint="+headMovingPoint);
+		getLog().info("tailMovingPoint="+tailMovingPoint);
+
+		travelTimeComputer.computeTravelTimeForAllSegments(0.75);
 
 		long endTime = System.currentTimeMillis();
 
-		getLog().debug("computeProcession: compute time: " + (endTime-startTime)+"ms");
+		getLog().debug("compute: compute time: " + (endTime-startTime)+"ms");
 	}
 
 	protected void completeEndMovingPoint(MovingPoint newMp, MovingPoint lastMp) {
@@ -230,8 +231,6 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 			double newSpeed = ( newPos - oldPos) / ( 1000.0 * deltaT);
 			newMp.setLinearSpeed( updateSmoothingFactor * lastMp.getLinearSpeed() + (1-updateSmoothingFactor) * newSpeed );
 		}
-		getLog().debug("newMp.linearPosition="+newMp.getLinearPosition());
-		getLog().debug("newMp.linearSpeed="+newMp.getLinearSpeed());
 		Route.LatLong latLong = route.convertLinearPositionToLatLong(newMp.getLinearPosition());
 		newMp.setLatLong(latLong.lat, latLong.lon);
 	}
@@ -255,7 +254,9 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	}
 
 	public double evaluateTravelTimeBetween(double position1, double position2) {
-		return travelTimeComputer.evaluateTravelTimeBetween(position1, position2);
+		double result = travelTimeComputer.evaluateTravelTimeBetween(position1, position2); 
+		getLog().info("evaluateTravelTimeBetween("+position1+","+position2+")");
+		return result;
 	}
 
 	/***

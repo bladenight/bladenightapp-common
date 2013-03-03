@@ -3,6 +3,7 @@ package de.greencity.bladenightapp.procession;
 public class Participant {
 	public Participant() {
 		lastLifeSign = System.currentTimeMillis();
+		lastKnownPoint = new MovingPoint();
 	}
 
 	public String getDeviceId() {
@@ -14,8 +15,6 @@ public class Participant {
 	}
 
 	MovingPoint getLastKnownPoint() {
-		if ( lastKnownPoint == null)
-			lastKnownPoint = new MovingPoint();
 		return lastKnownPoint;
 	}
 

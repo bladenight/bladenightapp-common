@@ -34,6 +34,27 @@ public class MedianFinderTest {
 	}
 
 	@Test
+	public void quantil25() {
+		MedianFinder medianFinder = new MedianFinder();
+		medianFinder.addWeightedValue(-100.0, 0.1);
+		for ( int i = 0 ; i <= 100 ; i++)
+			medianFinder.addWeightedValue(i / 10.0, 1.0);
+		medianFinder.addWeightedValue(100.0, 0.1);
+		assertEquals(2.5, medianFinder.findMedian(0.25),0.0);
+	}
+
+	@Test
+	public void quantil75() {
+		MedianFinder medianFinder = new MedianFinder();
+		medianFinder.addWeightedValue(-100.0, 0.1);
+		for ( int i = 0 ; i <= 100 ; i++)
+			medianFinder.addWeightedValue(i * 10.0, 1.0);
+		medianFinder.addWeightedValue(10000.0, 0.1);
+		assertEquals(750.0, medianFinder.findMedian(0.75),0.0);
+	}
+
+
+	@Test
 	public void getTotal() {
 		MedianFinder medianFinder = new MedianFinder();
 		medianFinder.addWeightedValue(2.0,  10.0);

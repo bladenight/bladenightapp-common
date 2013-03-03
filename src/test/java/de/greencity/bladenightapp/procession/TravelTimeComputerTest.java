@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.UUID;
 
 import org.apache.commons.logging.impl.NoOpLog;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
