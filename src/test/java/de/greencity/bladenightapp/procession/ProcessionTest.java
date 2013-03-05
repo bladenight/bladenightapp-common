@@ -23,7 +23,9 @@ public class ProcessionTest {
 
 	@BeforeClass
 	static public void initClass() {
-		 Procession.setLog(new NoOpLog());
+		Procession.setLog(new NoOpLog());
+		TravelTimeComputer.setLog(new NoOpLog());
+		HeadAndTailComputer.setLog(new NoOpLog());
 	}
 
 	@Before
@@ -122,7 +124,7 @@ public class ProcessionTest {
 	}
 
 	private void updateParticipant(String participantId, double lat, double lon) {
-		ParticipantInput input = new ParticipantInput(participantId, lat, lon); 
+		ParticipantInput input = new ParticipantInput(participantId, true, lat, lon); 
 		procession.updateParticipant(input);
 		procession.compute();
 	}

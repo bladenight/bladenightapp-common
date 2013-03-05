@@ -122,7 +122,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 		updater.updateParticipant();
 
-		if ( participant.isOnRoute() ) {
+		if ( participant.isOnRoute() && participantInput.isParticipating() ) {
 			headAndTailComputer.updateParticipant(participantId, participant.getLinearPosition(), participant.getLinearSpeed());
 			travelTimeComputer.updateParticipant(participantId, participant.getLinearPosition(), participant.getLinearSpeed());
 		}
@@ -158,21 +158,34 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 
 	public MovingPoint getHead() {
+		computeIfTooOld();
 		return headMovingPoint;
 	}
 
 	public MovingPoint getTail() {
+		computeIfTooOld();
 		return tailMovingPoint;
 	}
 
 	public double getLength() {
+		computeIfTooOld();
 		return headMovingPoint.getLinearPosition() - tailMovingPoint.getLinearPosition();
+	}
+
+	public double getHeadPosition() {
+		return getHead().getLinearPosition();
+	}
+
+	public double getTailPosition() {
+		return getTail().getLinearPosition();
 	}
 
 	@Override
 	public synchronized void compute() {
 		getLog().debug("compute");
 
+		lastComputeTime = System.currentTimeMillis();
+		
 		if ( route == null ) {
 			getLog().error("compute: no route available");
 			return;
@@ -235,12 +248,19 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		newMp.setLatLong(latLong.lat, latLong.lon);
 	}
 
-	public double getHeadPosition() {
-		return headMovingPoint.getLinearPosition();
+	private void computeIfTooOld() {
+		if ( isMaxComputeAgeEnabled() && isMaxComputeAgeReached() ) {
+			getLog().info("Triggering compute automatically");
+			compute();
+		}
+	}
+	
+	private boolean isMaxComputeAgeEnabled() {
+		return maxComputeAge >= 0;
 	}
 
-	public double getTailPosition() {
-		return tailMovingPoint.getLinearPosition();
+	private boolean isMaxComputeAgeReached() {
+		return lastComputeTime < 0 || maxComputeAge == 0 || System.currentTimeMillis() - lastComputeTime > lastComputeTime;
 	}
 
 	public boolean isValid() {
@@ -254,10 +274,25 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	}
 
 	public double evaluateTravelTimeBetween(double position1, double position2) {
+		computeIfTooOld();
 		double result = travelTimeComputer.evaluateTravelTimeBetween(position1, position2); 
 		getLog().info("evaluateTravelTimeBetween("+position1+","+position2+")");
 		return result;
 	}
+
+	public long getMaxComputeAge() {
+		return maxComputeAge;
+	}
+
+	/*** If set, trigger a compute if the last compute is older than specified.
+	 * Disabled by default.
+	 * Set to 0 for systematic updates
+	 * Set to -1 to disable again.
+	 */
+	public void setMaxComputeAge(long maxComputeAge) {
+		this.maxComputeAge = maxComputeAge;
+	}
+
 
 	/***
 	 * Smoothen jumps of the head and the tail
@@ -273,6 +308,8 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	private MovingPoint tailMovingPoint;
 	private HeadAndTailComputer headAndTailComputer;
 	private TravelTimeComputer travelTimeComputer;
+	private long maxComputeAge = -1;
+	private long lastComputeTime = -1;
 
 
 	protected double updateSmoothingFactor = 0.0;

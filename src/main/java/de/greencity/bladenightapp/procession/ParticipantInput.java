@@ -3,8 +3,9 @@ package de.greencity.bladenightapp.procession;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class ParticipantInput {
-	public ParticipantInput(String participantId, double lat, double lon) {
+	public ParticipantInput(String participantId, boolean isParticipating, double lat, double lon) {
 		this.participantId = participantId;
+		this.isParticipating = isParticipating;
 		this.latitude = lat;
 		this.longitude = lon;
 	}
@@ -37,7 +38,16 @@ public class ParticipantInput {
 	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
+	
+	public void isParticipating(boolean isParticipating) {
+		this.isParticipating = isParticipating;
+	}
+
+	public boolean isParticipating() {
+		return isParticipating;
+	}
 
 	private double latitude, longitude;
 	private String participantId;
+	private boolean isParticipating;
 }

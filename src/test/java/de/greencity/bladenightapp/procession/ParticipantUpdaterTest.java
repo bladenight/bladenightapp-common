@@ -19,7 +19,7 @@ public class ParticipantUpdaterTest {
 		double headPosition = 2000.0;
 		double routeLength  = 5000.0;
 		double lat = 10, lon = 20;
-		ParticipantInput participantInput = new ParticipantInput("client", lat, lon);
+		ParticipantInput participantInput = new ParticipantInput("client", true, lat, lon);
 		Participant participant = new Participant();
 
 		double expectedLocation1 = 1500;

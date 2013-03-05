@@ -3,8 +3,9 @@ package de.greencity.bladenightapp.network.messages;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class GpsInfo {
-	public GpsInfo(String deviceId, double lat, double lon) {
+	public GpsInfo(String deviceId, boolean isParticipating, double lat, double lon) {
 		coo = new LatLong(lat, lon);
+		this.isParticipating = isParticipating;
 		this.deviceId = deviceId;
 	}
 
@@ -36,6 +37,14 @@ public class GpsInfo {
 		this.deviceId = deviceId;
 	}
 
+	public boolean isParticipating() {
+		return isParticipating;
+	}
+	
+	public void isParticipating(boolean isParticipating) {
+		this.isParticipating = isParticipating;
+	}
+	
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
@@ -43,4 +52,5 @@ public class GpsInfo {
 	
 	private LatLong coo;
 	private String deviceId;
+	private boolean isParticipating;
 }
