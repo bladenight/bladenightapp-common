@@ -47,11 +47,19 @@ public class ProcessionTest {
 	public void singleParticipant() {
 		addParticipant(48.134750, 11.531566);
 		assertEquals(1, procession.getParticipantCount());
-
-		procession.compute();
-
 		assertProcessionIn(850, 1000);
 		assertTrue(procession.getLength() < 100);
+	}
+
+	@Test
+	public void autoCompute() {
+		ParticipantInput input = new ParticipantInput("autoComputeDisabled", true, 48.134750, 11.531566); 
+		procession.updateParticipant(input);
+		assertEquals(1, procession.getParticipantCount());
+		assertEquals(0, procession.getHeadPosition(), 0.0);
+		procession.setMaxComputeAge(0);
+		// Head position shall be updated with explicit call to compute()
+		assertEquals(909, procession.getHeadPosition(), 1.0);
 	}
 
 	@Test
@@ -108,8 +116,6 @@ public class ProcessionTest {
 			addParticipant(lat, lon);
 		}
 		assertEquals(nParticipants, procession.getParticipantCount());
-
-		procession.compute();
 
 		assertProcessionIn(1600, 2300);
 
