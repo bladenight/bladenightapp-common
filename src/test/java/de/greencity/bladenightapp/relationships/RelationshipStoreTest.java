@@ -13,15 +13,24 @@ import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.impl.NoOpLog;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import de.greencity.bladenightapp.events.EventsList;
 import de.greencity.bladenightapp.exceptions.BadStateException;
+import de.greencity.bladenightapp.procession.Procession;
 import de.greencity.bladenightapp.time.Sleep;
 
-public class RelationshipsTest {
+public class RelationshipStoreTest {
+	
+	@Before
+	public void before() {
+		RelationshipStore.setLog(new NoOpLog());
+	}
+	
 	@Test
 	public void testIds() {
 		RelationshipStore store = new RelationshipStore();
@@ -68,7 +77,9 @@ public class RelationshipsTest {
 		long relationshipId = store.newRequest(deviceId1);
 
 		assertTrue(store.isPending(relationshipId));
+
 		assertFalse(store.exists(deviceId1, deviceId2));
+		assertFalse(store.exists(deviceId2, deviceId1));
 
 		assertEquals(0, store.getRelationships(deviceId1).size());
 		assertEquals(0, store.getRelationships(deviceId2).size());
@@ -77,6 +88,7 @@ public class RelationshipsTest {
 
 		assertFalse(store.isPending(relationshipId));
 		assertTrue(store.exists(deviceId1, deviceId2));
+		assertTrue(store.exists(deviceId2, deviceId1));
 
 		{
 			List<String> list1 = store.getRelationships(deviceId1);
@@ -160,5 +172,5 @@ public class RelationshipsTest {
 	}
 
 	@Rule
-	public TemporaryFolder folder= new TemporaryFolder();
+	public TemporaryFolder folder = new TemporaryFolder();
 }

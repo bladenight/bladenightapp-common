@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,7 +31,7 @@ public class RelationshipStore {
 		return new Gson().fromJson(json, RelationshipStore.class);
 	}
 
-	public void write(File file) throws IOException {
+	public synchronized void write(File file) throws IOException {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String json = gson.toJson(this);
 		FileUtils.writeStringToFile(file, json);
@@ -45,18 +47,31 @@ public class RelationshipStore {
 
 	public void finalize(long requestId, String deviceId2) throws BadStateException, TimeoutException {
 		Relationship rel = pending.get(requestId);
-		if ( rel == null )
-			throw new BadStateException("Not a valid pending relationship id: " + requestId);
-		if ( rel.getDeviceId1() == deviceId2 )
-			throw new BadStateException("Relationship with self is not allowed: "+rel);
-		if ( requestTimeout > 0 && rel.getAge() > requestTimeout ) {
-			pending.remove(requestId);
-			throw new TimeoutException("Relationship request has timed out: "+rel);
-		}
+		finalizeCheck(requestId, deviceId2, rel);
 		rel.setDeviceId2(deviceId2);
 		pending.remove(requestId);
 		finalized.add(rel);
 	}
+
+	private void finalizeCheck(long requestId, String deviceId2, Relationship rel) throws BadStateException, TimeoutException {
+		if ( rel == null ) {
+			String msg = "Not a valid pending relationship id: " + requestId;
+			getLog().warn(msg);
+			throw new BadStateException(msg);
+		}
+		if ( rel.getDeviceId1() == deviceId2 ) {
+			String msg = "Relationship with self is not allowed: "+rel;
+			getLog().warn(msg);
+			throw new BadStateException(msg);
+		}
+		if ( requestTimeout > 0 && rel.getAge() > requestTimeout ) {
+			pending.remove(requestId);
+			String msg = "Relationship request has timed out: "+rel;
+			getLog().warn(msg);
+			throw new TimeoutException(msg);
+		}
+	}
+
 
 	public void setIdLength(int digits) {
 		idsLength = digits; 
@@ -111,6 +126,8 @@ public class RelationshipStore {
 		return ( rel != null );
 	}
 
+	/** Returns the deviceId's that have a relationship to the given one
+	 */
 	public List<String> getRelationships(String deviceId) {
 		List<String> list = new ArrayList<String>();
 		for (Relationship relationship : finalized ) {
@@ -128,6 +145,18 @@ public class RelationshipStore {
 		if ( random == null)
 			random = new Random();
 		return random;
+	}
+	
+	private static Log log;
+
+	public static void setLog(Log log) {
+		RelationshipStore.log = log;
+	}
+
+	protected static Log getLog() {
+		if (log == null)
+			setLog(LogFactory.getLog(RelationshipStore.class));
+		return log;
 	}
 
 	private Map<Long, Relationship> pending;
