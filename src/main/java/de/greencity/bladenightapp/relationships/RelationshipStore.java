@@ -24,10 +24,11 @@ public class RelationshipStore {
 	public RelationshipStore() {
 		pending = new ConcurrentHashMap<Long, Relationship>();
 		finalized = Collections.synchronizedList(new ArrayList<Relationship>());
+		lock = new Object();
 	}
 
 	public static RelationshipStore newFromFile(File file) throws IOException {
-	    String json = FileUtils.readFileToString(file);
+		String json = FileUtils.readFileToString(file);
 		return new Gson().fromJson(json, RelationshipStore.class);
 	}
 
@@ -38,19 +39,47 @@ public class RelationshipStore {
 	}
 
 
-	public long newRequest(String deviceId1) {
-		long id = generateUniqId();
-		Relationship relationship = new Relationship(deviceId1);
-		pending.put(id, relationship);
-		return id;
+	public HandshakeInfo newRequest(String deviceId1) {
+		synchronized (lock) {
+			HandshakeInfo handshakeInfo = new HandshakeInfo();
+			long id = generateUniqId();
+			handshakeInfo.setRequestId(id);
+			handshakeInfo.setFriendId(generateFriendId(deviceId1));
+			Relationship relationship = new Relationship(deviceId1);
+			pending.put(id, relationship);
+			return handshakeInfo;
+		}
 	}
 
-	public void finalize(long requestId, String deviceId2) throws BadStateException, TimeoutException {
+	public synchronized HandshakeInfo finalize(long requestId, String deviceId2) throws BadStateException, TimeoutException {
 		Relationship rel = pending.get(requestId);
+
 		finalizeCheck(requestId, deviceId2, rel);
-		rel.setDeviceId2(deviceId2);
-		pending.remove(requestId);
-		finalized.add(rel);
+
+		HandshakeInfo handshakeInfo = new HandshakeInfo();
+		synchronized (lock) {
+			handshakeInfo.setFriendId(generateFriendId(deviceId2));
+
+			rel.setDeviceId2(deviceId2);
+			pending.remove(requestId);
+			finalized.add(rel);
+		}
+		return handshakeInfo;
+	}
+
+	private long generateFriendId(String deviceId) {
+		long count=1;
+		synchronized (lock) {
+			for (Relationship relationship : pending.values() ) {
+				if ( relationship.involves(deviceId) )
+					count++;
+			}
+			for (Relationship relationship : finalized ) {
+				if ( relationship.involves(deviceId) )
+					count++;
+			}
+		}
+		return count;
 	}
 
 	private void finalizeCheck(long requestId, String deviceId2, Relationship rel) throws BadStateException, TimeoutException {
@@ -76,20 +105,20 @@ public class RelationshipStore {
 	public void setIdLength(int digits) {
 		idsLength = digits; 
 	}
-	
+
 	public void setRequestTimeOut(long timeout) {
 		this.requestTimeout = timeout;
 	}
 
 	synchronized long generateUniqId() {
 		while(true) {
-			long id = generateId();
+			long id = generateIdCandidate();
 			if ( ! pending.containsKey(id)  )
 				return id;
 		}
 	}
 
-	long generateId() {
+	private long generateIdCandidate() {
 		long min = pow(10, idsLength-1); 
 		long range = pow(10, idsLength) - min;
 		return  min + ( Math.abs(getRandom().nextLong()) % range );
@@ -140,13 +169,13 @@ public class RelationshipStore {
 		}
 		return list;
 	}
-	
+
 	private Random getRandom() {
 		if ( random == null)
 			random = new Random();
 		return random;
 	}
-	
+
 	private static Log log;
 
 	public static void setLog(Log log) {
@@ -164,4 +193,5 @@ public class RelationshipStore {
 	private transient Random random = null;
 	private int idsLength = 6;
 	private long requestTimeout = 5 * 60 * 1000; // ms
+	private Object lock;
 }

@@ -21,16 +21,15 @@ import org.junit.rules.TemporaryFolder;
 
 import de.greencity.bladenightapp.events.EventsList;
 import de.greencity.bladenightapp.exceptions.BadStateException;
-import de.greencity.bladenightapp.procession.Procession;
 import de.greencity.bladenightapp.time.Sleep;
 
 public class RelationshipStoreTest {
-	
+
 	@Before
 	public void before() {
 		RelationshipStore.setLog(new NoOpLog());
 	}
-	
+
 	@Test
 	public void testIds() {
 		RelationshipStore store = new RelationshipStore();
@@ -39,7 +38,7 @@ public class RelationshipStoreTest {
 
 		store.setIdLength(4);
 		for(long i=0; i < 10000; i++) {
-			long id = store.generateId();
+			long id = store.generateUniqId();
 			assertTrue(id >= 1000);
 			assertTrue(id <= 9999);
 		}
@@ -53,7 +52,8 @@ public class RelationshipStoreTest {
 		Map<Long, Integer> map = new HashMap<Long, Integer>();
 		store.setIdLength(4);
 		for(long i=0; i < 1000 ; i++) {
-			long relationshipId = store.newRequest(UUID.randomUUID().toString());
+			HandshakeInfo handshakeInfo = store.newRequest(UUID.randomUUID().toString());
+			long relationshipId = handshakeInfo.getRequestId();
 			assertFalse("Ids shall be given only once " + i, map.containsKey(relationshipId));
 			map.put(relationshipId, 1);
 		}
@@ -64,9 +64,10 @@ public class RelationshipStoreTest {
 	public void startRelation() {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
-		long relationshipId = store.newRequest(deviceId1);
-		assertTrue(relationshipId > 0);
-		assertEquals(true, store.isPending(relationshipId));
+		HandshakeInfo handshakeInfo = store.newRequest(deviceId1);
+		assertTrue(handshakeInfo.getRequestId() > 0);
+		assertTrue(handshakeInfo.getFriendId() == 1);
+		assertEquals(true, store.isPending(handshakeInfo.getRequestId()));
 	}
 
 	@Test
@@ -74,7 +75,9 @@ public class RelationshipStoreTest {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
 		String deviceId2 = UUID.randomUUID().toString();
-		long relationshipId = store.newRequest(deviceId1);
+
+		HandshakeInfo handshakeInfo = store.newRequest(deviceId1);
+		long relationshipId = handshakeInfo.getRequestId();
 
 		assertTrue(store.isPending(relationshipId));
 
@@ -84,7 +87,8 @@ public class RelationshipStoreTest {
 		assertEquals(0, store.getRelationships(deviceId1).size());
 		assertEquals(0, store.getRelationships(deviceId2).size());
 
-		store.finalize(relationshipId, deviceId2);
+		handshakeInfo = store.finalize(relationshipId, deviceId2);
+		assertEquals(1, handshakeInfo.getFriendId());
 
 		assertFalse(store.isPending(relationshipId));
 		assertTrue(store.exists(deviceId1, deviceId2));
@@ -100,6 +104,10 @@ public class RelationshipStoreTest {
 			assertEquals(1, list2.size());
 			assertEquals(deviceId1, list2.get(0));
 		}
+
+		// make sure the friend id is incremented
+		handshakeInfo = store.newRequest(deviceId1);
+		assertEquals(2, handshakeInfo.getFriendId());
 	}
 
 	@Test(expected=BadStateException.class)
@@ -107,7 +115,9 @@ public class RelationshipStoreTest {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
 		String deviceId2 = UUID.randomUUID().toString();
-		long relationshipId = store.newRequest(deviceId1);
+
+		HandshakeInfo handshakeInfo = store.newRequest(deviceId1);
+		long relationshipId = handshakeInfo.getRequestId();
 		store.finalize(relationshipId, deviceId2);
 		store.finalize(relationshipId, deviceId2);
 	}
@@ -117,7 +127,8 @@ public class RelationshipStoreTest {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
 		String deviceId2 = UUID.randomUUID().toString();
-		long relationshipId = store.newRequest(deviceId1);
+		HandshakeInfo handshakeInfo = store.newRequest(deviceId1);
+		long relationshipId = handshakeInfo.getRequestId();
 		store.finalize(relationshipId+1, deviceId2);
 	}
 
@@ -125,7 +136,8 @@ public class RelationshipStoreTest {
 	public void selfRelationship() throws BadStateException, TimeoutException {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
-		long relationshipId = store.newRequest(deviceId1);
+		HandshakeInfo handshakeInfo = store.newRequest(deviceId1);
+		long relationshipId = handshakeInfo.getRequestId();
 		store.finalize(relationshipId, deviceId1);
 	}
 
@@ -136,7 +148,8 @@ public class RelationshipStoreTest {
 		store.setRequestTimeOut(1);
 		String deviceId1 = UUID.randomUUID().toString();
 		String deviceId2 = UUID.randomUUID().toString();
-		long relationshipId = store.newRequest(deviceId1);
+		HandshakeInfo handshakeInfo = store.newRequest(deviceId1);
+		long relationshipId = handshakeInfo.getRequestId();
 
 		Sleep.sleep(2);
 

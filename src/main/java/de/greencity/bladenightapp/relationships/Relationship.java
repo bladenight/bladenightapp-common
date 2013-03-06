@@ -29,6 +29,9 @@ class Relationship {
 		return System.currentTimeMillis() - creationTimestamp;
 	}
 
+	public boolean involves(String deviceId) {
+		return deviceId.equals(deviceId1) || deviceId.equals(deviceId2); 
+	}
 
 	@Override
 	public String toString() {
