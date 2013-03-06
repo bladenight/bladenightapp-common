@@ -6,6 +6,14 @@ public class PointOnRoute {
 	private double pos;
 	private double spd;
 	
+	public PointOnRoute() {
+	}
+
+	public PointOnRoute(double linearPosition, double linearSpeed) {
+		setPosition(linearPosition);
+		setSpeed(linearSpeed);
+	}
+
 	public double getPosition() {
 		return pos;
 	}

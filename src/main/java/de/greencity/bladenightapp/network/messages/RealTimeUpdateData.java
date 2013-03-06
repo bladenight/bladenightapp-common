@@ -1,5 +1,8 @@
 package de.greencity.bladenightapp.network.messages;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class RealTimeUpdateData {
@@ -7,6 +10,7 @@ public class RealTimeUpdateData {
 		hea = new PointOnRoute();
 		tai = new PointOnRoute();
 		up = new PointOnRoute();
+		fri = new ConcurrentHashMap<Long, PointOnRoute>();
 	}
 
 	public PointOnRoute getUserPosition() {
@@ -78,15 +82,24 @@ public class RealTimeUpdateData {
 		this.rna = routeName;
 	}
 
+	public Map<Long, PointOnRoute> getFriendsMap() {
+		return this.fri;
+	}
+
+	public void addFriend(long friendId, double linearPosition, double linearSpeed) {
+		this.fri.put(friendId, new PointOnRoute(linearPosition, linearSpeed));
+	}
+
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
-	private PointOnRoute hea; // Head
-	private PointOnRoute tai; // Tail
-	private boolean onr; 	// Is user on route. If not, "up" data is not relevant
-	private PointOnRoute up;  // User position
+	private PointOnRoute hea; 				// Head
+	private PointOnRoute tai; 				// Tail
+	private Map<Long, PointOnRoute> fri;  	// Friends
+	private boolean onr; 	  				// Is user on route. If not, "up" data is not relevant
+	private PointOnRoute up;  				// User position
 
 	private double rle; 	// Route length
 	private String rna; 	// Route name

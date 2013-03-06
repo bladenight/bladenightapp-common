@@ -7,7 +7,7 @@ public class RelationshipStoreSingleton {
 		return instance;
 	}
 
-	public static void setRelationshipStore(RelationshipStore instance) {
+	public static void setInstance(RelationshipStore instance) {
 		RelationshipStoreSingleton.instance = instance;
 	}
 

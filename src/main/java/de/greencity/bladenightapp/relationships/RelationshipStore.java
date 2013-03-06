@@ -41,12 +41,16 @@ public class RelationshipStore {
 
 	public HandshakeInfo newRequest(String deviceId1) {
 		synchronized (lock) {
-			HandshakeInfo handshakeInfo = new HandshakeInfo();
-			long id = generateUniqId();
-			handshakeInfo.setRequestId(id);
-			handshakeInfo.setFriendId(generateFriendId(deviceId1));
+			long requestId = generateRequestId();
+			long friendId = generateFriendId(deviceId1);
+
 			Relationship relationship = new Relationship(deviceId1);
-			pending.put(id, relationship);
+			relationship.setFriendId1(friendId);
+			pending.put(requestId, relationship);
+
+			HandshakeInfo handshakeInfo = new HandshakeInfo();
+			handshakeInfo.setRequestId(requestId);
+			handshakeInfo.setFriendId(friendId);
 			return handshakeInfo;
 		}
 	}
@@ -58,9 +62,13 @@ public class RelationshipStore {
 
 		HandshakeInfo handshakeInfo = new HandshakeInfo();
 		synchronized (lock) {
-			handshakeInfo.setFriendId(generateFriendId(deviceId2));
+			long friendId = generateFriendId(deviceId2);
+
+			handshakeInfo.setFriendId(friendId);
 
 			rel.setDeviceId2(deviceId2);
+			rel.setFriendId2(friendId);
+			
 			pending.remove(requestId);
 			finalized.add(rel);
 		}
@@ -110,15 +118,15 @@ public class RelationshipStore {
 		this.requestTimeout = timeout;
 	}
 
-	synchronized long generateUniqId() {
+	synchronized long generateRequestId() {
 		while(true) {
-			long id = generateIdCandidate();
+			long id = generateRequestIdCandidate();
 			if ( ! pending.containsKey(id)  )
 				return id;
 		}
 	}
 
-	private long generateIdCandidate() {
+	private long generateRequestIdCandidate() {
 		long min = pow(10, idsLength-1); 
 		long range = pow(10, idsLength) - min;
 		return  min + ( Math.abs(getRandom().nextLong()) % range );
@@ -157,14 +165,14 @@ public class RelationshipStore {
 
 	/** Returns the deviceId's that have a relationship to the given one
 	 */
-	public List<String> getRelationships(String deviceId) {
-		List<String> list = new ArrayList<String>();
+	public List<RelationshipMember> getRelationships(String deviceId) {
+		List<RelationshipMember> list = new ArrayList<RelationshipMember>();
 		for (Relationship relationship : finalized ) {
 			if ( ! relationship.isPending() ) {
 				if ( deviceId.equals(relationship.getDeviceId1()))
-					list.add(relationship.getDeviceId2());
+					list.add(new RelationshipMember(relationship.getFriendId1(), relationship.getDeviceId2()));
 				if ( deviceId.equals(relationship.getDeviceId2()))
-					list.add(relationship.getDeviceId1());
+					list.add(new RelationshipMember(relationship.getFriendId2(), relationship.getDeviceId1()));
 			}
 		}
 		return list;

@@ -16,11 +16,27 @@ class Relationship {
 	public String getDeviceId2() {
 		return deviceId2;
 	}
-	
+
 	public void setDeviceId2(String deviceId2) {
 		this.deviceId2 = deviceId2;
 	}
-	
+
+	public long getFriendId1() {
+		return friendId1;
+	}
+
+	public long getFriendId2() {
+		return friendId2;
+	}
+
+	public void setFriendId1(long friendId) {
+		this.friendId1 = friendId;
+	}
+
+	public void setFriendId2(long friendId) {
+		this.friendId2 = friendId;
+	}
+
 	public boolean isPending() {
 		return deviceId2 == null;
 	}
@@ -39,6 +55,8 @@ class Relationship {
 	}
 	
 	private String deviceId1;
+	private long friendId1; 
 	private String deviceId2;
+	private long friendId2; 
 	private long creationTimestamp;
 }

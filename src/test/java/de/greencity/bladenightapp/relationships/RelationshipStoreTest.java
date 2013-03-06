@@ -38,7 +38,7 @@ public class RelationshipStoreTest {
 
 		store.setIdLength(4);
 		for(long i=0; i < 10000; i++) {
-			long id = store.generateUniqId();
+			long id = store.generateRequestId();
 			assertTrue(id >= 1000);
 			assertTrue(id <= 9999);
 		}
@@ -95,19 +95,47 @@ public class RelationshipStoreTest {
 		assertTrue(store.exists(deviceId2, deviceId1));
 
 		{
-			List<String> list1 = store.getRelationships(deviceId1);
+			List<RelationshipMember> list1 = store.getRelationships(deviceId1);
 			assertEquals(1, list1.size());
-			assertEquals(deviceId2, list1.get(0));
+			assertEquals(deviceId2, list1.get(0).getDeviceId());
+			assertEquals(1, list1.get(0).getFriendId());
 		}
 		{
-			List<String> list2 = store.getRelationships(deviceId2);
+			List<RelationshipMember> list2 = store.getRelationships(deviceId2);
 			assertEquals(1, list2.size());
-			assertEquals(deviceId1, list2.get(0));
+			assertEquals(deviceId1, list2.get(0).getDeviceId());
+			assertEquals(1, list2.get(0).getFriendId());
 		}
 
 		// make sure the friend id is incremented
 		handshakeInfo = store.newRequest(deviceId1);
 		assertEquals(2, handshakeInfo.getFriendId());
+	}
+
+	@Test
+	public void multipleRelations() throws BadStateException, TimeoutException {
+		RelationshipStore store = new RelationshipStore();
+		String deviceId1 = UUID.randomUUID().toString();
+		String deviceId2 = UUID.randomUUID().toString();
+		String deviceId3 = UUID.randomUUID().toString();
+
+		HandshakeInfo handshakeInfo;
+
+		handshakeInfo = store.newRequest(deviceId1);
+		handshakeInfo = store.finalize(handshakeInfo.getRequestId(), deviceId2);
+
+		handshakeInfo = store.newRequest(deviceId1);
+		handshakeInfo = store.finalize(handshakeInfo.getRequestId(), deviceId3);
+
+		List<RelationshipMember> list = store.getRelationships(deviceId1);
+
+		assertEquals(2, list.size());
+
+		assertEquals(deviceId2, list.get(0).getDeviceId());
+		assertEquals(1, list.get(0).getFriendId());
+
+		assertEquals(deviceId3, list.get(1).getDeviceId());
+		assertEquals(2, list.get(1).getFriendId());
 	}
 
 	@Test(expected=BadStateException.class)
