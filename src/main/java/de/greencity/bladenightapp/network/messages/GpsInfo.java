@@ -5,8 +5,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class GpsInfo {
 	public GpsInfo(String deviceId, boolean isParticipating, double lat, double lon) {
 		coo = new LatLong(lat, lon);
-		this.isParticipating = isParticipating;
-		this.deviceId = deviceId;
+		this.par = isParticipating;
+		this.did = deviceId;
 	}
 
 	public GpsInfo() {
@@ -30,19 +30,19 @@ public class GpsInfo {
 	}
 
 	public String getDeviceId() {
-		return deviceId;
+		return did;
 	}
 
 	public void setDeviceId(String deviceId) {
-		this.deviceId = deviceId;
+		this.did = deviceId;
 	}
 
 	public boolean isParticipating() {
-		return isParticipating;
+		return par;
 	}
 	
 	public void isParticipating(boolean isParticipating) {
-		this.isParticipating = isParticipating;
+		this.par = isParticipating;
 	}
 	
 	@Override
@@ -51,6 +51,6 @@ public class GpsInfo {
 	}
 	
 	private LatLong coo;
-	private String deviceId;
-	private boolean isParticipating;
+	private String did;
+	private boolean par;
 }

@@ -169,6 +169,21 @@ public class RelationshipStoreTest {
 		store.finalize(relationshipId, deviceId1);
 	}
 
+	@Test(expected=BadStateException.class)
+	public void duplicateRelationship() throws BadStateException, TimeoutException {
+		RelationshipStore store = new RelationshipStore();
+		String deviceId1 = UUID.randomUUID().toString();
+		String deviceId2 = UUID.randomUUID().toString();
+		for ( int i = 0; i < 2 ; i++) {
+			HandshakeInfo handshakeInfo = store.newRequest(deviceId1);
+			long relationshipId = handshakeInfo.getRequestId();
+			store.finalize(relationshipId, deviceId2);
+			assertEquals(1, store.getRelationships(deviceId1).size());
+			assertEquals(1, store.getRelationships(deviceId2).size());
+		}
+	}
+
+
 	@Test(expected=TimeoutException.class)
 	public void testTimeout() throws InterruptedException, BadStateException, TimeoutException {
 		RelationshipStore store = new RelationshipStore();

@@ -48,9 +48,12 @@ public class RelationshipStore {
 			relationship.setFriendId1(friendId);
 			pending.put(requestId, relationship);
 
+			getLog().info("Created new request for " + deviceId1 + " " + requestId + " = " + relationship);
+
 			HandshakeInfo handshakeInfo = new HandshakeInfo();
 			handshakeInfo.setRequestId(requestId);
 			handshakeInfo.setFriendId(friendId);
+
 			return handshakeInfo;
 		}
 	}
@@ -71,6 +74,8 @@ public class RelationshipStore {
 			
 			pending.remove(requestId);
 			finalized.add(rel);
+			
+			getLog().info(rel.getDeviceId1() + " and " + rel.getDeviceId2() + " are now connected");
 		}
 		return handshakeInfo;
 	}
@@ -98,6 +103,11 @@ public class RelationshipStore {
 		}
 		if ( rel.getDeviceId1() == deviceId2 ) {
 			String msg = "Relationship with self is not allowed: "+rel;
+			getLog().warn(msg);
+			throw new BadStateException(msg);
+		}
+		if ( exists(rel.getDeviceId1(), deviceId2) ) {
+			String msg = "Devices are already connected: "+rel;
 			getLog().warn(msg);
 			throw new BadStateException(msg);
 		}
