@@ -11,6 +11,25 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 public class Event {
+	public enum EventStatus {
+	    PENDING("P"),
+	    CONFIRMED("O"),
+	    CANCELLED("A");
+
+	    private final String status;       
+
+	    private EventStatus(String s) {
+	        status = s;
+	    }
+
+	    public boolean equalsName(String otherName){
+	        return (otherName == null)? false:status.equals(otherName);
+	    }
+
+	    public String toString(){
+	       return status;
+	    }
+	}
 
 	public static class Builder {
 		private Event event;
@@ -19,48 +38,50 @@ public class Event {
 			event = new Event();
 		}
 
-		public Builder setStart(String dateString) throws ParseException {
+		public Builder setStartDate(String dateString) throws ParseException {
 			event.startDate = dateFormatter.parseDateTime(dateString);
 			return this;
 		}
 
-		public Builder setStart(DateTime date) {
-			event.startDate = date;
-			return this;
-		}
-
-		public Builder setRoute(String routeName) {
-			event.routeName = routeName;
+		public Builder setStartDate(DateTime date) {
+			event.setStartDate(date);
 			return this;
 		}
 
 		public Builder setDuration(Duration duration) {
-			event.duration = duration;
+			event.setDuration(duration);
 			return this;
 		}
 
-		public Builder setMinutes(int minutes) {
-			event.duration = new Duration(minutes*60*1000);
+		public Builder setDurationInMinutes(int minutes) {
+			event.setDuration(new Duration(minutes*60*1000));
 			return this;
 		}
 
 		public Builder setRouteName(String routeName) {
-			event.routeName = routeName;
+			event.setRouteName(routeName);
 			return this;
 		}
 
 		public Builder setParticipants(int participants) {
-			event.participants = participants;
+			event.setParticipants(participants);
+			return this;
+		}
+
+		public Builder setStatus(EventStatus status) {
+			event.setStatus(status);
 			return this;
 		}
 
 		public Event build() {
 			return event;
 		}
+
 	}
 	
 	Event() {
 		duration = new Duration(0);
+		status = EventStatus.PENDING;				
 	}
 
 	public Duration getDuration() {
@@ -87,6 +108,10 @@ public class Event {
 		this.participants = participants;
 	}
 
+	public void setStartDate(DateTime date) {
+		this.startDate = date;
+	}
+
 	public DateTime getStartDate() {
 		return startDate;
 	}
@@ -95,6 +120,13 @@ public class Event {
 		return startDate.plus(duration);
 	}
 
+	public EventStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(EventStatus status) {
+		this.status = status;
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -110,6 +142,7 @@ public class Event {
 	protected Duration duration;
 	protected String routeName;
 	protected int participants;
+	protected EventStatus status;
 	
 	protected final static DateTimeFormatter dateFormatter;
 	protected final static ToStringStyle toStringStyle;

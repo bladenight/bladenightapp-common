@@ -18,8 +18,8 @@ public class EventsManagerTest {
 
 	@Test
 	public void getNextEventWithNoNextEvent() throws ParseException {
-		Event event1 = new Event.Builder().setStart("2001-06-01T21:00").build();
-		Event event2 = new Event.Builder().setStart("2002-06-01T21:00").build();
+		Event event1 = new Event.Builder().setStartDate("2001-06-01T21:00").build();
+		Event event2 = new Event.Builder().setStartDate("2002-06-01T21:00").build();
 
 		EventsList manager = new EventsList();
 		manager.addEvent(event1);
@@ -30,8 +30,8 @@ public class EventsManagerTest {
 
 	@Test
 	public void getNextEventWithNoOngoingEvent() throws ParseException {
-		Event event1 = new Event.Builder().setStart("2001-06-01T21:00").build();
-		Event event2 = new Event.Builder().setStart("2021-06-01T21:00").build();
+		Event event1 = new Event.Builder().setStartDate("2001-06-01T21:00").build();
+		Event event2 = new Event.Builder().setStartDate("2021-06-01T21:00").build();
 
 		EventsList manager = new EventsList();
 		manager.addEvent(event1);
@@ -39,7 +39,7 @@ public class EventsManagerTest {
 		Event returnedEvent = manager.getNextEvent();
 		assertNotNull(returnedEvent);
 
-		assertEquals(new Event.Builder().setStart("2021-06-01T21:00").build(), returnedEvent);		
+		assertEquals(new Event.Builder().setStartDate("2021-06-01T21:00").build(), returnedEvent);		
 
 	}
 
@@ -63,9 +63,9 @@ public class EventsManagerTest {
 
 		Duration dur_6h = new Duration(6*3600*1000);
 
-		Event event1 = new Event.Builder().setStart(date_12h_ago).setDuration(dur_6h).build();
-		Event event2 = new Event.Builder().setStart(date_1h_ago).setDuration(dur_6h).build();
-		Event event3 = new Event.Builder().setStart(now.plus(12*3600*1000)).build();
+		Event event1 = new Event.Builder().setStartDate(date_12h_ago).setDuration(dur_6h).build();
+		Event event2 = new Event.Builder().setStartDate(date_1h_ago).setDuration(dur_6h).build();
+		Event event3 = new Event.Builder().setStartDate(now.plus(12*3600*1000)).build();
 
 		EventsList manager = new EventsList();
 
@@ -91,9 +91,9 @@ public class EventsManagerTest {
 	public void writeEvents() throws IOException, ParseException {
 		String referenceDate = "2020-02-17T23:00";
 		File tempFile = File.createTempFile("EventsManagerTest-writeEvents", ".json");
-		Event event1 = new Event.Builder().setStart("2012-02-03T20:00").setMinutes(60).setRouteName("route1.gpx").build();
-		Event event2 = new Event.Builder().setStart("2012-02-10T21:00").setMinutes(120).setRouteName("route2.gpx").build();
-		Event event3 = new Event.Builder().setStart(referenceDate).setMinutes(180).setRouteName("route3.gpx").build();
+		Event event1 = new Event.Builder().setStartDate("2012-02-03T20:00").setDurationInMinutes(60).setRouteName("route1.gpx").build();
+		Event event2 = new Event.Builder().setStartDate("2012-02-10T21:00").setDurationInMinutes(120).setRouteName("route2.gpx").build();
+		Event event3 = new Event.Builder().setStartDate(referenceDate).setDurationInMinutes(180).setRouteName("route3.gpx").build();
 		EventsList manager = new EventsList();
 		manager.addEvent(event1);
 		manager.addEvent(event2);

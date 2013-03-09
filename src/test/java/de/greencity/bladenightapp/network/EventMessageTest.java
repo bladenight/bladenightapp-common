@@ -12,27 +12,31 @@ import de.greencity.bladenightapp.network.messages.EventMessage;
 public class EventMessageTest {
 	@Test
 	public void toMessage() {
+		String routeName = "some route";
 		DateTime date = new DateTime("2013-02-03T21:00");
 		Event event = new Event.Builder()
-			.setStart(date)
-			.setMinutes(120)
+			.setStartDate(date)
+			.setDurationInMinutes(120)
 			.setParticipants(1000)
-			.setRouteName("someroute")
+			.setRouteName(routeName)
 			.build();
 		EventMessage msg = new EventMessage(event);
 		assertEquals("2013-02-03T21:00", msg.sta);
 		assertEquals(120, msg.dur);
-		assertEquals("someroute", msg.rou);
+		assertEquals(routeName, msg.rou);
 		assertEquals(1000, msg.par);
+		assertEquals(EventMessage.EventStatus.PENDING, msg.sts);
 	}
 
 	@Test
 	public void fromMessage() {
+		String routeName = "some route";
 		EventMessage msg = new EventMessage();
 		msg.sta = "2013-02-03T21:00";
 		msg.par = 1000;
-		msg.rou = "someroute";
+		msg.rou = routeName;
 		msg.dur = 120;
+		msg.sts = EventMessage.EventStatus.CONFIRMED;
 		
 		Event e = msg.toEvent();
 		
@@ -40,6 +44,7 @@ public class EventMessageTest {
 		assertEquals(e.getEndDate(), new DateTime("2013-02-03T23:00"));
 		assertEquals(e.getDuration(), new Duration(120*60*1000));
 		assertEquals(e.getParticipants(), 1000);
-		assertEquals(e.getRouteName(), "someroute");
+		assertEquals(e.getRouteName(), routeName);
+		assertEquals(Event.EventStatus.CONFIRMED, e.getStatus());
 	}
 }

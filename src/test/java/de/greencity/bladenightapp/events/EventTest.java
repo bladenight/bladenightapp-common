@@ -24,30 +24,39 @@ public class EventTest {
 	
 	@Test
 	public void simpleEqualEvents() {
-		event1 = new Event.Builder().setStart(now).build();
-		event2 = new Event.Builder().setStart(now).build();
+		event1 = new Event.Builder().setStartDate(now).build();
+		event2 = new Event.Builder().setStartDate(now).build();
 		assertEquals(event1, event2);
 	}
 
 	@Test
 	public void simpleNonEqualEvents() {
-		event1 = new Event.Builder().setStart(now).build();
-		event2 = new Event.Builder().setStart(now.plus(dur_1s)).build();
+		event1 = new Event.Builder().setStartDate(now).build();
+		event2 = new Event.Builder().setStartDate(now.plus(dur_1s)).build();
 		assertFalse(event1.equals(event2));
 	}
 
 
 	@Test
 	public void routeShallBeConsidered() {
-		event1 = new Event.Builder().setStart(now).build();
-		event2 = new Event.Builder().setStart(now).setRoute("test").build();
+		event1 = new Event.Builder().setStartDate(now).build();
+		event2 = new Event.Builder().setStartDate(now).setRouteName("test").build();
 		assertFalse(event1.equals(event2));
 	}
 
 	@Test
 	public void durationShallBeConsidered() {
-		event1 = new Event.Builder().setStart(now).build();
-		event2 = new Event.Builder().setStart(now).setDuration(dur_6h).build();
+		event1 = new Event.Builder().setStartDate(now).build();
+		event2 = new Event.Builder().setStartDate(now).setDuration(dur_6h).build();
 		assertFalse(event1.equals(event2));
+	}
+
+	@Test
+	public void defaultStatusIsPending() {
+		event1 = new Event.Builder().setStartDate(now).build();
+		assertEquals(Event.EventStatus.PENDING, event1.getStatus());
+		
+		event1.setStatus(Event.EventStatus.CANCELLED);
+		assertEquals(Event.EventStatus.CANCELLED, event1.getStatus());
 	}
 }
