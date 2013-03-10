@@ -290,6 +290,8 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		for (Long age : counter.keySet()) {
 			medianFinder.addWeightedValue(age, counter.get(age));
 		}
+		if ( medianFinder.sampleCount() == 0 )
+			return 0;
 		return (long) medianFinder.findMedian();
 	}
 	
