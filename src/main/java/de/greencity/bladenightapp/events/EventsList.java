@@ -3,6 +3,7 @@ package de.greencity.bladenightapp.events;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -10,9 +11,10 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.joda.time.DateTime;
 
-public class EventsList {
+public class EventsList implements Iterable<Event> {
 
 	public EventsList() {
+		events = new ArrayList<Event>();
 	}
 
 	public Event getNextEvent() {
@@ -47,6 +49,11 @@ public class EventsList {
 	}
 	
 	@Override
+	public Iterator<Event> iterator() {
+		return events.iterator();
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		return EqualsBuilder.reflectionEquals(this, obj);
 	}
@@ -56,7 +63,5 @@ public class EventsList {
 		return ToStringBuilder.reflectionToString(this);
 	}
 	
-	protected List<Event> events = new ArrayList<Event>();
-	// protected Map<DateTime, Event> events2 = new HashMap<DateTime, Event>(); 
-
+	protected List<Event> events;
 }

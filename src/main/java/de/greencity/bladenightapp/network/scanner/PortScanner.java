@@ -101,6 +101,7 @@ public class PortScanner {
 			knocker.setHost(host); 
 			knocker.setPort(port); 
 			knocker.setTimeout(timeout); 
+			// System.out.println(System.currentTimeMillis() + " " + host + ":" + port);
 		}
 		@Override
 		public void run() {

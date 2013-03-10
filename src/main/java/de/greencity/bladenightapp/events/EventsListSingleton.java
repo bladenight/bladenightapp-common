@@ -8,7 +8,7 @@ public class EventsListSingleton {
 		return instance;
 	}
 
-	public static void setEventsList(EventsList instance) {
+	public static void setInstance(EventsList instance) {
 		EventsListSingleton.instance = instance;
 	}
 

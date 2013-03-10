@@ -8,7 +8,7 @@ public class EventsListSingletonTest {
 	@Test
 	public void test() {
 		EventsList list = new EventsList();
-		EventsListSingleton.setEventsList(list);
+		EventsListSingleton.setInstance(list);
 		assertTrue(EventsListSingleton.getInstance() == list);
 	}
 }

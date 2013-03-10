@@ -1,6 +1,7 @@
 package de.greencity.bladenightapp.procession;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import de.greencity.bladenightapp.math.MedianFinder;
 import de.greencity.bladenightapp.procession.tasks.ComputeSchedulerClient;
 import de.greencity.bladenightapp.procession.tasks.ParticipantCollectorClient;
 import de.greencity.bladenightapp.routes.Route;
@@ -57,6 +59,8 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 	@Override
 	public synchronized void removeOutdatedParticipants(double factor) {
+		double meanParticipantUpdatePeriod = getMeanParticipantUpdatePeriod();
+		System.out.println("meanParticipantUpdatePeriod="+meanParticipantUpdatePeriod);
 		if ( meanParticipantUpdatePeriod <= 0 )
 			return;
 		for ( String id : participants.keySet()) {
@@ -80,7 +84,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		return participants.size();
 	}
 
-	public int getParticipantOnRoute() {
+	public int getParticipantsOnRoute() {
 		int count = 0;
 		for ( Participant p : participants.values()) {
 			if ( p.isOnRoute() ) {
@@ -95,19 +99,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		String participantId = participantInput.getParticipantId();
 		Participant participant = participants.get(participantId);
 		if ( participant == null ) {
-			if ( participants.size() == 0 ) {
-				// Reset statistic:
-				meanParticipantUpdatePeriod = 0;
-			}
 			participant = getOrCreateParticipant(participantId);
-		}
-		else {
-			long age = participant.getLastLifeSignAge();
-			if ( meanParticipantUpdatePeriod > 0 )
-				meanParticipantUpdatePeriod = ( 9 * meanParticipantUpdatePeriod + age) / 10;
-			else
-				// No statistic available. Just use the actual as a reference
-				meanParticipantUpdatePeriod = age;
 		}
 
 		List<ProjectedLocation> potentialLocations = route.projectPosition(participantInput.getLatitude(), participantInput.getLongitude());
@@ -284,6 +276,23 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		return maxComputeAge;
 	}
 
+	public long getMeanParticipantUpdatePeriod() {
+		Map<Long, Long> counter = new HashMap<Long, Long>();
+		for (Participant p : participants.values() ) {
+			Long age = p.getLastLifeSignAge();
+			Long currentCount = counter.get(age);
+			if ( currentCount == null ) {
+				currentCount = new Long(0);
+			}
+			counter.put(age, currentCount+1);
+		}
+		MedianFinder medianFinder = new MedianFinder();
+		for (Long age : counter.keySet()) {
+			medianFinder.addWeightedValue(age, counter.get(age));
+		}
+		return (long) medianFinder.findMedian();
+	}
+	
 	/*** If set, trigger a compute if the last compute is older than specified.
 	 * Disabled by default.
 	 * Set to 0 for systematic updates
@@ -318,8 +327,6 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	private Map<String, Participant> participants;
 
 	private static Log log;
-
-	private double meanParticipantUpdatePeriod;
 
 	public static void setLog(Log log) {
 		Procession.log = log;

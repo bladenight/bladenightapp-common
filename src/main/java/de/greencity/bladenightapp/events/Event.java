@@ -152,6 +152,7 @@ public class Event {
 		toStringStyle = new ToStringStyle() {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected void appendDetail(StringBuffer buffer, String fieldName, Object value) {
 				if (value instanceof DateTime) {
 					value = dateFormatter.print((DateTime)value);

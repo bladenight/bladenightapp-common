@@ -43,10 +43,10 @@ public class EventMessage {
 	}
 
 	public EventMessage(Event e) {
-		fromEvent(e);
+		copyFromEvent(e);
 	}
 
-	void fromEvent(Event e) {
+	public void copyFromEvent(Event e) {
 		sta = dateFormatter.print(e.getStartDate());
 		dur = e.getDuration().getStandardMinutes();
 		rou = e.getRouteName();
@@ -54,6 +54,12 @@ public class EventMessage {
 		sts = convertStatus(e.getStatus());
 	}
 
+	public static EventMessage newFromEvent(Event e) {
+		EventMessage message = new EventMessage();
+		message.copyFromEvent(e);
+		return message;
+	}
+	
 	public Event toEvent() {
 		return new Event.Builder()
 		.setStartDate(dateFormatter.parseDateTime(sta))

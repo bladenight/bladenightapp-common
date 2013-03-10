@@ -65,9 +65,9 @@ public class ProcessionTest {
 	@Test
 	public void singleParticipantEvolvingOnOverlappingSegments() {
 		String participantId = generateParticipantId();
-		
+
 		// assertEquals(0.0, procession.evaluateTravelTimeBetween(0.0, 10000.0), 0.0);
-		
+
 		// Start on an overlap to make it hard
 		double lat1 = 48.128642;
 		double lon1 = 11.555716;
@@ -93,7 +93,7 @@ public class ProcessionTest {
 		// Back the same point as before, but now on the return path
 		updateParticipant(participantId, lat2, lon2);
 		assertProcessionIn(14300, 14310);
-		
+
 		// Set participant back to beginning of the route to make sure
 		// the algorithm is able to reset itself
 		updateParticipant(participantId, 48.139941, 11.536054);
@@ -120,8 +120,42 @@ public class ProcessionTest {
 		assertProcessionIn(1600, 2300);
 
 		assertTrue(procession.getLength() > 500);
+	}
+	
+	@Test
+	public void removeParticipant() {
+		String id1 = addParticipant(48.135607, 11.524631);
+		String id2 = addParticipant(48.139625, 11.518710);
+		assertEquals(2, procession.getParticipantCount());
+		procession.removeParticipant(id1);
+		assertEquals(1, procession.getParticipantCount());
+		assertTrue(procession.getParticipant(id2) != null);
+		assertTrue(procession.getParticipant(id1) == null);
+	}
 
-}
+	@Test
+	public void removeOutdatedParticipant() {
+		String id1 = addParticipant(48.135607, 11.524631);
+		String id2 = addParticipant(48.139625, 11.518710);
+		String id3 = addParticipant(48.139625, 11.518710);
+		String id4 = addParticipant(48.139625, 11.518710);
+		String id5 = addParticipant(48.139625, 11.518710);
+		assertEquals(5, procession.getParticipantCount());
+		long now = System.currentTimeMillis();
+		procession.getParticipant(id1).setLastLifeSign(now-1000);
+		procession.getParticipant(id2).setLastLifeSign(now-100000);
+		procession.getParticipant(id3).setLastLifeSign(now-2000);
+		procession.getParticipant(id4).setLastLifeSign(now-3000);
+		procession.getParticipant(id5).setLastLifeSign(now-2500);
+		
+		procession.removeOutdatedParticipants(5.0);
+		assertEquals(4, procession.getParticipantCount());
+		assertTrue(procession.getParticipant(id1) != null);
+		assertTrue(procession.getParticipant(id2) == null);
+		assertTrue(procession.getParticipant(id3) != null);
+		assertTrue(procession.getParticipant(id4) != null);
+		assertTrue(procession.getParticipant(id5) != null);
+	}
 
 	private String addParticipant(double lat, double lon) {
 		String participantId = generateParticipantId();
