@@ -36,7 +36,8 @@ public class EventMessage {
 	public long 		dur; 	// duration in minutes
 	public String 		rou; 	// route name
 	public int 			par;	// number of participants
-	public EventStatus 	sts;
+	public EventStatus 	sts;	// status
+	public long			len;   	// length in meters
 
 	public EventMessage() {
 		sts = EventStatus.PENDING;
@@ -44,6 +45,55 @@ public class EventMessage {
 
 	public EventMessage(Event e) {
 		copyFromEvent(e);
+	}
+
+	
+	public String getStartDate() {
+		return sta;
+	}
+
+	public void setStartDate(String sta) {
+		this.sta = sta;
+	}
+
+	public long getDuration() {
+		return dur;
+	}
+
+	public void setDuration(long dur) {
+		this.dur = dur;
+	}
+
+	public String getRouteName() {
+		return rou;
+	}
+
+	public void setRouteName(String rou) {
+		this.rou = rou;
+	}
+
+	public int getParticipantsCount() {
+		return par;
+	}
+
+	public void setParticipantsCount(int par) {
+		this.par = par;
+	}
+
+	public EventStatus getStatus() {
+		return sts;
+	}
+
+	public void setStatus(EventStatus sts) {
+		this.sts = sts;
+	}
+
+	public long getLength() {
+		return len;
+	}
+
+	public void setLength(long length) {
+		this.len = length;
 	}
 
 	public void copyFromEvent(Event e) {

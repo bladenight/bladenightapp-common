@@ -55,4 +55,12 @@ public class EventsListMessage {
 			setLog(LogFactory.getLog(EventsListMessage.class));
 		return log;
 	}
+
+	public int size() {
+		return evt.length;
+	}
+
+	public EventMessage get(int position) {
+		return evt[position];
+	}
 }
