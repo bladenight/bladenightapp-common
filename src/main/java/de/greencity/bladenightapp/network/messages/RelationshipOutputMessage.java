@@ -17,6 +17,6 @@ public class RelationshipOutputMessage {
 	public void setRequestId(long rid) {
 		this.rid = rid;
 	}
-	private long fid;
-	private long rid;
+	public long fid;
+	public long rid;
 }

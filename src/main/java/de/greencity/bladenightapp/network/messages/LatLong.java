@@ -1,5 +1,6 @@
 package de.greencity.bladenightapp.network.messages;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class LatLong {
@@ -7,8 +8,8 @@ public class LatLong {
 	}
 
 	public LatLong(double lat, double lon) {
-		la = lat;
-		lo = lon;
+		setLatitude(lat);
+		setLongitude(lon);
 	}
 
 	public double getLatitude() {
@@ -16,7 +17,7 @@ public class LatLong {
 	}
 
 	public void setLatitude(double la) {
-		this.la = la;
+		this.la = convertToInternal(la);
 	}
 
 	public double getLongitude() {
@@ -24,7 +25,11 @@ public class LatLong {
 	}
 
 	public void setLongitude(double lo) {
-		this.lo = lo;
+		this.lo = convertToInternal(lo);
+	}
+	
+	private double convertToInternal(double d) {
+		return Math.round(d * precision) / precision;
 	}
 
 	@Override
@@ -32,7 +37,11 @@ public class LatLong {
 		return ToStringBuilder.reflectionToString(this);
 	}
 	
-
-	private double la, lo;
-
+	@Override
+	public boolean equals(Object o) {
+		return EqualsBuilder.reflectionEquals(this, o, false);
+	}
+	
+	public double la, lo;
+	final static public double precision = 10000;
 }

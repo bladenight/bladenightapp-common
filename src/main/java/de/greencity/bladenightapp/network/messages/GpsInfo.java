@@ -50,7 +50,7 @@ public class GpsInfo {
 		return ToStringBuilder.reflectionToString(this);
 	}
 	
-	private LatLong coo;
-	private String did;
-	private boolean par;
+	public LatLong coo;
+	public String did;
+	public boolean par;
 }

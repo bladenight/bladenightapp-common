@@ -32,7 +32,7 @@ public class RelationshipInputMessage {
 		return ToStringBuilder.reflectionToString(this);
 	}
 	
-	private String did1;
-	private String did2;
-	private long req;
+	public String did1;
+	public String did2;
+	public long req;
 }

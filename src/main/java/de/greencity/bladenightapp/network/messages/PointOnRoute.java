@@ -3,8 +3,8 @@ package de.greencity.bladenightapp.network.messages;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class PointOnRoute {
-	private double pos;
-	private double spd;
+	public double pos;
+	public double spd;
 	
 	public PointOnRoute() {
 	}

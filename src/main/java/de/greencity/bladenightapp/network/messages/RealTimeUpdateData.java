@@ -95,14 +95,14 @@ public class RealTimeUpdateData {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
-	private PointOnRoute hea; 				// Head
-	private PointOnRoute tai; 				// Tail
-	private Map<Long, PointOnRoute> fri;  	// Friends
-	private boolean onr; 	  				// Is user on route. If not, "up" data is not relevant
-	private PointOnRoute up;  				// User position
+	public PointOnRoute hea; 				// Head
+	public PointOnRoute tai; 				// Tail
+	public Map<Long, PointOnRoute> fri;  	// Friends
+	public boolean onr; 	  				// Is user on route. If not, "up" data is not relevant
+	public PointOnRoute up;  				// User position
 
-	private double rle; 	// Route length
-	private String rna; 	// Route name
-	private int ust; 		// Total number of clients connected
-	private int usr; 		// Total number of clients on the route
+	public double rle; 	// Route length
+	public String rna; 	// Route name
+	public int ust; 		// Total number of clients connected
+	public int usr; 		// Total number of clients on the route
 }

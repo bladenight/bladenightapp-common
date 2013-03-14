@@ -5,35 +5,58 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import de.greencity.bladenightapp.routes.Route;
 
 public class RouteMessage {
-	private LatLong[] nod; // node list
-	@SuppressWarnings("unused")
-	private int len;
+	public LatLong[] nod; // node list
+	public int len;
+	public String nam;
 
 	public RouteMessage() {
 		nod = new LatLong[0];
+		nam = "undefined route name";
 	}
 
 	public RouteMessage(Route r) {
-		fromRoute(r);
+		copyFromRoute(r);
 	}
 
-	void fromRoute(Route r) {
+	public static RouteMessage newFromRoute(Route r) {
+		RouteMessage routeMessage = new RouteMessage();
+		routeMessage.copyFromRoute(r);
+		return routeMessage;
+	}
+
+	public void copyFromRoute(Route r) {
 		len = (int) r.getLength();
 		nod = new LatLong[r.getNumberOfSegments()+1];
 		int i = 0;
 		for (Route.LatLong rll : r.getNodesLatLong() ) {
 			nod[i++] = new LatLong(rll.lat, rll.lon);
 		}
+		setRouteName(r.getName());
 	}
 	
 	public List<LatLong> getNodes() {
 		return Arrays.asList(nod);
+	}
+
+	public String getRouteName() {
+		return nam;
+	}
+
+
+	public int getRouteLength() {
+		return len;
+	}
+
+	public void setRouteLength(int length) {
+		this.len = length;
+	}
+
+	public void setRouteName(String routeName) {
+		this.nam = routeName;
 	}
 
 	@Override
@@ -46,9 +69,4 @@ public class RouteMessage {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
-	protected final static DateTimeFormatter dateFormatter;
-
-	static {
-		dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm");
-	}
 }
