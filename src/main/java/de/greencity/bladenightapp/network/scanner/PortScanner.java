@@ -42,10 +42,8 @@ public class PortScanner {
 	 * @throws InterruptedException
 	 */
 	public void scan() throws InterruptedException {
-		//		System.out.println(System.currentTimeMillis() + " started scan");
 		for ( String host : hostsToScan ) {
 			if ( hostsFound.size() > 0 ) {
-				//				System.out.println(System.currentTimeMillis() + " host found:" + hostsFound.get(0));
 				break;
 			}
 			waitIfTooManyKnockersRunning(MAX_RUNNING_JOBS-1);
@@ -56,15 +54,12 @@ public class PortScanner {
 		if ( hostsFound.size() == 0 )
 			waitIfTooManyKnockersRunning(0);
 
-		//		System.out.println(System.currentTimeMillis() + " scan done");
 		return;
 	}
 
 	public void waitIfTooManyKnockersRunning(int maxRunning) throws InterruptedException {
-		// System.out.println(System.currentTimeMillis() + " Still " + runningPortKnockersJobs.size() + " knockers running, " + maxRunning);
 		while ( runningPortKnockersJobs.size() > maxRunning ) {
 			long sleepInterval = Math.min(10, timeout / 2);
-			// System.out.println(System.currentTimeMillis() + " Still " + runningPortKnockersJobs.size() + " knockers running, sleeping for " + sleepInterval + "ms");
 			Sleep.sleep(sleepInterval);
 		}
 	}
@@ -101,7 +96,6 @@ public class PortScanner {
 			knocker.setHost(host); 
 			knocker.setPort(port); 
 			knocker.setTimeout(timeout); 
-			// System.out.println(System.currentTimeMillis() + " " + host + ":" + port);
 		}
 		@Override
 		public void run() {

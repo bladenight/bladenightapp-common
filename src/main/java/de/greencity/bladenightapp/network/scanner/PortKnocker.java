@@ -47,9 +47,7 @@ public class PortKnocker {
 
 		Socket socket = factory.createSocket();
 		try {
-			// System.out.println("Knocking at " + host + ":" + port + " timeout="+timeout);
 			InetSocketAddress address = new InetSocketAddress(host, port);
-			// long startTime = System.currentTimeMillis(); 
 			socket.connect(address, timeout);
 			if ( socket.isConnected() ) {
 				return true;

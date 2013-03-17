@@ -2,11 +2,14 @@ package de.greencity.bladenightapp.relationships;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import de.greencity.bladenightapp.time.Clock;
+import de.greencity.bladenightapp.time.SystemClock;
+
 class Relationship {
 
 	public Relationship(String deviceId1) {
 		this.deviceId1 = deviceId1;
-		this.creationTimestamp = System.currentTimeMillis();
+		this.creationTimestamp = clock.currentTimeMillis();
 	}
 
 	public String getDeviceId1() {
@@ -42,7 +45,7 @@ class Relationship {
 	}
 
 	public long getAge() {
-		return System.currentTimeMillis() - creationTimestamp;
+		return clock.currentTimeMillis() - creationTimestamp;
 	}
 
 	public boolean involves(String deviceId) {
@@ -59,4 +62,5 @@ class Relationship {
 	private String deviceId2;
 	private long friendId2; 
 	private long creationTimestamp;
+	private Clock clock = new SystemClock();
 }

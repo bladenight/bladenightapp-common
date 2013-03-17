@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import de.greencity.bladenightapp.procession.MovingPoint.Clock;
+import de.greencity.bladenightapp.time.Clock;
 
 public class MovingPointTest {
 

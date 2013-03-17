@@ -1,8 +1,11 @@
 package de.greencity.bladenightapp.procession;
 
+import de.greencity.bladenightapp.time.Clock;
+import de.greencity.bladenightapp.time.SystemClock;
+
 public class Participant {
 	public Participant() {
-		lastLifeSign = System.currentTimeMillis();
+		lastLifeSign = clock.currentTimeMillis();
 		lastKnownPoint = new MovingPoint();
 	}
 
@@ -19,15 +22,8 @@ public class Participant {
 	}
 
 	public void setLastKnownPoint(MovingPoint lastKnownPoint) {
-		setLastLifeSign(System.currentTimeMillis());
+		setLastLifeSign(clock.currentTimeMillis());
 		this.lastKnownPoint = lastKnownPoint;
-	}
-
-	public long getLastLifeSignAge() {
-		long age = System.currentTimeMillis() - lastLifeSign;
-		if ( age >=0 )
-			return age;
-		return 0;
 	}
 
 	public long getLastLifeSign() {
@@ -42,10 +38,6 @@ public class Participant {
 		return lastKnownPoint.getLinearPosition();
 	}
 
-	public long getNewTimestamp(){
-		return System.currentTimeMillis();
-	}
-	
 	public double getLatitude() {
 		return lastKnownPoint.getLatitude();
 	}
@@ -69,4 +61,5 @@ public class Participant {
 	private String deviceId;
 	private MovingPoint lastKnownPoint;
 	private long lastLifeSign;
+	private Clock clock = new SystemClock();
 }

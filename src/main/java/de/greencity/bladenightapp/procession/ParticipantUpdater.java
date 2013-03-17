@@ -8,6 +8,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import de.greencity.bladenightapp.routes.Route.ProjectedLocation;
+import de.greencity.bladenightapp.time.Clock;
+import de.greencity.bladenightapp.time.SystemClock;
 
 /**
  * Updates a participant based on his previous location, the route, and other dynamic values.
@@ -39,6 +41,10 @@ public class ParticipantUpdater {
 		}
 		Builder setRouteLength(double routeLength) {
 			updater.setRouteLength(routeLength);
+			return this;
+		}
+		Builder setClock(Clock clock) {
+			updater.setClock(clock);
 			return this;
 		}
 		ParticipantUpdater build() {
@@ -76,7 +82,7 @@ public class ParticipantUpdater {
 
 	public boolean updateParticipant() {
 
-		long timestamp = getNewTimestamp();
+		long timestamp = clock.currentTimeMillis();
 
 		participant.setLastLifeSign(timestamp);
 
@@ -108,11 +114,6 @@ public class ParticipantUpdater {
 
 		return true;
 	}
-
-	public long getNewTimestamp(){
-		return System.currentTimeMillis();
-	}
-
 
 	protected ProjectedLocation findBestNewLocationOnRoute() {
 
@@ -224,6 +225,10 @@ public class ParticipantUpdater {
 		else
 			return evaluation;
 	}
+	
+	public void setClock(Clock clock) {
+		this.clock = clock;
+	}
 
 
 	private static Log log;
@@ -244,5 +249,6 @@ public class ParticipantUpdater {
 	private double processionTailPosition;
 	private double processionHeadPosition;
 	private double routeLength;
+	private Clock clock = new SystemClock();
 
 }

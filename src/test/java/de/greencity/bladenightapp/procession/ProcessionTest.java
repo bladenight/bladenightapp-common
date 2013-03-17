@@ -133,29 +133,6 @@ public class ProcessionTest {
 		assertTrue(procession.getParticipant(id1) == null);
 	}
 
-	@Test
-	public void removeOutdatedParticipant() {
-		String id1 = addParticipant(48.135607, 11.524631);
-		String id2 = addParticipant(48.139625, 11.518710);
-		String id3 = addParticipant(48.139625, 11.518710);
-		String id4 = addParticipant(48.139625, 11.518710);
-		String id5 = addParticipant(48.139625, 11.518710);
-		assertEquals(5, procession.getParticipantCount());
-		long now = System.currentTimeMillis();
-		procession.getParticipant(id1).setLastLifeSign(now-1000);
-		procession.getParticipant(id2).setLastLifeSign(now-100000);
-		procession.getParticipant(id3).setLastLifeSign(now-2000);
-		procession.getParticipant(id4).setLastLifeSign(now-3000);
-		procession.getParticipant(id5).setLastLifeSign(now-2500);
-		
-		procession.removeOutdatedParticipants(5.0);
-		assertEquals(4, procession.getParticipantCount());
-		assertTrue(procession.getParticipant(id1) != null);
-		assertTrue(procession.getParticipant(id2) == null);
-		assertTrue(procession.getParticipant(id3) != null);
-		assertTrue(procession.getParticipant(id4) != null);
-		assertTrue(procession.getParticipant(id5) != null);
-	}
 
 	private String addParticipant(double lat, double lon) {
 		String participantId = generateParticipantId();

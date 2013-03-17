@@ -1,5 +1,7 @@
 package de.greencity.bladenightapp.time;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class ControlledClock implements Clock {
 
 	public ControlledClock() {
@@ -25,4 +27,8 @@ public class ControlledClock implements Clock {
 
 	private long time;
 
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
 }

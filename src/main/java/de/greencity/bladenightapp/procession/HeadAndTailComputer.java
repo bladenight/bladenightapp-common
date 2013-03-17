@@ -18,12 +18,9 @@ public class HeadAndTailComputer extends SegmentedLinearRoute implements Process
 		ParticipantData(double position, double speed) {
 			this.position = position;
 			this.speed = speed;
-			// this.lastUpdate = System.currentTimeMillis();
-
 		}
 		public double position;
 		public double speed;
-		// public long lastUpdate;
 	}
 
 	HeadAndTailComputer(int nSegments) {
@@ -57,14 +54,7 @@ public class HeadAndTailComputer extends SegmentedLinearRoute implements Process
 					segments[segment].score++;
 
 				// TODO reenable bonus based on age
-				// More recent updates get a bonus:
-				// double referenceUpdateAge = 2 * meanUpdateAge;
 
-				//			double age = participant.getLastLifeSignAge(); 
-				//			if ( age <= referenceUpdateAge && referenceUpdateAge > 0) {
-				//				double bonus = 0.5 * ( 1.0 - age / referenceUpdateAge );
-				//				segments[segment].score += bonus;
-				//			}
 				getLog().debug("score["+segment+"]="+segments[segment].score);
 			}
 		}

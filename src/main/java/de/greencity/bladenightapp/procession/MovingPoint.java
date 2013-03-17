@@ -2,19 +2,13 @@ package de.greencity.bladenightapp.procession;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import de.greencity.bladenightapp.time.Clock;
+import de.greencity.bladenightapp.time.SystemClock;
+
 // Representation of an (optionally) moving point in the procession
 public final class MovingPoint {
-	public interface Clock {
-		long currentTimeMillis();
-	}
-
 	public MovingPoint() {
-		clock = new Clock() {
-			@Override
-			public long currentTimeMillis() {
-				return System.currentTimeMillis();
-			}
-		};
+		clock = new SystemClock();
 		init();
 	}
 
@@ -26,7 +20,7 @@ public final class MovingPoint {
 	private void init() {
 		isOnRoute = false;
 		isInProcession = false;
-		timestamp = getNewStamp();
+		timestamp = clock.currentTimeMillis();
 	}
 
 	public void setLatLong(double lat, double lon) {
@@ -50,7 +44,7 @@ public final class MovingPoint {
 	}
 
 	public void update(double latitude, double longitude, double newLinearPosition) {
-		long newTimestamp = getNewStamp();
+		long newTimestamp = clock.currentTimeMillis();
 		updateLinearSpeed(newLinearPosition, newTimestamp);
 		this.timestamp = newTimestamp;
 		this.linearPosition = newLinearPosition;
@@ -60,10 +54,6 @@ public final class MovingPoint {
 
 	public double getLinearSpeed() {
 		return linearSpeed;
-	}
-
-	private long getNewStamp() {
-		return clock.currentTimeMillis();
 	}
 
 	public long getTimestamp() {

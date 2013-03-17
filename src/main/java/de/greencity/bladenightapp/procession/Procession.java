@@ -1,7 +1,6 @@
 package de.greencity.bladenightapp.procession;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,11 +8,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import de.greencity.bladenightapp.math.MedianFinder;
 import de.greencity.bladenightapp.procession.tasks.ComputeSchedulerClient;
 import de.greencity.bladenightapp.procession.tasks.ParticipantCollectorClient;
 import de.greencity.bladenightapp.routes.Route;
 import de.greencity.bladenightapp.routes.Route.ProjectedLocation;
+import de.greencity.bladenightapp.time.Clock;
+import de.greencity.bladenightapp.time.SystemClock;
 
 public class Procession implements ComputeSchedulerClient, ParticipantCollectorClient {
 	public Procession() {
@@ -57,22 +57,6 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		return new ArrayList<Participant>(participants.values());
 	}
 
-	@Override
-	public synchronized void removeOutdatedParticipants(double factor) {
-		double meanParticipantUpdatePeriod = getMeanParticipantUpdatePeriod();
-		System.out.println("meanParticipantUpdatePeriod="+meanParticipantUpdatePeriod);
-		if ( meanParticipantUpdatePeriod <= 0 )
-			return;
-		for ( String id : participants.keySet()) {
-			Participant p = participants.get(id);
-			long age = p.getLastLifeSignAge();
-			if ( age > factor * meanParticipantUpdatePeriod  ) {
-				getLog().info("Removing participant " + id + " " + age + " > " + factor * meanParticipantUpdatePeriod );
-				removeParticipant(id);
-			}
-		}
-	}
-
 	public void removeParticipant(String deviceId) {
 		getLog().info("Removing participant " + deviceId);
 		participants.remove(deviceId);
@@ -110,6 +94,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 				setParticipant(participant).
 				setPotentialLocations(potentialLocations).
 				setRouteLength(route.getLength()).
+				setClock(clock).
 				build();
 
 		updater.updateParticipant();
@@ -176,7 +161,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	public synchronized void compute() {
 		getLog().debug("compute");
 
-		lastComputeTime = System.currentTimeMillis();
+		lastComputeTime = clock.currentTimeMillis();
 		
 		if ( route == null ) {
 			getLog().error("compute: no route available");
@@ -276,25 +261,6 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		return maxComputeAge;
 	}
 
-	public long getMeanParticipantUpdatePeriod() {
-		Map<Long, Long> counter = new HashMap<Long, Long>();
-		for (Participant p : participants.values() ) {
-			Long age = p.getLastLifeSignAge();
-			Long currentCount = counter.get(age);
-			if ( currentCount == null ) {
-				currentCount = new Long(0);
-			}
-			counter.put(age, currentCount+1);
-		}
-		MedianFinder medianFinder = new MedianFinder();
-		for (Long age : counter.keySet()) {
-			medianFinder.addWeightedValue(age, counter.get(age));
-		}
-		if ( medianFinder.sampleCount() == 0 )
-			return 0;
-		return (long) medianFinder.findMedian();
-	}
-	
 	/*** If set, trigger a compute if the last compute is older than specified.
 	 * Disabled by default.
 	 * Set to 0 for systematic updates
@@ -314,14 +280,19 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		this.updateSmoothingFactor = updateSmoothingFactor;
 	}
 
-	private Route route;
-	private MovingPoint headMovingPoint;
-	private MovingPoint tailMovingPoint;
-	private HeadAndTailComputer headAndTailComputer;
-	private TravelTimeComputer travelTimeComputer;
-	private long maxComputeAge = -1;
-	private long lastComputeTime = -1;
+	public void setClock(Clock clock) {
+		this.clock = clock;
+	}
 
+
+	private Route 				route;
+	private MovingPoint 		headMovingPoint;
+	private MovingPoint 		tailMovingPoint;
+	private HeadAndTailComputer headAndTailComputer;
+	private TravelTimeComputer 	travelTimeComputer;
+	private long 				maxComputeAge = -1;
+	private long 				lastComputeTime = -1;
+	private Clock 				clock = new SystemClock();
 
 	protected double updateSmoothingFactor = 0.0;
 
