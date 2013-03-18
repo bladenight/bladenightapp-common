@@ -1,14 +1,21 @@
 package de.greencity.bladenightapp.events;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
+import com.google.gson.stream.MalformedJsonException;
 
 public class Event {
 	public enum EventStatus {
@@ -84,6 +91,23 @@ public class Event {
 		status = EventStatus.PENDING;				
 	}
 
+	public static Event newFromFile(File file)  {
+		Event event = null;
+		try {
+		    String json = FileUtils.readFileToString(file);
+			event = GsonHelper.getGson().fromJson(json, Event.class);
+		}
+		catch (Exception e) {
+			getLog().error("Failed to load " + file.getAbsolutePath() + ":\n" + e.toString());
+		}
+		return event;
+	}
+
+	public void writeToFile(File file) throws IOException  {
+		String json = GsonHelper.getGson().toJson(this);
+		FileUtils.writeStringToFile(file, json);
+	}
+
 	public Duration getDuration() {
 		return duration;
 	}
@@ -116,9 +140,20 @@ public class Event {
 		return startDate;
 	}
 
+	public String getStartDateAsString(String format) {
+		DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(format);
+		return dateFormatter.print((DateTime)getStartDate());
+	}
+
 	public DateTime getEndDate() {
 		return startDate.plus(duration);
 	}
+
+	public String getEndDateAsString(String format) {
+		DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(format);
+		return dateFormatter.print((DateTime)getEndDate());
+	}
+
 
 	public EventStatus getStatus() {
 		return status;
@@ -138,6 +173,18 @@ public class Event {
 		return ToStringBuilder.reflectionToString(this, toStringStyle);
 	}
 
+	private static Log log;
+
+	public static void setLog(Log log) {
+		Event.log = log;
+	}
+
+	protected static Log getLog() {
+		if (log == null)
+			setLog(LogFactory.getLog(Event.class));
+		return log;
+	}
+	
 	protected DateTime startDate;
 	protected Duration duration;
 	protected String routeName;

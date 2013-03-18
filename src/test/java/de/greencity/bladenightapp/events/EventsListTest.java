@@ -10,11 +10,24 @@ import java.io.IOException;
 import java.text.ParseException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.impl.NoOpLog;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
-public class EventsManagerTest {
+public class EventsListTest {
+
+	@Before
+	public void init () {
+		//		SimpleLog log = new SimpleLog("EventsListTest");
+		//		log.setLevel(0);
+		//		EventsList.setLog(log);
+		EventsList.setLog(new NoOpLog());
+	}
 
 	@Test
 	public void getNextEventWithNoNextEvent() throws ParseException {
@@ -77,9 +90,9 @@ public class EventsManagerTest {
 	}
 
 	@Test
-	public void readEvents() throws IOException {
-        File file = FileUtils.toFile(EventsList.class.getResource("/de.greencity.bladenightapp.events/example.json"));
-		EventsList manager = EventsList.newFromFile(file);
+	public void readEventsFromDir() throws IOException {
+		File dir = FileUtils.toFile(EventsList.class.getResource("/de.greencity.bladenightapp.events/set1/"));
+		EventsList manager = EventsList.newFromDir(dir);
 		Event returnedEvent = manager.getNextEvent();
 		assertNotNull(returnedEvent);
 		assertEquals(300, returnedEvent.getParticipants());
@@ -88,9 +101,8 @@ public class EventsManagerTest {
 	}
 
 	@Test
-	public void writeEvents() throws IOException, ParseException {
+	public void writeEventsToDir() throws IOException, ParseException {
 		String referenceDate = "2020-02-17T23:00";
-		File tempFile = File.createTempFile("EventsManagerTest-writeEvents", ".json");
 		Event event1 = new Event.Builder().setStartDate("2012-02-03T20:00").setDurationInMinutes(60).setRouteName("route1.gpx").build();
 		Event event2 = new Event.Builder().setStartDate("2012-02-10T21:00").setDurationInMinutes(120).setRouteName("route2.gpx").build();
 		Event event3 = new Event.Builder().setStartDate(referenceDate).setDurationInMinutes(180).setRouteName("route3.gpx").build();
@@ -98,20 +110,33 @@ public class EventsManagerTest {
 		manager.addEvent(event1);
 		manager.addEvent(event2);
 		manager.addEvent(event3);
-		manager.write(tempFile);
 
-//		System.out.println(tempFile.getAbsolutePath());
-//		try {
-//			Thread.sleep(10000);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		EventsList manager2 = EventsList.newFromFile(tempFile);
+		File tmpFolder = createTemporaryFolder();
+		File fileToBeDeleted = new File(tmpFolder, "to-be-deleted." + EventsList.EVENT_FILE_EXTENSION);
+		FileUtils.write(fileToBeDeleted, "");
+
+		assertTrue(fileToBeDeleted.isFile());
+
+		manager.writeToDir(tmpFolder);
+
+		assertTrue(new File(tmpFolder, "2012-02-03." + EventsList.EVENT_FILE_EXTENSION).isFile());
+
+		assertTrue(fileToBeDeleted.isFile() == false);
+
+		EventsList manager2 = EventsList.newFromDir(tmpFolder);
 		Event returnedEvent = manager2.getNextEvent();
 		assertNotNull(returnedEvent);
-		assertEquals(new DateTime(referenceDate), returnedEvent.getStartDate());		
-		assertEquals(new DateTime(referenceDate).plus(180*60*1000), returnedEvent.getEndDate());		
 		assertEquals(event3, returnedEvent);		
+
 	}
+
+	public File createTemporaryFolder() throws IOException  {
+		File file = File.createTempFile("tmpfolder", ".d");
+		file.delete();
+		file.mkdir();
+		assertTrue(file.exists());
+		assertTrue(file.isDirectory());
+		return file;
+	}
+
 }
