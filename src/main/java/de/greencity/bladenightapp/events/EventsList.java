@@ -93,6 +93,10 @@ public class EventsList implements Iterable<Event> {
 	public int size() {
 		return events.size();
 	}
+	
+	public int indexOf(Event event) {
+		return events.indexOf(event);
+	}
 
 	@Override
 	public Iterator<Event> iterator() {
