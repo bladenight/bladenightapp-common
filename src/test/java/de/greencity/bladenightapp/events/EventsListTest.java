@@ -11,13 +11,12 @@ import java.text.ParseException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.impl.NoOpLog;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+import de.greencity.bladenightapp.events.Event.EventStatus;
 
 public class EventsListTest {
 
@@ -95,17 +94,34 @@ public class EventsListTest {
 		EventsList manager = EventsList.newFromDir(dir);
 		Event returnedEvent = manager.getNextEvent();
 		assertNotNull(returnedEvent);
+		assertEquals( new DateTime("2020-03-03T21:00"), returnedEvent.getStartDate());
 		assertEquals(300, returnedEvent.getParticipants());
 		assertEquals("route3.gpx", returnedEvent.getRouteName());
 		assertEquals(180, returnedEvent.getDuration().getStandardMinutes());
+		assertEquals(Event.EventStatus.CONFIRMED, returnedEvent.getStatus());
 	}
 
 	@Test
 	public void writeEventsToDir() throws IOException, ParseException {
 		String referenceDate = "2020-02-17T23:00";
-		Event event1 = new Event.Builder().setStartDate("2012-02-03T20:00").setDurationInMinutes(60).setRouteName("route1.gpx").build();
-		Event event2 = new Event.Builder().setStartDate("2012-02-10T21:00").setDurationInMinutes(120).setRouteName("route2.gpx").build();
-		Event event3 = new Event.Builder().setStartDate(referenceDate).setDurationInMinutes(180).setRouteName("route3.gpx").build();
+		Event event1 = new Event.Builder()
+		.setStartDate("2012-02-03T20:00")
+		.setDurationInMinutes(60)
+		.setRouteName("route1.gpx")
+		.setStatus(EventStatus.CANCELLED)
+		.build();
+		Event event2 = new Event.Builder()
+		.setStartDate("2012-02-10T21:00")
+		.setDurationInMinutes(120)
+		.setRouteName("route2.gpx")
+		.setStatus(EventStatus.CONFIRMED)
+		.build();
+		Event event3 = new Event.Builder()
+		.setStartDate(referenceDate)
+		.setDurationInMinutes(180)
+		.setRouteName("route3.gpx")
+		.setStatus(EventStatus.PENDING)
+		.build();
 		EventsList manager = new EventsList();
 		manager.addEvent(event1);
 		manager.addEvent(event2);
@@ -127,7 +143,6 @@ public class EventsListTest {
 		Event returnedEvent = manager2.getNextEvent();
 		assertNotNull(returnedEvent);
 		assertEquals(event3, returnedEvent);		
-
 	}
 
 	public File createTemporaryFolder() throws IOException  {

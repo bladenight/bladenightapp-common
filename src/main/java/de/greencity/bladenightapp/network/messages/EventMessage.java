@@ -13,23 +13,9 @@ import de.greencity.bladenightapp.events.Event;
 public class EventMessage {
 
 	public enum EventStatus {
-		PENDING("P"),
-		CONFIRMED("O"),
-		CANCELLED("A");
-
-		private final String status;       
-
-		private EventStatus(String s) {
-			status = s;
-		}
-
-		public boolean equalsName(String otherName){
-			return (otherName == null)? false:status.equals(otherName);
-		}
-
-		public String toString(){
-			return status;
-		}
+		PEN,
+		CON,
+		CAN
 	}
 
 	public String 		sta; 	// start time: "yyyy-MM-dd'T'HH:mm"
@@ -40,14 +26,14 @@ public class EventMessage {
 	public long			len;   	// length in meters
 
 	public EventMessage() {
-		sts = EventStatus.PENDING;
+		sts = EventStatus.PEN;
 	}
 
 	public EventMessage(Event e) {
 		copyFromEvent(e);
 	}
 
-	
+
 	public String getStartDate() {
 		return sta;
 	}
@@ -109,7 +95,7 @@ public class EventMessage {
 		message.copyFromEvent(e);
 		return message;
 	}
-	
+
 	public Event toEvent() {
 		return new Event.Builder()
 		.setStartDate(dateFormatter.parseDateTime(sta))
@@ -123,11 +109,11 @@ public class EventMessage {
 	EventStatus convertStatus(Event.EventStatus fromStatus) {
 		switch(fromStatus) {
 		case CANCELLED:
-			return EventStatus.CANCELLED;
+			return EventStatus.CAN;
 		case CONFIRMED:
-			return EventStatus.CONFIRMED;
+			return EventStatus.CON;
 		case PENDING:
-			return EventStatus.PENDING;
+			return EventStatus.PEN;
 		default:
 			getLog().error("Unknown status: "+fromStatus);
 			return null;
@@ -136,11 +122,11 @@ public class EventMessage {
 
 	Event.EventStatus convertStatus(EventStatus fromStatus) {
 		switch(fromStatus) {
-		case CANCELLED:
+		case CAN:
 			return Event.EventStatus.CANCELLED;
-		case CONFIRMED:
+		case CON:
 			return Event.EventStatus.CONFIRMED;
-		case PENDING:
+		case PEN:
 			return Event.EventStatus.PENDING;
 		default:
 			getLog().error("Unknown status: "+fromStatus);

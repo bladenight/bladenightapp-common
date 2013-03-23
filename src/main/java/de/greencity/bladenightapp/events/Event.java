@@ -15,27 +15,30 @@ import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.google.gson.stream.MalformedJsonException;
-
 public class Event {
 	public enum EventStatus {
-	    PENDING("P"),
-	    CONFIRMED("O"),
-	    CANCELLED("A");
+		PENDING("P"),
+		CONFIRMED("O"),
+		CANCELLED("A");
 
-	    private final String status;       
+		private final String status;       
 
-	    private EventStatus(String s) {
-	        status = s;
-	    }
+		private EventStatus(String s) {
+			status = s;
+		}
 
-	    public boolean equalsName(String otherName){
-	        return (otherName == null)? false:status.equals(otherName);
-	    }
+		public boolean equalsName(String otherName){
+			return (otherName == null)? false:status.equals(otherName);
+		}
 
-	    public String toString(){
-	       return status;
-	    }
+		@Override
+		public String toString(){
+			return "EventStatus."+status;
+		}
+
+		public String asString(){
+			return status;
+		}
 	}
 
 	public static class Builder {
@@ -85,7 +88,7 @@ public class Event {
 		}
 
 	}
-	
+
 	Event() {
 		duration = new Duration(0);
 		status = EventStatus.PENDING;				
@@ -94,7 +97,7 @@ public class Event {
 	public static Event newFromFile(File file)  {
 		Event event = null;
 		try {
-		    String json = FileUtils.readFileToString(file);
+			String json = FileUtils.readFileToString(file);
 			event = GsonHelper.getGson().fromJson(json, Event.class);
 		}
 		catch (Exception e) {
@@ -184,13 +187,13 @@ public class Event {
 			setLog(LogFactory.getLog(Event.class));
 		return log;
 	}
-	
+
 	protected DateTime startDate;
 	protected Duration duration;
 	protected String routeName;
 	protected int participants;
 	protected EventStatus status;
-	
+
 	protected final static DateTimeFormatter dateFormatter;
 	protected final static ToStringStyle toStringStyle;
 

@@ -25,7 +25,7 @@ public class EventMessageTest {
 		assertEquals(120, msg.dur);
 		assertEquals(routeName, msg.rou);
 		assertEquals(1000, msg.par);
-		assertEquals(EventMessage.EventStatus.PENDING, msg.sts);
+		assertEquals(EventMessage.EventStatus.PEN, msg.sts);
 	}
 
 	@Test
@@ -36,7 +36,7 @@ public class EventMessageTest {
 		msg.par = 1000;
 		msg.rou = routeName;
 		msg.dur = 120;
-		msg.sts = EventMessage.EventStatus.CONFIRMED;
+		msg.sts = EventMessage.EventStatus.CON;
 		
 		Event e = msg.toEvent();
 		
