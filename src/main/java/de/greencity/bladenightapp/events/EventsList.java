@@ -90,6 +90,10 @@ public class EventsList implements Iterable<Event> {
 		events.add(event);
 	}
 
+	public Event get(int pos) {
+		return events.get(pos);
+	}
+
 	public int size() {
 		return events.size();
 	}
