@@ -13,9 +13,18 @@ public class RealTimeUpdateData {
 		fri = new ConcurrentHashMap<Long, PointOnRoute>();
 	}
 
-	public PointOnRoute getUserPosition() {
+	public PointOnRoute getUser() {
 		return up;
 	}
+
+	public double getUserPosition() {
+		return up.getPosition();
+	}
+
+	public double getUserSpeed() {
+		return up.getSpeed();
+	}
+
 
 	public void setUserPosition(double position, double speed) {
 		up.setPosition(position);
@@ -27,6 +36,10 @@ public class RealTimeUpdateData {
 		return hea;
 	}
 
+	public double getHeadPosition() {
+		return hea.getPosition();
+	}
+
 	public void setHead(double position, double speed) {
 		hea.setPosition(position);
 		hea.setSpeed(speed);
@@ -34,6 +47,10 @@ public class RealTimeUpdateData {
 
 	public PointOnRoute getTail() {
 		return tai;
+	}
+
+	public double getTailPosition() {
+		return tai.getPosition();
 	}
 
 	public void setTail(double position, double speed) {

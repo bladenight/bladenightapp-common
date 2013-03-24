@@ -59,7 +59,7 @@ public class PortScannerTest {
 		scanner.addHost("host1");
 		scanner.addHost("host2");
 		scanner.addHost("host3");
-		scanner.addSubnet("192.168.178");
+		scanner.addIpRange("192.168.178", 1, 254);
 		scanner.scan();
 		assertEquals("192.168.178.236", scanner.getFoundHost());
 	}
@@ -69,7 +69,7 @@ public class PortScannerTest {
 		scanner.addHost("host1");
 		scanner.addHost("host2");
 		scanner.addHost("host3");
-		scanner.addSubnet("192.168.0");
+		scanner.addIpRange("192.168.0", 1, 254);
 		scanner.scan();
 		assertEquals(null, scanner.getFoundHost());
 	}

@@ -20,7 +20,7 @@ public class PortKnocker {
 	}
 
 	public PortKnocker() {
-		
+
 	}
 
 	public PortKnocker(String host, int port, int timeout) {
@@ -47,6 +47,7 @@ public class PortKnocker {
 
 		Socket socket = factory.createSocket();
 		try {
+			//			System.out.println("Knocking at " + host);
 			InetSocketAddress address = new InetSocketAddress(host, port);
 			socket.connect(address, timeout);
 			if ( socket.isConnected() ) {

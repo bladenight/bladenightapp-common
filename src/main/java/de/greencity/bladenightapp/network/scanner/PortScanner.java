@@ -31,8 +31,8 @@ public class PortScanner {
 	 * It assumes a /24 network.
 	 * @param subnet "192.168.0"
 	 */
-	public void addSubnet(String subnet) {
-		for (int i=1; i<=254; i++)
+	public void addIpRange(String subnet, int min, int max) {
+		for (int i=min; i<=max; i++)
 			addHost(subnet+"."+i);
 	}
 
