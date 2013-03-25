@@ -17,7 +17,7 @@ public class Participant {
 		this.deviceId = deviceId;
 	}
 
-	MovingPoint getLastKnownPoint() {
+	public MovingPoint getLastKnownPoint() {
 		return lastKnownPoint;
 	}
 

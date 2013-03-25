@@ -44,11 +44,29 @@ public class ProcessionTest {
 	}
 
 	@Test
-	public void singleParticipant() {
-		addParticipant(48.134750, 11.531566);
+	public void singleParticipantOnRoute() {
+		String deviceId = addParticipant(48.134750, 11.531566);
 		assertEquals(1, procession.getParticipantCount());
 		assertProcessionIn(850, 1000);
 		assertTrue(procession.getLength() < 100);
+		assertTrue(procession.getHead().isInProcession());
+		assertTrue(procession.getHead().isOnRoute());
+		assertTrue(procession.getTail().isInProcession());
+		assertTrue(procession.getTail().isOnRoute());
+		assertTrue(procession.getParticipant(deviceId).getLastKnownPoint().isInProcession());
+		assertTrue(procession.getParticipant(deviceId).getLastKnownPoint().isOnRoute());
+	}
+
+	@Test
+	public void singleParticipantOffRoute() {
+		String deviceId = addParticipant(0,0);
+		assertEquals(1, procession.getParticipantCount());
+		assertTrue(! procession.getHead().isInProcession());
+		assertTrue(! procession.getHead().isOnRoute());
+		assertTrue(! procession.getTail().isInProcession());
+		assertTrue(! procession.getTail().isOnRoute());
+		assertTrue(! procession.getParticipant(deviceId).getLastKnownPoint().isInProcession());
+		assertTrue(! procession.getParticipant(deviceId).getLastKnownPoint().isOnRoute());
 	}
 
 	@Test

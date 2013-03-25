@@ -5,34 +5,49 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import de.greencity.bladenightapp.procession.MovingPoint;
+
 public class RealTimeUpdateData {
 	public RealTimeUpdateData() {
-		hea = new PointOnRoute();
-		tai = new PointOnRoute();
-		up = new PointOnRoute();
-		fri = new ConcurrentHashMap<Long, PointOnRoute>();
+		hea = new NetMovingPoint();
+		tai = new NetMovingPoint();
+		up = new NetMovingPoint();
+		fri = new ConcurrentHashMap<Long, NetMovingPoint>();
 	}
 
-	public PointOnRoute getUser() {
+	public NetMovingPoint getUser() {
 		return up;
 	}
 
-	public double getUserPosition() {
+	public long getUserPosition() {
 		return up.getPosition();
 	}
 
-	public double getUserSpeed() {
+	public long getUserSpeed() {
 		return up.getSpeed();
 	}
 
 
-	public void setUserPosition(double position, double speed) {
+	public void setUserPosition(long position, long speed) {
 		up.setPosition(position);
 		up.setSpeed(speed);
 	}
 
+	public void isUserOnRoute(boolean isOnRoute) {
+		up.isOnRoute(isOnRoute);
+	}
 
-	public PointOnRoute getHead() {
+	public Object isUserOnRoute() {
+		return up.isOnRoute();
+	}
+
+
+	public void isUserInProcession(boolean isOnProcession) {
+		up.isInProcession(isOnProcession);
+	}
+
+
+	public NetMovingPoint getHead() {
 		return hea;
 	}
 
@@ -40,12 +55,21 @@ public class RealTimeUpdateData {
 		return hea.getPosition();
 	}
 
-	public void setHead(double position, double speed) {
-		hea.setPosition(position);
-		hea.setSpeed(speed);
+	public void invalidateHead() {
+		hea.isOnRoute(false);
+		hea.isInProcession(false);
+	}
+	
+	public void setHead(MovingPoint mp) {
+		hea.copyFrom(mp);
 	}
 
-	public PointOnRoute getTail() {
+	public void invalidateTail() {
+		hea.isOnRoute(false);
+		hea.isInProcession(false);
+	}
+
+	public NetMovingPoint getTail() {
 		return tai;
 	}
 
@@ -53,9 +77,8 @@ public class RealTimeUpdateData {
 		return tai.getPosition();
 	}
 
-	public void setTail(double position, double speed) {
-		tai.setPosition(position);
-		tai.setSpeed(speed);
+	public void setTail(MovingPoint mp) {
+		tai.copyFrom(mp);
 	}
 
 	public int getUserTotal() {
@@ -69,15 +92,6 @@ public class RealTimeUpdateData {
 	public int getUserOnRoute() {
 		return usr;
 	}
-
-	public boolean isUserOnRoute() {
-		return onr;
-	}
-
-	public void isUserOnRoute(boolean isOnRoute) {
-		onr = isOnRoute;
-	}
-
 
 	public void setUserOnRoute(int count) {
 		this.usr = count;
@@ -99,12 +113,12 @@ public class RealTimeUpdateData {
 		this.rna = routeName;
 	}
 
-	public Map<Long, PointOnRoute> getFriendsMap() {
+	public Map<Long, NetMovingPoint> getFriendsMap() {
 		return this.fri;
 	}
 
-	public void addFriend(long friendId, double linearPosition, double linearSpeed) {
-		this.fri.put(friendId, new PointOnRoute(linearPosition, linearSpeed));
+	public void addFriend(long friendId, MovingPoint mp) {
+		this.fri.put(friendId, new NetMovingPoint(mp));
 	}
 
 	@Override
@@ -112,11 +126,10 @@ public class RealTimeUpdateData {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
-	public PointOnRoute hea; 				// Head
-	public PointOnRoute tai; 				// Tail
-	public Map<Long, PointOnRoute> fri;  	// Friends
-	public boolean onr; 	  				// Is user on route. If not, "up" data is not relevant
-	public PointOnRoute up;  				// User position
+	public NetMovingPoint hea; 				// Head
+	public NetMovingPoint tai; 				// Tail
+	public Map<Long, NetMovingPoint> fri;  	// Friends
+	public NetMovingPoint up;  				// User position
 
 	public double rle; 	// Route length
 	public String rna; 	// Route name
