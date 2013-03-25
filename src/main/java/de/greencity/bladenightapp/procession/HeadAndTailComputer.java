@@ -82,9 +82,9 @@ public class HeadAndTailComputer extends SegmentedLinearRoute implements Process
 		double bestScore = 0;
 		double globalScore = getGlobalScore();
 
-		getLog().debug("getNumberOfSegments()="+getNumberOfSegments());
+		// getLog().debug("getNumberOfSegments()="+getNumberOfSegments());
 		for ( int tailSegment=0; tailSegment<getNumberOfSegments(); tailSegment++) {
-			getLog().debug("segment " + tailSegment + "  score: " + segments[tailSegment].score);
+			// getLog().debug("segment " + tailSegment + "  score: " + segments[tailSegment].score);
 			for ( int headSegment=tailSegment; headSegment<getNumberOfSegments(); headSegment++) {
 				double localSum = 0;
 				for ( int i=tailSegment; i<=headSegment ; i++ ) {
