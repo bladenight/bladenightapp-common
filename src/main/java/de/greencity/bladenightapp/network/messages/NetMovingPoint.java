@@ -1,9 +1,12 @@
 package de.greencity.bladenightapp.network.messages;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 
 import de.greencity.bladenightapp.procession.MovingPoint;
 
+@JsonAutoDetect(fieldVisibility=Visibility.ANY,getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 public class NetMovingPoint {
 	// We use integers instead of double to save bandwidth
 	public long pos;

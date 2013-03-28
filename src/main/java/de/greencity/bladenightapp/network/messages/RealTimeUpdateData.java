@@ -4,9 +4,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 
 import de.greencity.bladenightapp.procession.MovingPoint;
 
+@JsonAutoDetect(fieldVisibility=Visibility.ANY,getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 public class RealTimeUpdateData {
 	public RealTimeUpdateData() {
 		hea = new NetMovingPoint();

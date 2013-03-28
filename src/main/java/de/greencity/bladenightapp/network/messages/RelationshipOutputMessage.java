@@ -1,5 +1,9 @@
 package de.greencity.bladenightapp.network.messages;
 
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
+
+@JsonAutoDetect(fieldVisibility=Visibility.ANY,getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 public class RelationshipOutputMessage {
 	public RelationshipOutputMessage(long requestId, long friendId) {
 		rid = requestId;

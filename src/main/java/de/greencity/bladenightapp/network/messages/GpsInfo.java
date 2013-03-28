@@ -1,7 +1,10 @@
 package de.greencity.bladenightapp.network.messages;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 
+@JsonAutoDetect(fieldVisibility=Visibility.ANY,getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 public class GpsInfo {
 	public GpsInfo(String deviceId, boolean isParticipating, double lat, double lon) {
 		coo = new LatLong(lat, lon);
