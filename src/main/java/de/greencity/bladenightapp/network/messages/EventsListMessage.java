@@ -3,13 +3,10 @@ package de.greencity.bladenightapp.network.messages;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.annotate.JsonAutoDetect;
-import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 
 import de.greencity.bladenightapp.events.Event;
 import de.greencity.bladenightapp.events.EventsList;
 
-@JsonAutoDetect(fieldVisibility=Visibility.ANY,getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 public class EventsListMessage {
 	public EventMessage[] evt;
 

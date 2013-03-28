@@ -25,7 +25,7 @@ public class Protocol {
 			String[] timeArray = {timeString, type};
 			String[] both = ArrayUtils.addAll(timeArray, colums);
 			String line = StringUtils.join(both,"\t");
-			writer.write(line);
+			writer.write(line + "\n");
 			writer.flush();
 		}
 		catch(IOException e) {

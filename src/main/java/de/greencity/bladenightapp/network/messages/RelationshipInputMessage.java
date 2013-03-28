@@ -1,10 +1,7 @@
 package de.greencity.bladenightapp.network.messages;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.codehaus.jackson.annotate.JsonAutoDetect;
-import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 
-@JsonAutoDetect(fieldVisibility=Visibility.ANY,getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 public class RelationshipInputMessage {
 	public RelationshipInputMessage(String deviceId1, String deviceId2, long requestId) {
 		this.did1 = deviceId1;
