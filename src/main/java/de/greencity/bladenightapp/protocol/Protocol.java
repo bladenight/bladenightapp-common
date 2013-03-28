@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -15,9 +17,12 @@ public class Protocol {
 	}
 
 
-	public void write(String tag1, String tag2, String msg) {
+	public synchronized void write(String ...colums) {
 		try {
-			String line = System.currentTimeMillis() + "\t" + tag1 + "\t" + tag2 +"\t" + msg + "\n";
+			String timeString = String.valueOf(System.currentTimeMillis());
+			String[] timeArray = {timeString};
+			String[] both = ArrayUtils.addAll(timeArray, colums);
+			String line = StringUtils.join(both,"\t");
 			writer.write(line);
 			writer.flush();
 		}
