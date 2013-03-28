@@ -12,15 +12,17 @@ import org.apache.commons.logging.LogFactory;
 
 public class Protocol {
 
+	public static final String WAMPIN = "WAMPIN";
+	
 	public Protocol(File file) throws IOException {
 		writer = new BufferedWriter(new FileWriter(file, true));
 	}
 
 
-	public synchronized void write(String ...colums) {
+	public synchronized void write(String type, String ...colums) {
 		try {
 			String timeString = String.valueOf(System.currentTimeMillis());
-			String[] timeArray = {timeString};
+			String[] timeArray = {timeString, type};
 			String[] both = ArrayUtils.addAll(timeArray, colums);
 			String line = StringUtils.join(both,"\t");
 			writer.write(line);

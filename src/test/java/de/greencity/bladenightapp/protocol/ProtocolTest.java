@@ -22,10 +22,10 @@ public class ProtocolTest {
 	public void test() throws IOException {
 		File tempFile = testFolder.newFile("protocol.txt");
 		Protocol protocol = new Protocol(tempFile);
-		String tag1 = "MYTAG1";
-		String tag2 = "MYTAG2";
-		String msg = "My message";
-		protocol.write(tag1, tag2, msg);
+		String type = Protocol.WAMPIN;
+		String msg1 = "SOMETAG";
+		String msg2 = "My message";
+		protocol.write(type, msg1, msg2);
 		protocol.close();
 
 		 List<String> lines = FileUtils.readLines(tempFile, "UTF-8");
@@ -35,8 +35,8 @@ public class ProtocolTest {
 		 Matcher m = p.matcher(lines.get(0));
 
 		 assertEquals(true, m.find());
-		 assertEquals(tag1, m.group(2));
-		 assertEquals(tag2, m.group(3));
-		 assertEquals(msg, m.group(4));
+		 assertEquals(type, m.group(2));
+		 assertEquals(msg1, m.group(3));
+		 assertEquals(msg2, m.group(4));
 	}
 }
