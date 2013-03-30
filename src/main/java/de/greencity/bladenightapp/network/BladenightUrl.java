@@ -7,7 +7,9 @@ public enum BladenightUrl {
 	GET_ALL_PARTICIPANTS("http://www.greencity.de/bladenight/app/rpc/getAllParticipants"),
 	GET_REALTIME_UPDATE("http://www.greencity.de/bladenight/app/rpc/getRealtimeUpdate"),
 	CREATE_RELATIONSHIP("http://www.greencity.de/bladenight/app/rpc/createRelationship"),
-	GET_ALL_EVENTS("http://www.greencity.de/bladenight/app/rpc/getAllEvents")
+	GET_ALL_EVENTS("http://www.greencity.de/bladenight/app/rpc/getAllEvents"),
+	SET_ACTIVE_ROUTE("http://www.greencity.de/bladenight/app/rpc/setActiveRoute"),
+	GET_ALL_ROUTE_NAMES("http://www.greencity.de/bladenight/app/rpc/getAllRouteNames"),
     ;
 
 	final public static String BASE = "http://www.greencity.de/bladenight/app/";
