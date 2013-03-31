@@ -5,18 +5,18 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import de.greencity.bladenightapp.events.Event;
-import de.greencity.bladenightapp.events.EventsList;
+import de.greencity.bladenightapp.events.EventList;
 
 public class EventsListMessage {
 	public EventMessage[] evt;
 
-	public static EventsListMessage newFromEventsList(EventsList list) {
+	public static EventsListMessage newFromEventsList(EventList list) {
 		EventsListMessage message = new EventsListMessage();
 		message.copyFromEventsList(list);
 		return message;
 	}
 
-	public void copyFromEventsList(EventsList list) {
+	public void copyFromEventsList(EventList list) {
 		evt = new EventMessage[list.size()];
 		int i = 0;
 		for (Event e : list) {
@@ -24,8 +24,8 @@ public class EventsListMessage {
 		}
 	}
 
-	public EventsList convertToEventsList() {
-		EventsList list = new EventsList();
+	public EventList convertToEventsList() {
+		EventList list = new EventList();
 		for (int i=0; i<evt.length; i++) {
 			list.addEvent(evt[i].toEvent());
 		}

@@ -25,7 +25,7 @@ public class EventsListTest {
 		//		SimpleLog log = new SimpleLog("EventsListTest");
 		//		log.setLevel(0);
 		//		EventsList.setLog(log);
-		EventsList.setLog(new NoOpLog());
+		EventList.setLog(new NoOpLog());
 	}
 
 	@Test
@@ -33,10 +33,10 @@ public class EventsListTest {
 		Event event1 = new Event.Builder().setStartDate("2001-06-01T21:00").build();
 		Event event2 = new Event.Builder().setStartDate("2002-06-01T21:00").build();
 
-		EventsList manager = new EventsList();
+		EventList manager = new EventList();
 		manager.addEvent(event1);
 		manager.addEvent(event2);
-		Event returnedEvent = manager.getNextEvent();
+		Event returnedEvent = manager.getActiveEvent();
 		assertNull(returnedEvent);
 	}
 
@@ -45,10 +45,10 @@ public class EventsListTest {
 		Event event1 = new Event.Builder().setStartDate("2001-06-01T21:00").build();
 		Event event2 = new Event.Builder().setStartDate("2021-06-01T21:00").build();
 
-		EventsList manager = new EventsList();
+		EventList manager = new EventList();
 		manager.addEvent(event1);
 		manager.addEvent(event2);
-		Event returnedEvent = manager.getNextEvent();
+		Event returnedEvent = manager.getActiveEvent();
 		assertNotNull(returnedEvent);
 
 		assertEquals(new Event.Builder().setStartDate("2021-06-01T21:00").build(), returnedEvent);		
@@ -57,17 +57,17 @@ public class EventsListTest {
 
 	@Test
 	public void getNextEventWithOngoingEvent() throws ParseException {
-		EventsList manager = getComplicatedSituation();
+		EventList manager = getComplicatedSituation();
 
 		DateTime now = new DateTime();
 
-		Event returnedEvent = manager.getNextEvent();
+		Event returnedEvent = manager.getActiveEvent();
 		assertNotNull(returnedEvent);
 		assertTrue(returnedEvent.getStartDate().isBefore(now));		
 		assertTrue(returnedEvent.getEndDate().isAfter(now));		
 	}
 
-	private EventsList getComplicatedSituation() {
+	private EventList getComplicatedSituation() {
 		DateTime now = new DateTime();
 
 		DateTime date_1h_ago = now.minus(3600*1000); 
@@ -79,7 +79,7 @@ public class EventsListTest {
 		Event event2 = new Event.Builder().setStartDate(date_1h_ago).setDuration(dur_6h).build();
 		Event event3 = new Event.Builder().setStartDate(now.plus(12*3600*1000)).build();
 
-		EventsList manager = new EventsList();
+		EventList manager = new EventList();
 
 		manager.addEvent(event1);
 		manager.addEvent(event2);
@@ -90,9 +90,9 @@ public class EventsListTest {
 
 	@Test
 	public void readEventsFromDir() throws IOException {
-		File dir = FileUtils.toFile(EventsList.class.getResource("/de.greencity.bladenightapp.events/set1/"));
-		EventsList manager = EventsList.newFromDir(dir);
-		Event returnedEvent = manager.getNextEvent();
+		File dir = FileUtils.toFile(EventList.class.getResource("/de.greencity.bladenightapp.events/set1/"));
+		EventList eventList = EventList.newFromDir(dir);
+		Event returnedEvent = eventList.getActiveEvent();
 		assertNotNull(returnedEvent);
 		assertEquals( new DateTime("2020-03-03T21:00"), returnedEvent.getStartDate());
 		assertEquals(300, returnedEvent.getParticipants());
@@ -122,29 +122,53 @@ public class EventsListTest {
 		.setRouteName("route3.gpx")
 		.setStatus(EventStatus.PENDING)
 		.build();
-		EventsList manager = new EventsList();
+		EventList manager = new EventList();
 		manager.addEvent(event1);
 		manager.addEvent(event2);
 		manager.addEvent(event3);
 
 		File tmpFolder = createTemporaryFolder();
-		File fileToBeDeleted = new File(tmpFolder, "to-be-deleted." + EventsList.EVENT_FILE_EXTENSION);
+		File fileToBeDeleted = new File(tmpFolder, "to-be-deleted." + EventList.EVENT_FILE_EXTENSION);
 		FileUtils.write(fileToBeDeleted, "");
 
 		assertTrue(fileToBeDeleted.isFile());
 
 		manager.writeToDir(tmpFolder);
 
-		assertTrue(new File(tmpFolder, "2012-02-03." + EventsList.EVENT_FILE_EXTENSION).isFile());
+		assertTrue(new File(tmpFolder, "2012-02-03." + EventList.EVENT_FILE_EXTENSION).isFile());
 
 		assertTrue(fileToBeDeleted.isFile() == false);
 
-		EventsList manager2 = EventsList.newFromDir(tmpFolder);
-		Event returnedEvent = manager2.getNextEvent();
+		EventList manager2 = EventList.newFromDir(tmpFolder);
+		Event returnedEvent = manager2.getActiveEvent();
 		assertNotNull(returnedEvent);
 		assertEquals(event3, returnedEvent);		
 	}
 
+	@Test
+	public void persistency() throws IOException {
+		File srcDir = FileUtils.toFile(EventList.class.getResource("/de.greencity.bladenightapp.events/set1/"));
+		File tmpFolder = createTemporaryFolder();
+		File persistenceFolder = new File(tmpFolder, "copy");
+		FileUtils.copyDirectory(srcDir, persistenceFolder);
+		
+		EventList eventList = EventList.newFromDir(persistenceFolder);
+		Event returnedEvent = eventList.getActiveEvent();
+		assertNotNull(returnedEvent);
+		assertEquals( new DateTime("2020-03-03T21:00"), returnedEvent.getStartDate());
+		assertEquals("route3.gpx", returnedEvent.getRouteName());
+		
+		String newRouteName = "Changed route";
+		eventList.setActiveRoute(newRouteName);
+		eventList.setActiveStatus(EventStatus.CANCELLED);
+		eventList.writeToDir();
+		
+		EventList eventListCheck = EventList.newFromDir(persistenceFolder);
+		assertEquals(newRouteName, eventListCheck.getActiveEvent().getRouteName());
+		
+		assertEquals(eventList, eventListCheck);
+	}
+	
 	public File createTemporaryFolder() throws IOException  {
 		File file = File.createTempFile("tmpfolder", ".d");
 		file.delete();

@@ -14,7 +14,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.greencity.bladenightapp.events.EventsList;
+import de.greencity.bladenightapp.events.EventList;
 
 
 public class RouteStoreTest {
@@ -28,7 +28,7 @@ public class RouteStoreTest {
 
 	@Before
 	public void initialize() {
-		File baseDir = FileUtils.toFile(EventsList.class.getResource("/de.greencity.bladenightapp.routes/"));
+		File baseDir = FileUtils.toFile(EventList.class.getResource("/de.greencity.bladenightapp.routes/"));
 		routeStore = new RouteStore(baseDir);
 	}
 

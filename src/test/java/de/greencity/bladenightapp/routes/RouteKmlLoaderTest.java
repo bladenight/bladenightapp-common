@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.greencity.bladenightapp.events.EventsList;
+import de.greencity.bladenightapp.events.EventList;
 
 public class RouteKmlLoaderTest {
 	private RouteKmlLoader routeKmlLoader;
@@ -27,7 +27,7 @@ public class RouteKmlLoaderTest {
 	@Test
 	public void load() {
 		String path = "/de.greencity.bladenightapp.routes/Nord - kurz.kml";
-		File file = FileUtils.toFile(EventsList.class.getResource(path));
+		File file = FileUtils.toFile(EventList.class.getResource(path));
 		assertTrue(routeKmlLoader.load(file));
 		List<Route.LatLong> nodes = routeKmlLoader.getNodes();
 		

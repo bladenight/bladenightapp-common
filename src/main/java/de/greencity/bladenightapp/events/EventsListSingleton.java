@@ -1,17 +1,17 @@
 package de.greencity.bladenightapp.events;
 
-import de.greencity.bladenightapp.events.EventsList;
+import de.greencity.bladenightapp.events.EventList;
 
 public class EventsListSingleton {
 
-	public static EventsList getInstance() {
+	public static EventList getInstance() {
 		return instance;
 	}
 
-	public static void setInstance(EventsList instance) {
+	public static void setInstance(EventList instance) {
 		EventsListSingleton.instance = instance;
 	}
 
-	private static EventsList instance;
+	private static EventList instance;
 
 }

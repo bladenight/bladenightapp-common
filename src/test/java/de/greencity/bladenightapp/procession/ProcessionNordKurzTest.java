@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.greencity.bladenightapp.events.EventsList;
+import de.greencity.bladenightapp.events.EventList;
 import de.greencity.bladenightapp.routes.Route;
 
 public class ProcessionNordKurzTest {
@@ -34,7 +34,7 @@ public class ProcessionNordKurzTest {
 
 	@Before
 	public void init() {
-		File file = FileUtils.toFile(EventsList.class.getResource(path));
+		File file = FileUtils.toFile(EventList.class.getResource(path));
 		route = new Route();
 		assertTrue(route.load(file));
 		procession = new Procession();

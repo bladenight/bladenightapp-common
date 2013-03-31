@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -15,14 +14,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 
-public class EventsList implements Iterable<Event> {
+import de.greencity.bladenightapp.events.Event.EventStatus;
 
-	public EventsList() {
+public class EventList implements Iterable<Event> {
+
+	public EventList() {
 		events = new ArrayList<Event>();
 	}
 
-	public static EventsList newFromDir(File dir) {
-		EventsList list = new EventsList();
+	public static EventList newFromDir(File dir) {
+		EventList list = new EventList();
+		list.setPersistenceFolder(dir);
 		for (File file : getEventFilesIn(dir)) {
 			Event event = null;
 			event = Event.newFromFile(file);
@@ -48,9 +50,24 @@ public class EventsList implements Iterable<Event> {
 			getLog().info("Deleting: " + file.getAbsolutePath());
 			file.delete();
 		}
+		setPersistenceFolder(folder);
 	}
 
-	public Event getNextEvent() {
+	public void writeToDir() throws IOException {
+		if ( persistenceFolder == null )
+			throw new IllegalStateException("No persistence folder provided so far");
+		writeToDir(persistenceFolder);
+	}
+
+	public File getPersistenceFolder() {
+		return persistenceFolder;
+	}
+
+	public void setPersistenceFolder(File persistenceFolder) {
+		this.persistenceFolder = persistenceFolder;
+	}
+
+	public Event getActiveEvent() {
 		Event nextEvent = null;
 		DateTime now = new DateTime();
 		for ( Event event : events ) {
@@ -61,6 +78,24 @@ public class EventsList implements Iterable<Event> {
 
 		}
 		return nextEvent;
+	}
+	
+	public void setActiveRoute(String routeName) {
+		Event event = getActiveEvent();
+		if ( event == null ) {
+			getLog().error("setActiveRoute: No current event found");
+			return;
+		}
+		event.setRouteName(routeName);
+	}
+
+	public void setActiveStatus(EventStatus newStatus) {
+		Event event = getActiveEvent();
+		if ( event == null ) {
+			getLog().error("setActiveStatus: No current event found");
+			return;
+		}
+		event.setStatus(newStatus);
 	}
 
 	public static List<File> getEventFilesIn(File dir) {
@@ -120,16 +155,18 @@ public class EventsList implements Iterable<Event> {
 	private static Log log;
 
 	public static void setLog(Log log) {
-		EventsList.log = log;
+		EventList.log = log;
 	}
 
 	protected static Log getLog() {
 		if (log == null)
-			setLog(LogFactory.getLog(EventsList.class));
+			setLog(LogFactory.getLog(EventList.class));
 		return log;
 	}
 
 	protected List<Event> events;
+	protected File persistenceFolder;
+
 	final static public String EVENT_FILE_EXTENSION = "evt";
 
 }

@@ -19,7 +19,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import de.greencity.bladenightapp.events.EventsList;
+import de.greencity.bladenightapp.events.EventList;
 import de.greencity.bladenightapp.exceptions.BadStateException;
 import de.greencity.bladenightapp.time.Sleep;
 
@@ -201,7 +201,7 @@ public class RelationshipStoreTest {
 
 	@Test
 	public void readWrite() throws IOException, BadStateException, TimeoutException {
-		File file = FileUtils.toFile(EventsList.class.getResource("/de.greencity.bladenightapp.relationships/relationshipstore.json"));
+		File file = FileUtils.toFile(EventList.class.getResource("/de.greencity.bladenightapp.relationships/relationshipstore.json"));
 
 		RelationshipStore store = RelationshipStore.newFromFile(file);
 

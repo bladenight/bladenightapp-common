@@ -9,13 +9,14 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import de.greencity.bladenightapp.events.Event;
+import de.greencity.bladenightapp.network.messages.EventMessage.EventStatus;
 
 public class EventMessage {
 
 	public enum EventStatus {
 		PEN,
 		CON,
-		CAN
+		CAN;
 	}
 
 	public String 		sta; 	// start time: "yyyy-MM-dd'T'HH:mm"
@@ -106,7 +107,7 @@ public class EventMessage {
 		.build();
 	}
 
-	EventStatus convertStatus(Event.EventStatus fromStatus) {
+	static public EventStatus convertStatus(Event.EventStatus fromStatus) {
 		switch(fromStatus) {
 		case CANCELLED:
 			return EventStatus.CAN;
@@ -120,7 +121,7 @@ public class EventMessage {
 		}
 	}
 
-	Event.EventStatus convertStatus(EventStatus fromStatus) {
+	static public Event.EventStatus convertStatus(EventStatus fromStatus) {
 		switch(fromStatus) {
 		case CAN:
 			return Event.EventStatus.CANCELLED;

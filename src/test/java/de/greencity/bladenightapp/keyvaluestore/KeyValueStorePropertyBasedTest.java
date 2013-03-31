@@ -16,7 +16,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.greencity.bladenightapp.events.EventsList;
+import de.greencity.bladenightapp.events.EventList;
 
 public class KeyValueStorePropertyBasedTest {
 	private static final String NON_EXISTING_KEY = "non-existing.key";
@@ -27,7 +27,7 @@ public class KeyValueStorePropertyBasedTest {
 		KeyValueStore.setLog(new NoOpLog());
 
 		store = new KeyValueStorePropertyBased(); 
-		File file = FileUtils.toFile(EventsList.class.getResource("/de.greencity.bladenightapp.keyvaluestore/sample.properties"));
+		File file = FileUtils.toFile(EventList.class.getResource("/de.greencity.bladenightapp.keyvaluestore/sample.properties"));
 		assertTrue(store.readExternalResource(file.getAbsolutePath()));
 		
 	}

@@ -7,7 +7,7 @@ import org.junit.Test;
 public class EventsListSingletonTest {
 	@Test
 	public void test() {
-		EventsList list = new EventsList();
+		EventList list = new EventList();
 		EventsListSingleton.setInstance(list);
 		assertTrue(EventsListSingleton.getInstance() == list);
 	}
