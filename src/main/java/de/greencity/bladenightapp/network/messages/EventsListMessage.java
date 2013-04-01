@@ -8,7 +8,7 @@ import de.greencity.bladenightapp.events.Event;
 import de.greencity.bladenightapp.events.EventList;
 
 public class EventsListMessage {
-	public EventMessage[] evt;
+	public EventMessage[] evt = new EventMessage[0];
 
 	public static EventsListMessage newFromEventsList(EventList list) {
 		EventsListMessage message = new EventsListMessage();
