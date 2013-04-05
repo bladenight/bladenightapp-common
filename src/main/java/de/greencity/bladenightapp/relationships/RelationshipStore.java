@@ -1,6 +1,5 @@
 package de.greencity.bladenightapp.relationships;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,14 +7,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import de.greencity.bladenightapp.exceptions.BadStateException;
+import de.greencity.bladenightapp.persistence.ListPersistor;
 
 public class RelationshipStore {
 
@@ -24,17 +21,18 @@ public class RelationshipStore {
 		lock = new Object();
 	}
 
-	public static RelationshipStore newFromFile(File file) throws IOException {
-		String json = FileUtils.readFileToString(file);
-		return new Gson().fromJson(json, RelationshipStore.class);
+	public void read() throws IOException {
+		persistor.read();
 	}
 
-	public synchronized void write(File file) throws IOException {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		String json = gson.toJson(this);
-		FileUtils.writeStringToFile(file, json);
+	public void write() throws IOException {
+		persistor.write();
 	}
 
+	public void setPersistor(ListPersistor<Relationship> persistor) {
+		this.persistor = persistor;
+		persistor.setList(relationships);
+	}
 
 	public HandshakeInfo newRequest(String deviceId1) {
 		synchronized (lock) {
@@ -76,7 +74,7 @@ public class RelationshipStore {
 		return handshakeInfo;
 	}
 
-	private Relationship getRelationshipForRequestId(long requestId) {
+	public Relationship getRelationshipForRequestId(long requestId) {
 		for ( Relationship rel : relationships) {
 			if ( rel.getRequestId() == requestId )
 				return rel;
@@ -215,6 +213,11 @@ public class RelationshipStore {
 		return random;
 	}
 
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
+	
 	private static Log log;
 
 	public static void setLog(Log log) {
@@ -233,5 +236,7 @@ public class RelationshipStore {
 	private int relationshipIdLength = 12;
 	private long requestTimeout = 5 * 60 * 1000; // ms
 	private Object lock;
+	private ListPersistor<Relationship> persistor;
+
 
 }

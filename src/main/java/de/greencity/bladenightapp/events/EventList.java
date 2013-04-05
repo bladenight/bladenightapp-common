@@ -21,18 +21,16 @@ public class EventList implements Iterable<Event> {
 	}
 
 	public void read() throws IOException {
-		persistor.setList(events);
-		persistor.setGson(EventGsonHelper.getGson());
 		persistor.read();
 	}
 
 	public void write() throws IOException {
-		persistor.setList(events);
-		persistor.setGson(EventGsonHelper.getGson());
 		persistor.write();
 	}
 	
 	public void setPersistor(ListPersistor<Event> persistor) {
+		persistor.setGson(EventGsonHelper.getGson());
+		persistor.setList(events);
 		this.persistor = persistor;
 	}
 

@@ -2,10 +2,11 @@ package de.greencity.bladenightapp.relationships;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import de.greencity.bladenightapp.persistence.ListItem;
 import de.greencity.bladenightapp.time.Clock;
 import de.greencity.bladenightapp.time.SystemClock;
 
-class Relationship {
+class Relationship implements ListItem {
 
 	public Relationship(String deviceId1) {
 		this.deviceId1 = deviceId1;
@@ -66,6 +67,11 @@ class Relationship {
 
 	public boolean involves(String deviceId) {
 		return deviceId.equals(deviceId1) || deviceId.equals(deviceId2); 
+	}
+
+	@Override
+	public String getPersistenceId() {
+		return Long.toString(id);
 	}
 
 	@Override

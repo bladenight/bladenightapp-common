@@ -2,19 +2,26 @@ package de.greencity.bladenightapp.relationships;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.impl.NoOpLog;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import de.greencity.bladenightapp.exceptions.BadStateException;
+import de.greencity.bladenightapp.persistence.ListPersistor;
 import de.greencity.bladenightapp.time.Sleep;
 
 public class RelationshipStoreTest {
@@ -207,35 +214,43 @@ public class RelationshipStoreTest {
 
 		store.finalize(relationshipId, deviceId2);
 	}
-//
-//	@Test
-//	public void readWrite() throws IOException, BadStateException, TimeoutException {
-//		File file = FileUtils.toFile(EventList.class.getResource("/de.greencity.bladenightapp.relationships/relationshipstore.json"));
-//
-//		RelationshipStore store = RelationshipStore.newFromFile(file);
-//
-//		File tempFile = folder.newFile(this.getClass().getSimpleName()+"-test.json");
-//		store.write(tempFile);
-//
-//		verifyReadStore(store);
-//
-//		RelationshipStore store2 = RelationshipStore.newFromFile(tempFile);
-//		verifyReadStore(store2);
-//	}
-//
-//	void verifyReadStore(RelationshipStore store) throws BadStateException, TimeoutException {
-//		store.setRequestTimeOut(0);
-//
-//		assertTrue(store.exists("existing-device-1", "existing-device-2"));
-//
-//		long requestId = 885989;
-//		assertTrue(store.isPending(requestId));
-//
-//		store.finalize(requestId, "pending-device-2");
-//
-//		assertTrue(store.exists("pending-device-1", "pending-device-2"));
-//	}
-//
-//	@Rule
-//	public TemporaryFolder folder = new TemporaryFolder();
+
+	@Test
+	public void readWrite() throws IOException, BadStateException, TimeoutException {
+		File persistenceDirectory = FileUtils.toFile(RelationshipStoreTest.class.getResource("/de.greencity.bladenightapp.relationships/store1"));
+		assertNotNull(persistenceDirectory);
+		
+		RelationshipStore store = new RelationshipStore();
+		ListPersistor<Relationship> persistorRead = new ListPersistor<Relationship>(Relationship.class, persistenceDirectory);
+		store.setPersistor(persistorRead);
+		store.read();
+
+		assertExpectedDataInStore(store);
+
+		File cloneDir = folder.newFolder("readWrite");
+
+		ListPersistor<Relationship> persistorWrite = new ListPersistor<Relationship>(Relationship.class, cloneDir);
+		store.setPersistor(persistorWrite);
+		store.write();
+
+		RelationshipStore storeCheck = new RelationshipStore();
+		ListPersistor<Relationship> persistorCheck = new ListPersistor<Relationship>(Relationship.class, cloneDir);
+		storeCheck.setPersistor(persistorCheck);
+		storeCheck.read();
+
+		assertExpectedDataInStore(storeCheck);
+	}
+
+	void assertExpectedDataInStore(RelationshipStore store) throws BadStateException, TimeoutException {
+		store.setRequestTimeOut(0);
+
+		assertTrue(store.exists("existing-device-1", "existing-device-2"));
+
+		long requestId = 885989;
+
+		assertTrue(store.isPendingRequestId(requestId));
+	}
+
+	@Rule
+	public TemporaryFolder folder = new TemporaryFolder();
 }
