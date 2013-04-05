@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -17,9 +18,15 @@ import com.google.gson.Gson;
 
 public class ListPersistor<T extends ListItem> {
 
-	ListPersistor(Class<T> clazz) {
+	public ListPersistor(Class<T> clazz) {
 		this.clazz = clazz;
 	}
+
+	public ListPersistor(Class<T> clazz, File directory) {
+		this.clazz = clazz;
+		setDirectory(directory);
+	}
+
 
 	public void setDirectory(File directory) {
 		this.directory = directory;
@@ -44,14 +51,16 @@ public class ListPersistor<T extends ListItem> {
 					throw new IllegalStateException("Conflicting id " + id + "between\n" + hits.get(id).toString() + "\nand\n" + item.toString());
 				hits.put(id, item);
 				write(id, item);
-				File file = fileOf(item);
+				File file = fileFor(item);
 				FileUtils.write(file, getGson().toJson(item));
 				superfluousFiles.remove(file);
 			}
 
 			for (File file : superfluousFiles) {
-				getLog().info("Deleting deprecated item: " + file.getAbsolutePath());
-				file.delete();
+				if ( isPersistenceFile(file)) {
+					getLog().info("Deleting deprecated item: " + file.getAbsolutePath());
+					file.delete();
+				}
 			}
 		}
 	}
@@ -61,7 +70,7 @@ public class ListPersistor<T extends ListItem> {
 	}
 
 	private void write(String id, ListItem item) throws IOException {
-		write(new File(directory, id), item);
+		write(fileFor(item), item);
 	}
 
 	private void write(File file, ListItem item) throws IOException {
@@ -69,10 +78,15 @@ public class ListPersistor<T extends ListItem> {
 			FileUtils.write(file, getGson().toJson(item));
 		}
 	}
-	
-	private File fileOf(ListItem item) {
-		return new File(directory, item.getPersistenceId());
+
+	private File fileFor(ListItem item) {
+		return new File(directory, item.getPersistenceId() + "." + EXTENSION);
 	}
+
+	private boolean isPersistenceFile(File file) {
+		return EXTENSION.equals(FilenameUtils.getExtension(file.getName()));
+	}
+
 
 	public void read() throws IOException {
 		List<T> readItems = new ArrayList<T>();
@@ -80,17 +94,37 @@ public class ListPersistor<T extends ListItem> {
 		synchronized(list) {
 			File[] files = directory.listFiles();
 			for ( File file : files ) {
-				String fileContent = FileUtils.readFileToString(file, "UTF-8");
-				readItems.add(getGson().fromJson(fileContent, clazz));
+				if ( isPersistenceFile(file) ) {
+					appendFile(file, readItems);
+				}
 			}
 			list.clear();
 			list.addAll(readItems);
 		}
 	}
+	
+	private void appendFile(File file, List<T> readItems) throws IOException {
+		String fileContent = FileUtils.readFileToString(file, "UTF-8");
+		T item = null;
+		try {
+			item = getGson().fromJson(fileContent, clazz);
+		}
+		catch(Exception e) {
+			getLog().error(e.toString());
+		}
+		if ( item == null ) {
+			throw new IOException("Could not parse " + file);
+		}
+		readItems.add(item);
+	}
 
 	private void checkDirectory() throws IOException {
 		if ( ! directory.isDirectory() )
 			throw new IOException("Not a valid directory: " + directory);
+	}
+
+	public void setGson(Gson gson) {
+		this.gson = gson;
 	}
 
 	private Gson getGson() {
@@ -103,6 +137,7 @@ public class ListPersistor<T extends ListItem> {
 	private List<T> list;
 	private Gson gson;
 	private Class<T> clazz;
+	static final String EXTENSION = "per";
 
 	private static Log log;
 

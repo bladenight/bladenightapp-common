@@ -1,13 +1,10 @@
 package de.greencity.bladenightapp.events;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -15,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 
 import de.greencity.bladenightapp.events.Event.EventStatus;
+import de.greencity.bladenightapp.persistence.ListPersistor;
 
 public class EventList implements Iterable<Event> {
 
@@ -22,50 +20,22 @@ public class EventList implements Iterable<Event> {
 		events = new ArrayList<Event>();
 	}
 
-	public static EventList newFromDir(File dir) {
-		EventList list = new EventList();
-		list.setPersistenceFolder(dir);
-		for (File file : getEventFilesIn(dir)) {
-			Event event = null;
-			event = Event.newFromFile(file);
-			if ( event != null )
-				list.addEvent(event);
-			else
-				getLog().error("Could not load event from file: " + file.getAbsolutePath());
-		}
-		return list;
+	public void read() throws IOException {
+		persistor.setList(events);
+		persistor.setGson(EventGsonHelper.getGson());
+		persistor.read();
 	}
 
-	public void writeToDir(File folder) throws IOException {
-		List<File> superfluousFiles = getEventFilesIn(folder);
-		for ( Event event : events) {
-			// That will work fine, until we have more than one events per day:
-			String fileName = event.getStartDateAsString("yyyy-MM-dd") + "." + EVENT_FILE_EXTENSION;
-			getLog().info("Writing: " + fileName);
-			File file = new File(folder, fileName);
-			event.writeToFile(file);
-			superfluousFiles.remove(file);
-		}
-		for (File file : superfluousFiles) {
-			getLog().info("Deleting: " + file.getAbsolutePath());
-			file.delete();
-		}
-		setPersistenceFolder(folder);
+	public void write() throws IOException {
+		persistor.setList(events);
+		persistor.setGson(EventGsonHelper.getGson());
+		persistor.write();
+	}
+	
+	public void setPersistor(ListPersistor<Event> persistor) {
+		this.persistor = persistor;
 	}
 
-	public void writeToDir() throws IOException {
-		if ( persistenceFolder == null )
-			throw new IllegalStateException("No persistence folder provided so far");
-		writeToDir(persistenceFolder);
-	}
-
-	public File getPersistenceFolder() {
-		return persistenceFolder;
-	}
-
-	public void setPersistenceFolder(File persistenceFolder) {
-		this.persistenceFolder = persistenceFolder;
-	}
 
 	public Event getActiveEvent() {
 		Event nextEvent = null;
@@ -98,28 +68,6 @@ public class EventList implements Iterable<Event> {
 		event.setStatus(newStatus);
 	}
 
-	public static List<File> getEventFilesIn(File dir) {
-		List<File> list = new ArrayList<File>();
-		for ( File child: new ArrayList<File>(Arrays.asList(dir.listFiles()))) {
-			if ( isEventFile(child) ) {
-				 getLog().debug("Found event file: " + child.getAbsolutePath());
-				list.add(child);
-			}
-			else {
-				 getLog().debug("Discarding: " + child.getAbsolutePath());
-			}
-		}
-		return list;
-	}
-
-	public static boolean isEventFile(File file) {
-		if ( ! file.isFile() )
-			return false;
-		String extension = FilenameUtils.getExtension(file.getName());
-		if ( ! EVENT_FILE_EXTENSION.equals(extension) )
-			return false;
-		return true;
-	}
 
 	public void addEvent(Event event) {
 		events.add(event);
@@ -165,8 +113,6 @@ public class EventList implements Iterable<Event> {
 	}
 
 	protected List<Event> events;
-	protected File persistenceFolder;
-
-	final static public String EVENT_FILE_EXTENSION = "evt";
+	private ListPersistor<Event> persistor;
 
 }

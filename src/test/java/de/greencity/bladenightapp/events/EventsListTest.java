@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.greencity.bladenightapp.events.Event.EventStatus;
+import de.greencity.bladenightapp.persistence.ListPersistor;
 
 public class EventsListTest {
 
@@ -91,7 +92,12 @@ public class EventsListTest {
 	@Test
 	public void readEventsFromDir() throws IOException {
 		File dir = FileUtils.toFile(EventList.class.getResource("/de.greencity.bladenightapp.events/set1/"));
-		EventList eventList = EventList.newFromDir(dir);
+		// EventList eventList = EventList.newFromDir(dir);
+		EventList eventList = new EventList();
+		ListPersistor<Event> persistor = new ListPersistor<Event>(Event.class);
+		persistor.setDirectory(dir);
+		eventList.setPersistor(persistor);
+		eventList.read();
 		Event returnedEvent = eventList.getActiveEvent();
 		assertNotNull(returnedEvent);
 		assertEquals( new DateTime("2020-03-03T21:00"), returnedEvent.getStartDate());
@@ -122,25 +128,37 @@ public class EventsListTest {
 		.setRouteName("route3.gpx")
 		.setStatus(EventStatus.PENDING)
 		.build();
-		EventList manager = new EventList();
-		manager.addEvent(event1);
-		manager.addEvent(event2);
-		manager.addEvent(event3);
+		EventList eventList = new EventList();
+		eventList.addEvent(event1);
+		eventList.addEvent(event2);
+		eventList.addEvent(event3);
 
 		File tmpFolder = createTemporaryFolder();
-		File fileToBeDeleted = new File(tmpFolder, "to-be-deleted." + EventList.EVENT_FILE_EXTENSION);
+
+		ListPersistor<Event> persistor = new ListPersistor<Event>(Event.class);
+		persistor.setDirectory(tmpFolder);
+
+		File fileToBeDeleted = new File(tmpFolder, "to-be-deleted.per");
 		FileUtils.write(fileToBeDeleted, "");
 
+		File fileToBePerserved = new File(tmpFolder, "to-be-preserved");
+		FileUtils.write(fileToBePerserved, "");
+
 		assertTrue(fileToBeDeleted.isFile());
+		assertTrue(fileToBePerserved.isFile());
 
-		manager.writeToDir(tmpFolder);
+		eventList.setPersistor(persistor);
+		eventList.write();
 
-		assertTrue(new File(tmpFolder, "2012-02-03." + EventList.EVENT_FILE_EXTENSION).isFile());
+		assertTrue(new File(tmpFolder, "2012-02-03.per").isFile());
 
 		assertTrue(fileToBeDeleted.isFile() == false);
+		assertTrue(fileToBePerserved.isFile());
 
-		EventList manager2 = EventList.newFromDir(tmpFolder);
-		Event returnedEvent = manager2.getActiveEvent();
+		EventList eventList2 = new EventList();
+		eventList2.setPersistor(persistor);
+		eventList2.read();
+		Event returnedEvent = eventList2.getActiveEvent();
 		assertNotNull(returnedEvent);
 		assertEquals(event3, returnedEvent);		
 	}
@@ -151,8 +169,13 @@ public class EventsListTest {
 		File tmpFolder = createTemporaryFolder();
 		File persistenceFolder = new File(tmpFolder, "copy");
 		FileUtils.copyDirectory(srcDir, persistenceFolder);
-		
-		EventList eventList = EventList.newFromDir(persistenceFolder);
+
+		ListPersistor<Event> persistor = new ListPersistor<Event>(Event.class);
+		persistor.setDirectory(persistenceFolder);
+
+		EventList eventList = new EventList();
+		eventList.setPersistor(persistor);
+		eventList.read();
 		Event returnedEvent = eventList.getActiveEvent();
 		assertNotNull(returnedEvent);
 		assertEquals( new DateTime("2020-03-03T21:00"), returnedEvent.getStartDate());
@@ -161,9 +184,11 @@ public class EventsListTest {
 		String newRouteName = "Changed route";
 		eventList.setActiveRoute(newRouteName);
 		eventList.setActiveStatus(EventStatus.CANCELLED);
-		eventList.writeToDir();
+		eventList.write();
 		
-		EventList eventListCheck = EventList.newFromDir(persistenceFolder);
+		EventList eventListCheck = new EventList();
+		eventListCheck.setPersistor(persistor);
+		eventListCheck.read();
 		assertEquals(newRouteName, eventListCheck.getActiveEvent().getRouteName());
 		
 		assertEquals(eventList, eventListCheck);

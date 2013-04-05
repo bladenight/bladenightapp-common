@@ -1,10 +1,7 @@
 package de.greencity.bladenightapp.events;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.ParseException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -15,7 +12,9 @@ import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-public class Event {
+import de.greencity.bladenightapp.persistence.ListItem;
+
+public class Event implements ListItem {
 	public enum EventStatus {
 		PENDING("P"),
 		CONFIRMED("O"),
@@ -94,23 +93,6 @@ public class Event {
 		status = EventStatus.PENDING;				
 	}
 
-	public static Event newFromFile(File file)  {
-		Event event = null;
-		try {
-			String json = FileUtils.readFileToString(file);
-			event = GsonHelper.getGson().fromJson(json, Event.class);
-		}
-		catch (Exception e) {
-			getLog().error("Failed to load " + file.getAbsolutePath() + ":\n" + e.toString());
-		}
-		return event;
-	}
-
-	public void writeToFile(File file) throws IOException  {
-		String json = GsonHelper.getGson().toJson(this);
-		FileUtils.writeStringToFile(file, json);
-	}
-
 	public Duration getDuration() {
 		return duration;
 	}
@@ -167,6 +149,11 @@ public class Event {
 	}
 
 	@Override
+	public String getPersistenceId() {
+		return getStartDateAsString("yyyy-MM-dd");
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		return EqualsBuilder.reflectionEquals(this, obj);
 	}
@@ -211,5 +198,6 @@ public class Event {
 			}
 		};
 	}
+
 
 }

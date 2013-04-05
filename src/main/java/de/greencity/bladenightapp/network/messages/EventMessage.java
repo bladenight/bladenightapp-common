@@ -9,7 +9,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import de.greencity.bladenightapp.events.Event;
-import de.greencity.bladenightapp.network.messages.EventMessage.EventStatus;
 
 public class EventMessage {
 

@@ -1,6 +1,7 @@
 package de.greencity.bladenightapp.persistence;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.logging.impl.NoOpLog;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,7 +23,7 @@ public class ListPersistorTest {
 
 	@Before
 	public void init() {
-
+		ListPersistor.setLog(new NoOpLog());
 	}
 
 	public class MyListItem implements ListItem {
@@ -53,13 +55,15 @@ public class ListPersistorTest {
 		persistor.setDirectory(directory);
 		persistor.setList(list);
 
+		assertEquals(0, directory.listFiles().length);
+
 		MyListItem item = new MyListItem("string",42); 
 		list.add(item);
 
 		persistor.write();
 
 		assertEquals(1, directory.listFiles().length);
-		String fileContent = FileUtils.readFileToString(new File(directory,item.getPersistenceId()));
+		String fileContent = FileUtils.readFileToString(new File(directory,item.getPersistenceId()+".per"));
 		MyListItem crossCheck = new Gson().fromJson(fileContent, MyListItem.class);
 		assertEquals(item, crossCheck);
 	}
@@ -113,6 +117,21 @@ public class ListPersistorTest {
 		assertEquals(new MyListItem("string1", 1), list.get(0));
 		assertEquals(new MyListItem("string2", 2), list.get(1));
 	}
+
+	@Test(expected=IOException.class)
+	public void readInvalidSyntax() throws IOException {
+		File dir = FileUtils.toFile(ListPersistorTest.class.getResource("/de.greencity.bladenightapp.persistence/invalidsyntax"));
+
+		List<MyListItem> list = new ArrayList<MyListItem>();
+		ListPersistor<MyListItem> persistor = new ListPersistor<MyListItem>(MyListItem.class);
+		persistor.setDirectory(dir);
+		persistor.setList(list);
+
+		persistor.read();
+
+		assertEquals(0, list.size());
+	}
+
 
 	@Test
 	public void deleteDeprecatedItems() throws IOException {

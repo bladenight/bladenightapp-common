@@ -18,7 +18,7 @@ import com.google.gson.JsonSerializer;
 
 import de.greencity.bladenightapp.events.Event.EventStatus;
 
-public class GsonHelper {
+public class EventGsonHelper {
 	static private class DurationTypeConverter implements JsonSerializer<Duration>, JsonDeserializer<Duration> {
 		final static int factor = 60 * 1000;
 		@Override
@@ -74,15 +74,20 @@ public class GsonHelper {
 		}
 	}
 	public static Gson getGson() {
-		GsonBuilder builder = new GsonBuilder();
-		builder.setPrettyPrinting();
-		builder.registerTypeAdapter(DateTime.class, new DateTimeTypeConverter());
-		builder.registerTypeAdapter(Duration.class, new DurationTypeConverter());
-		builder.registerTypeAdapter(EventStatus.class, new EventStatusConvert());
-		return builder.create();
+		if ( gson == null ) {
+			GsonBuilder builder = new GsonBuilder();
+			builder.setPrettyPrinting();
+			builder.registerTypeAdapter(DateTime.class, new DateTimeTypeConverter());
+			builder.registerTypeAdapter(Duration.class, new DurationTypeConverter());
+			builder.registerTypeAdapter(EventStatus.class, new EventStatusConvert());
+			gson = builder.create();
+		}
+		return gson;
 	}
 
 	static public String toJson(Event event) {
 		return getGson().toJson(event);
 	}
+
+	static Gson gson = null;
 }
