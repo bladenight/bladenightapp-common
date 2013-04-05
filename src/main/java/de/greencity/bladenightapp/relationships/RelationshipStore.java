@@ -22,8 +22,7 @@ import de.greencity.bladenightapp.exceptions.BadStateException;
 public class RelationshipStore {
 
 	public RelationshipStore() {
-		pending = new ConcurrentHashMap<Long, Relationship>();
-		finalized = Collections.synchronizedList(new ArrayList<Relationship>());
+		relationships = Collections.synchronizedList(new ArrayList<Relationship>());
 		lock = new Object();
 	}
 
@@ -46,7 +45,8 @@ public class RelationshipStore {
 
 			Relationship relationship = new Relationship(deviceId1);
 			relationship.setFriendId1(friendId);
-			pending.put(requestId, relationship);
+			relationship.setRequestId(requestId);
+			relationships.add(relationship);
 
 			getLog().info("Created new request for " + deviceId1 + " " + requestId + " = " + relationship);
 
@@ -59,7 +59,7 @@ public class RelationshipStore {
 	}
 
 	public synchronized HandshakeInfo finalize(long requestId, String deviceId2) throws BadStateException, TimeoutException {
-		Relationship rel = pending.get(requestId);
+		Relationship rel = getRelationshipForRequestId(requestId);
 
 		finalizeCheck(requestId, deviceId2, rel);
 
@@ -69,25 +69,36 @@ public class RelationshipStore {
 
 			handshakeInfo.setFriendId(friendId);
 
+			rel.setRequestId(0);
 			rel.setDeviceId2(deviceId2);
 			rel.setFriendId2(friendId);
-			
-			pending.remove(requestId);
-			finalized.add(rel);
 			
 			getLog().info(rel.getDeviceId1() + " and " + rel.getDeviceId2() + " are now connected");
 		}
 		return handshakeInfo;
 	}
 
+	private Relationship getRelationshipForRequestId(long requestId) {
+		for ( Relationship rel : relationships) {
+			if ( rel.getRequestId() == requestId )
+				return rel;
+		}
+		return null;
+	}
+
+	private Relationship getRelationshipWithId(long id) {
+		for ( Relationship rel : relationships) {
+			if ( rel.getId() == id )
+				return rel;
+		}
+		return null;
+	}
+
+
 	private long generateFriendId(String deviceId) {
 		long count=1;
 		synchronized (lock) {
-			for (Relationship relationship : pending.values() ) {
-				if ( relationship.involves(deviceId) )
-					count++;
-			}
-			for (Relationship relationship : finalized ) {
+			for (Relationship relationship : relationships ) {
 				if ( relationship.involves(deviceId) )
 					count++;
 			}
@@ -112,16 +123,19 @@ public class RelationshipStore {
 			throw new BadStateException(msg);
 		}
 		if ( requestTimeout > 0 && rel.getAge() > requestTimeout ) {
-			pending.remove(requestId);
+			relationships.remove(rel);
 			String msg = "Relationship request has timed out: "+rel;
 			getLog().warn(msg);
 			throw new TimeoutException(msg);
 		}
 	}
 
+	public void setRelationshipIdLength(int digits) {
+		relationshipIdLength = digits;
+	}
 
-	public void setIdLength(int digits) {
-		idsLength = digits; 
+	public void setRequestIdLength(int digits) {
+		requestIdLength = digits; 
 	}
 
 	public void setRequestTimeOut(long timeout) {
@@ -130,15 +144,24 @@ public class RelationshipStore {
 
 	synchronized long generateRequestId() {
 		while(true) {
-			long id = generateRequestIdCandidate();
-			if ( ! pending.containsKey(id)  )
+			long id = generateIdCandidate(requestIdLength);
+			if ( getRelationshipForRequestId(id) == null )
 				return id;
 		}
 	}
 
-	private long generateRequestIdCandidate() {
-		long min = pow(10, idsLength-1); 
-		long range = pow(10, idsLength) - min;
+	synchronized long generateRelationshipId() {
+		while(true) {
+			long id = generateIdCandidate(relationshipIdLength);
+			if ( getRelationshipWithId(id) == null )
+				return id;
+		}
+	}
+
+
+	private long generateIdCandidate(int length) {
+		long min = pow(10, length-1); 
+		long range = pow(10, length) - min;
 		return  min + ( Math.abs(getRandom().nextLong()) % range );
 	}
 
@@ -152,7 +175,7 @@ public class RelationshipStore {
 	}
 
 	public boolean exists(String deviceId1, String deviceId2) {
-		for (Relationship relationship : finalized ) {
+		for (Relationship relationship : relationships ) {
 			int match = 0;
 			if ( deviceId1.equals(relationship.getDeviceId1()) )
 				match++;
@@ -168,8 +191,8 @@ public class RelationshipStore {
 		return false;
 	}
 
-	public boolean isPending(long requestId) {
-		Relationship rel = pending.get(requestId);
+	public boolean isPendingRequestId(long requestId) {
+		Relationship rel = getRelationshipForRequestId(requestId);
 		return ( rel != null );
 	}
 
@@ -177,7 +200,7 @@ public class RelationshipStore {
 	 */
 	public List<RelationshipMember> getRelationships(String deviceId) {
 		List<RelationshipMember> list = new ArrayList<RelationshipMember>();
-		for (Relationship relationship : finalized ) {
+		for (Relationship relationship : relationships ) {
 			if ( ! relationship.isPending() ) {
 				if ( deviceId.equals(relationship.getDeviceId1()))
 					list.add(new RelationshipMember(relationship.getFriendId1(), relationship.getDeviceId2()));
@@ -206,10 +229,11 @@ public class RelationshipStore {
 		return log;
 	}
 
-	private Map<Long, Relationship> pending;
-	private List<Relationship> finalized;
+	private List<Relationship> relationships;
 	private transient Random random = null;
-	private int idsLength = 6;
+	private int requestIdLength = 6;
+	private int relationshipIdLength = 12;
 	private long requestTimeout = 5 * 60 * 1000; // ms
 	private Object lock;
+
 }

@@ -12,6 +12,22 @@ class Relationship {
 		this.creationTimestamp = clock.currentTimeMillis();
 	}
 
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public long getRequestId() {
+		return requestId;
+	}
+
+	public void setRequestId(long requestId) {
+		this.requestId = requestId;
+	}
+
 	public String getDeviceId1() {
 		return deviceId1;
 	}
@@ -57,6 +73,9 @@ class Relationship {
 		return ToStringBuilder.reflectionToString(this);
 	}
 	
+
+	private long id;
+	private long requestId;
 	private String deviceId1;
 	private long friendId1; 
 	private String deviceId2;

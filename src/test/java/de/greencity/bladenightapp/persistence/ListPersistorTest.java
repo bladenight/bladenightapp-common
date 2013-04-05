@@ -1,0 +1,151 @@
+package de.greencity.bladenightapp.persistence;
+
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import com.google.gson.Gson;
+
+public class ListPersistorTest {
+
+	@Before
+	public void init() {
+
+	}
+
+	public class MyListItem implements ListItem {
+		public MyListItem(String s, int i) {
+			this.s  = s;
+			this.i = i;
+		}
+		public String s;
+		public int i;
+		@Override
+		public String getPersistenceId() {
+			return s + "-" + i;
+		}
+		@Override
+		public String toString() {
+			return ToStringBuilder.reflectionToString(this);
+		}
+		@Override
+		public boolean equals(Object o) {
+			return EqualsBuilder.reflectionEquals(this, o);
+		}
+	};
+
+	@Test
+	public void writeSingleEntryFromList() throws IOException {
+		List<MyListItem> list = new ArrayList<MyListItem>();
+		File directory = createDirectory("writeSingleEntryFromList");
+		ListPersistor<MyListItem> persistor = new ListPersistor<MyListItem>(MyListItem.class);
+		persistor.setDirectory(directory);
+		persistor.setList(list);
+
+		MyListItem item = new MyListItem("string",42); 
+		list.add(item);
+
+		persistor.write();
+
+		assertEquals(1, directory.listFiles().length);
+		String fileContent = FileUtils.readFileToString(new File(directory,item.getPersistenceId()));
+		MyListItem crossCheck = new Gson().fromJson(fileContent, MyListItem.class);
+		assertEquals(item, crossCheck);
+	}
+
+	@Test(expected=IllegalStateException.class)
+	public void writeConflictingEntries() throws IOException {
+		List<MyListItem> list = new ArrayList<MyListItem>();
+		File directory = createDirectory("writeSingleEntry");
+		ListPersistor<MyListItem> persistor = new ListPersistor<MyListItem>(MyListItem.class);
+		persistor.setDirectory(directory);
+		persistor.setList(list);
+
+		MyListItem item = new MyListItem("string",42); 
+		list.add(item);
+		list.add(item);
+
+		persistor.write();
+
+	}
+
+	@Test
+	public void writeMultipleItems() throws IOException {
+		List<MyListItem> list = new ArrayList<MyListItem>();
+		File directory = createDirectory("writeSingleEntry");
+		ListPersistor<MyListItem> persistor = new ListPersistor<MyListItem>(MyListItem.class);
+		persistor.setDirectory(directory);
+		persistor.setList(list);
+
+		list.add(new MyListItem("string",42));
+		list.add(new MyListItem("string",43));
+
+		persistor.write();
+
+		assertEquals(2, directory.listFiles().length);
+	}
+
+	@Test
+	public void readFromDir() throws IOException {
+		File dir = FileUtils.toFile(ListPersistorTest.class.getResource("/de.greencity.bladenightapp.persistence/mylistitems"));
+
+		List<MyListItem> list = new ArrayList<MyListItem>();
+		ListPersistor<MyListItem> persistor = new ListPersistor<MyListItem>(MyListItem.class);
+		persistor.setDirectory(dir);
+		persistor.setList(list);
+
+		list.add(new MyListItem("to-be-removed-from-the-list", 10));
+
+		persistor.read();
+
+		assertEquals(2, list.size());
+		assertEquals(new MyListItem("string1", 1), list.get(0));
+		assertEquals(new MyListItem("string2", 2), list.get(1));
+	}
+
+	@Test
+	public void deleteDeprecatedItems() throws IOException {
+		List<MyListItem> list = new ArrayList<MyListItem>();
+		File directory = createDirectory("deleteDeprecatedItems");
+		ListPersistor<MyListItem> persistor = new ListPersistor<MyListItem>(MyListItem.class);
+		persistor.setDirectory(directory);
+		persistor.setList(list);
+
+		list.add(new MyListItem("string",42));
+		list.add(new MyListItem("string",43));
+		MyListItem toBeDeleted = new MyListItem("to-be-deleted",43); 
+		list.add(toBeDeleted);
+
+		persistor.write();
+
+		assertEquals(3, directory.listFiles().length);
+		
+		list.remove(toBeDeleted);
+
+		persistor.write();
+
+		assertEquals(2, directory.listFiles().length);
+		
+		persistor.read();
+		
+		assertTrue(! list.contains(toBeDeleted));
+	}
+
+	private File createDirectory(String name) {
+		return folder.newFolder(name);
+	}
+
+	@Rule
+	public TemporaryFolder folder = new TemporaryFolder();
+}
