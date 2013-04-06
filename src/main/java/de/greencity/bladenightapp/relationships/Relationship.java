@@ -6,7 +6,7 @@ import de.greencity.bladenightapp.persistence.ListItem;
 import de.greencity.bladenightapp.time.Clock;
 import de.greencity.bladenightapp.time.SystemClock;
 
-class Relationship implements ListItem {
+public class Relationship implements ListItem {
 
 	public Relationship(String deviceId1) {
 		this.deviceId1 = deviceId1;
