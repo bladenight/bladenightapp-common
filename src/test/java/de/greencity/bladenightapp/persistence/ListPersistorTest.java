@@ -149,19 +149,19 @@ public class ListPersistorTest {
 		persistor.write();
 
 		assertEquals(3, directory.listFiles().length);
-		
+
 		list.remove(toBeDeleted);
 
 		persistor.write();
 
 		assertEquals(2, directory.listFiles().length);
-		
+
 		persistor.read();
-		
+
 		assertTrue(! list.contains(toBeDeleted));
 	}
 
-	private File createDirectory(String name) {
+	private File createDirectory(String name) throws IOException {
 		return folder.newFolder(name);
 	}
 
