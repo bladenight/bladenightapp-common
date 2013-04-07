@@ -19,6 +19,11 @@ public class RealTimeUpdateData {
 		return up;
 	}
 
+	public void setUser(NetMovingPoint mp) {
+		this.up = mp;
+	}
+
+
 	public long getUserPosition() {
 		return up.getPosition();
 	}
@@ -64,6 +69,11 @@ public class RealTimeUpdateData {
 		hea.copyFrom(mp);
 	}
 
+	public void setHead(NetMovingPoint mp) {
+		hea = mp;
+	}
+
+
 	public void invalidateTail() {
 		hea.isOnRoute(false);
 		hea.isInProcession(false);
@@ -79,6 +89,10 @@ public class RealTimeUpdateData {
 
 	public void setTail(MovingPoint mp) {
 		tai.copyFrom(mp);
+	}
+
+	public void setTail(NetMovingPoint mp) {
+		tai = mp;
 	}
 
 	public int getUserTotal() {
