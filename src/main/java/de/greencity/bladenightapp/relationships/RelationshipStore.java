@@ -34,13 +34,15 @@ public class RelationshipStore {
 		persistor.setList(relationships);
 	}
 
-	public HandshakeInfo newRequest(String deviceId1) {
+	public HandshakeInfo newRequest(String deviceId1, long friendId1) {
 		synchronized (lock) {
 			long requestId = generateRequestId();
-			long friendId = generateFriendId(deviceId1);
+
+			// Delete any relationship that the user may already have with the same ids
+			deleteRelationship(deviceId1, friendId1);
 
 			Relationship relationship = new Relationship(deviceId1);
-			relationship.setFriendId1(friendId);
+			relationship.setFriendId1(friendId1);
 			relationship.setRequestId(requestId);
 			relationships.add(relationship);
 
@@ -48,27 +50,27 @@ public class RelationshipStore {
 
 			HandshakeInfo handshakeInfo = new HandshakeInfo();
 			handshakeInfo.setRequestId(requestId);
-			handshakeInfo.setFriendId(friendId);
+			handshakeInfo.setFriendId(friendId1);
 
 			return handshakeInfo;
 		}
 	}
 
-	public synchronized HandshakeInfo finalize(long requestId, String deviceId2) throws BadStateException, TimeoutException {
+	public synchronized HandshakeInfo finalize(long requestId, String deviceId2, long friendId2) throws BadStateException, TimeoutException {
 		Relationship rel = getRelationshipForRequestId(requestId);
 
 		finalizeCheck(requestId, deviceId2, rel);
 
+		deleteRelationship(deviceId2, friendId2);
+		
 		HandshakeInfo handshakeInfo = new HandshakeInfo();
 		synchronized (lock) {
-			long friendId = generateFriendId(deviceId2);
-
-			handshakeInfo.setFriendId(friendId);
+			handshakeInfo.setFriendId(friendId2);
 
 			rel.setRequestId(0);
 			rel.setDeviceId2(deviceId2);
-			rel.setFriendId2(friendId);
-			
+			rel.setFriendId2(friendId2);
+
 			getLog().info(rel.getDeviceId1() + " and " + rel.getDeviceId2() + " are now connected");
 		}
 		return handshakeInfo;
@@ -91,24 +93,13 @@ public class RelationshipStore {
 	}
 
 
-	private long generateFriendId(String deviceId) {
-		long count=1;
-		synchronized (lock) {
-			for (Relationship relationship : relationships ) {
-				if ( relationship.involves(deviceId) )
-					count++;
-			}
-		}
-		return count;
-	}
-
 	private void finalizeCheck(long requestId, String deviceId2, Relationship rel) throws BadStateException, TimeoutException {
 		if ( rel == null ) {
 			String msg = "Not a valid pending relationship id: " + requestId;
 			getLog().warn(msg);
 			throw new BadStateException(msg);
 		}
-		if ( rel.getDeviceId1() == deviceId2 ) {
+		if ( rel.getDeviceId1().equals(deviceId2)) {
 			String msg = "Relationship with self is not allowed: "+rel;
 			getLog().warn(msg);
 			throw new BadStateException(msg);
@@ -200,11 +191,32 @@ public class RelationshipStore {
 			if ( ! relationship.isPending() ) {
 				if ( deviceId.equals(relationship.getDeviceId1()))
 					list.add(new RelationshipMember(relationship.getFriendId1(), relationship.getDeviceId2()));
-				if ( deviceId.equals(relationship.getDeviceId2()))
+				else if ( deviceId.equals(relationship.getDeviceId2()))
 					list.add(new RelationshipMember(relationship.getFriendId2(), relationship.getDeviceId1()));
 			}
 		}
 		return list;
+	}
+
+	public int deleteRelationship(String deviceId, long friendId) {
+		int hits = 0;
+		List<Relationship> toRemove = new ArrayList<Relationship>();
+		for (Relationship relationship : relationships ) {
+			if ( doesRelationConcern(relationship, deviceId, friendId) ) {
+				getLog().info("Removing relation: " + relationship);
+				toRemove.add(relationship);
+			}
+		}
+		deleteRelationships(toRemove);
+		return hits;
+	}
+
+	public void deleteRelationships(List<Relationship> list) {
+		synchronized (lock) {
+			while ( list.size() > 0 ) {
+				relationships.remove(list.remove(0));
+			}
+		}
 	}
 
 	private Random getRandom() {
@@ -213,11 +225,19 @@ public class RelationshipStore {
 		return random;
 	}
 
+	private boolean doesRelationConcern(Relationship relationship, String deviceId, long friendId) {
+		if ( deviceId.equals(relationship.getDeviceId1()) && friendId == relationship.getFriendId1() )
+			return true;
+		if ( deviceId.equals(relationship.getDeviceId2()) && friendId == relationship.getFriendId2() )
+			return true;
+		return false;
+	}
+	
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
-	
+
 	private static Log log;
 
 	public static void setLog(Log log) {

@@ -3,22 +3,16 @@ package de.greencity.bladenightapp.network.messages;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class RelationshipInputMessage {
-	public RelationshipInputMessage(String deviceId1, String deviceId2, long requestId) {
-		this.did1 = deviceId1;
-		this.did2 = deviceId2;
+	public RelationshipInputMessage(String deviceId, long friendId, long requestId) {
+		this.did = deviceId;
+		this.fid = friendId;
 		this.req = requestId;
 	}
-	public String getDeviceId1() {
-		return did1;
+	public String getDeviceId() {
+		return did;
 	}
-	public void setDeviceId1(String deviceId) {
-		this.did1 = deviceId;
-	}
-	public String getDeviceId2() {
-		return did2;
-	}
-	public void setDeviceId2(String deviceId) {
-		this.did2 = deviceId;
+	public void setDeviceId(String deviceId) {
+		this.did = deviceId;
 	}
 	public long getRequestId() {
 		return req;
@@ -26,13 +20,19 @@ public class RelationshipInputMessage {
 	public void setRequestId(long requestId) {
 		this.req = requestId;
 	}
+	public long getFriendId() {
+		return fid;
+	}
+	public void getFriendId(long friendId) {
+		this.fid = friendId;
+	}
 
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
 	
-	public String did1;
-	public String did2;
+	public String did;
+	public long fid;
 	public long req;
 }
