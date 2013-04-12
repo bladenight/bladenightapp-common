@@ -179,7 +179,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		getLog().debug("compute: " + participantList.size() + " participants are registered");
 
 		if ( ! headAndTailComputer.compute() ) {
-			getLog().info("compute: could not find the procession position");
+			getLog().debug("compute: could not find the procession position");
 			headMovingPoint = new MovingPoint();
 			tailMovingPoint = new MovingPoint();
 			return;
