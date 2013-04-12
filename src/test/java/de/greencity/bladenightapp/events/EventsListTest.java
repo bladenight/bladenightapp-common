@@ -180,20 +180,50 @@ public class EventsListTest {
 		assertNotNull(returnedEvent);
 		assertEquals( new DateTime("2020-03-03T21:00"), returnedEvent.getStartDate());
 		assertEquals("route3.gpx", returnedEvent.getRouteName());
-		
+
 		String newRouteName = "Changed route";
 		eventList.setActiveRoute(newRouteName);
 		eventList.setActiveStatus(EventStatus.CANCELLED);
 		eventList.write();
-		
+
 		EventList eventListCheck = new EventList();
 		eventListCheck.setPersistor(persistor);
 		eventListCheck.read();
 		assertEquals(newRouteName, eventListCheck.getActiveEvent().getRouteName());
-		
+
 		assertEquals(eventList, eventListCheck);
 	}
-	
+
+	@Test
+	public void sorting() throws ParseException {
+		Event event1 = new Event.Builder()
+		.setStartDate("2013-01-01T20:00")
+		.setDurationInMinutes(60)
+		.setRouteName("route1.gpx")
+		.setStatus(EventStatus.CANCELLED)
+		.build();
+		Event event2 = new Event.Builder()
+		.setStartDate("2012-02-10T21:00")
+		.setDurationInMinutes(120)
+		.setRouteName("route2.gpx")
+		.setStatus(EventStatus.CONFIRMED)
+		.build();
+		Event event3 = new Event.Builder()
+		.setStartDate("2014-02-10T21:00")
+		.setDurationInMinutes(180)
+		.setRouteName("route3.gpx")
+		.setStatus(EventStatus.PENDING)
+		.build();
+		EventList eventList = new EventList();
+		eventList.addEvent(event1);
+		eventList.addEvent(event2);
+		eventList.addEvent(event3);
+		eventList.sortByStartDate();
+		assertTrue(eventList.get(0).getStartDate().isBefore(eventList.get(1).getStartDate()));
+		assertTrue(eventList.get(1).getStartDate().isBefore(eventList.get(2).getStartDate()));
+		
+	}
+
 	public File createTemporaryFolder() throws IOException  {
 		File file = File.createTempFile("tmpfolder", ".d");
 		file.delete();

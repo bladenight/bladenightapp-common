@@ -2,6 +2,8 @@ package de.greencity.bladenightapp.events;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,7 +29,7 @@ public class EventList implements Iterable<Event> {
 	public void write() throws IOException {
 		persistor.write();
 	}
-	
+
 	public void setPersistor(ListPersistor<Event> persistor) {
 		persistor.setGson(EventGsonHelper.getGson());
 		persistor.setList(events);
@@ -47,7 +49,7 @@ public class EventList implements Iterable<Event> {
 		}
 		return nextEvent;
 	}
-	
+
 	public void setActiveRoute(String routeName) {
 		Event event = getActiveEvent();
 		if ( event == null ) {
@@ -75,10 +77,21 @@ public class EventList implements Iterable<Event> {
 		return events.get(pos);
 	}
 
+	public void sortByStartDate() {
+		Comparator<Event> comparator = new Comparator<Event>() {
+
+			@Override
+			public int compare(Event e1, Event e2) {
+				return (e1.getStartDate().compareTo(e2.getStartDate()));
+			}
+		};
+		Collections.sort(events, comparator);
+	}
+
 	public int size() {
 		return events.size();
 	}
-	
+
 	public int indexOf(Event event) {
 		return events.indexOf(event);
 	}
