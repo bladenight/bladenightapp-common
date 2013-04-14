@@ -13,6 +13,15 @@ import de.greencity.bladenightapp.time.SystemClock;
 
 public class AdminMessage {
 
+	public AdminMessage() {
+	}
+
+	public AdminMessage(String password) {
+		setTimestamp(getClock().currentTimeMillis());
+		setNoise(generateNoise());
+		authenticate(password);
+	}
+
 	public boolean authenticate(String password) {
 		setTimestamp(getClock().currentTimeMillis());
 		setNoise(generateNoise());
@@ -22,7 +31,7 @@ public class AdminMessage {
 	}
 
 	private long generateNoise() {
-		return Math.abs(random.nextLong());
+		return Math.abs(getRandom().nextLong());
 	}
 
 	private String generateChecksum(String password) {
@@ -49,7 +58,16 @@ public class AdminMessage {
 			return false;
 		}
 		String referenceChecksum = generateChecksum(password);
-		if ( ! referenceChecksum.equals(getChecksum()) ) {
+		String currentChecksum = getChecksum();
+		if ( "".equals(referenceChecksum)  ) {
+			getLog().warn("Failed to generate current checksum: " + this.toString());
+			return false;
+		}
+		if ( "".equals(referenceChecksum)  ) {
+			getLog().warn("Failed to generate reference checksum: " + this.toString());
+			return false;
+		}
+		if ( ! referenceChecksum.equals(currentChecksum) ) {
 			getLog().warn("Message verification failed: " + this.toString());
 			return false;
 		}
@@ -88,6 +106,8 @@ public class AdminMessage {
 	}
 
 	public Clock getClock() {
+		if ( clock == null )
+			clock = new SystemClock();
 		return clock;
 	}
 
@@ -96,6 +116,8 @@ public class AdminMessage {
 	}
 
 	public Random getRandom() {
+		if ( random == null )
+			random = new Random();
 		return random;
 	}
 
@@ -109,11 +131,11 @@ public class AdminMessage {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
-	public long tim;
-	public String chk;
-	public long noi;
-	private transient Clock clock = new SystemClock();
-	private transient Random random = new Random();
+	public long tim = -1;
+	public String chk = "";
+	public long noi = -1;
+	private transient Clock clock;
+	private transient Random random;
 
 	private static Log log;
 

@@ -51,6 +51,17 @@ public class AdminMessageTest {
 	}
 
 	@Test
+	public void constructorWithPassword() {
+		String password = "blabla";
+		AdminMessage message = new AdminMessage("blabla");
+		assertTrue(message.getTimestamp() >= System.currentTimeMillis() - 10000);
+		assertTrue(message.getTimestamp() <= System.currentTimeMillis() );
+		assertTrue(message.getNoise() >= 0);
+		assertTrue(message.authenticate(password));
+	}
+
+
+	@Test
 	public void timeout() {
 		AdminMessage message = new AdminMessage();
 		String password = UUID.randomUUID().toString();
