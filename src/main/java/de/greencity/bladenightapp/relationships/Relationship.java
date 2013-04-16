@@ -41,19 +41,19 @@ public class Relationship implements ListItem {
 		this.deviceId2 = deviceId2;
 	}
 
-	public long getFriendId1() {
+	public int getFriendId1() {
 		return friendId1;
 	}
 
-	public long getFriendId2() {
+	public int getFriendId2() {
 		return friendId2;
 	}
 
-	public void setFriendId1(long friendId) {
+	public void setFriendId1(int friendId) {
 		this.friendId1 = friendId;
 	}
 
-	public void setFriendId2(long friendId) {
+	public void setFriendId2(int friendId) {
 		this.friendId2 = friendId;
 	}
 
@@ -83,9 +83,9 @@ public class Relationship implements ListItem {
 	private long id;
 	private long requestId;
 	private String deviceId1;
-	private long friendId1; 
+	private int friendId1; 
 	private String deviceId2;
-	private long friendId2; 
+	private int friendId2; 
 	private long creationTimestamp;
 	private Clock clock = new SystemClock();
 }

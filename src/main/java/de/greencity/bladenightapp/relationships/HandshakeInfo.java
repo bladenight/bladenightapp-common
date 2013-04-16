@@ -3,10 +3,10 @@ package de.greencity.bladenightapp.relationships;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class HandshakeInfo {
-	public long getFriendId() {
+	public int getFriendId() {
 		return friendId;
 	}
-	public void setFriendId(long friendId) {
+	public void setFriendId(int friendId) {
 		this.friendId = friendId;
 	}
 	public long getRequestId() {
@@ -21,6 +21,6 @@ public class HandshakeInfo {
 		return ToStringBuilder.reflectionToString(this);
 	}
 	
-	private long friendId;
+	private int friendId;
 	private long requestId;
 }

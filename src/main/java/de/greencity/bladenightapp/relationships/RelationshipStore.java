@@ -34,7 +34,7 @@ public class RelationshipStore {
 		persistor.setList(relationships);
 	}
 
-	public HandshakeInfo newRequest(String deviceId1, long friendId1) {
+	public HandshakeInfo newRequest(String deviceId1, int friendId1) {
 		synchronized (lock) {
 			long requestId = generateRequestId();
 
@@ -56,7 +56,7 @@ public class RelationshipStore {
 		}
 	}
 
-	public synchronized HandshakeInfo finalize(long requestId, String deviceId2, long friendId2) throws BadStateException, TimeoutException {
+	public synchronized HandshakeInfo finalize(long requestId, String deviceId2, int friendId2) throws BadStateException, TimeoutException {
 		Relationship rel = getRelationshipForRequestId(requestId);
 
 		finalizeCheck(requestId, deviceId2, rel);

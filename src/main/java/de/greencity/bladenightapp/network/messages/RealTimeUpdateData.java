@@ -12,7 +12,7 @@ public class RealTimeUpdateData {
 		hea = new NetMovingPoint();
 		tai = new NetMovingPoint();
 		up = new NetMovingPoint();
-		fri = new ConcurrentHashMap<Long, NetMovingPoint>();
+		fri = new ConcurrentHashMap<Integer, NetMovingPoint>();
 	}
 
 	public NetMovingPoint getUser() {
@@ -127,11 +127,11 @@ public class RealTimeUpdateData {
 		this.rna = routeName;
 	}
 
-	public Map<Long, NetMovingPoint> getFriendsMap() {
+	public Map<Integer, NetMovingPoint> getFriendsMap() {
 		return this.fri;
 	}
 
-	public void addFriend(long friendId, MovingPoint mp) {
+	public void addFriend(int friendId, MovingPoint mp) {
 		this.fri.put(friendId, new NetMovingPoint(mp));
 	}
 
@@ -142,7 +142,7 @@ public class RealTimeUpdateData {
 
 	public NetMovingPoint hea; 				// Head
 	public NetMovingPoint tai; 				// Tail
-	public Map<Long, NetMovingPoint> fri;  	// Friends
+	public Map<Integer, NetMovingPoint> fri;  	// Friends
 	public NetMovingPoint up;  				// User position
 
 	public double rle; 	// Route length

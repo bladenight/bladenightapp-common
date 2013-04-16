@@ -4,14 +4,14 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
 public class RelationshipOutputMessage {
-	public RelationshipOutputMessage(long requestId, long friendId) {
+	public RelationshipOutputMessage(long requestId, int friendId) {
 		rid = requestId;
 		fid = friendId;
 	}
-	public long getFriendId() {
+	public int getFriendId() {
 		return fid;
 	}
-	public void setFriendId(long fid) {
+	public void setFriendId(int fid) {
 		this.fid = fid;
 	}
 	public long getRequestId() {
@@ -24,6 +24,6 @@ public class RelationshipOutputMessage {
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
-	public long fid;
+	public int fid;
 	public long rid;
 }

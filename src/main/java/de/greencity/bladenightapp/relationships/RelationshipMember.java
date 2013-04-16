@@ -3,14 +3,14 @@ package de.greencity.bladenightapp.relationships;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class RelationshipMember {
-	RelationshipMember(long friendId, String deviceId) {
+	RelationshipMember(int friendId, String deviceId) {
 		this.friendId = friendId;
 		this.deviceId = deviceId;
 	}
-	public long getFriendId() {
+	public int getFriendId() {
 		return friendId;
 	}
-	public void setFriendId(long friendId) {
+	public void setFriendId(int friendId) {
 		this.friendId = friendId;
 	}
 	public String getDeviceId() {
@@ -25,6 +25,6 @@ public class RelationshipMember {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
-	private long friendId;
+	private int friendId;
 	private String deviceId;
 }

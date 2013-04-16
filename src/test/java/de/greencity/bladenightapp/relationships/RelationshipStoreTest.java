@@ -91,9 +91,9 @@ public class RelationshipStoreTest {
 	public void finalizeRelation() throws BadStateException, TimeoutException {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
-		long friendId1 = 42;
+		int friendId1 = 42;
 		String deviceId2 = UUID.randomUUID().toString();
-		long friendId2 = 142;
+		int friendId2 = 142;
 
 		HandshakeInfo handshakeInfo = store.newRequest(deviceId1, friendId1);
 		long relationshipId = handshakeInfo.getRequestId();
@@ -135,8 +135,8 @@ public class RelationshipStoreTest {
 	public void multipleRelations() throws BadStateException, TimeoutException {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
-		long friendId1_2 = 42;
-		long friendId1_3 = 43;
+		int friendId1_2 = 42;
+		int friendId1_3 = 43;
 		String deviceId2 = UUID.randomUUID().toString();
 		String deviceId3 = UUID.randomUUID().toString();
 
