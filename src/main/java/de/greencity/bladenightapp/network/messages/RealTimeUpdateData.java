@@ -42,7 +42,7 @@ public class RealTimeUpdateData {
 		up.isOnRoute(isOnRoute);
 	}
 
-	public Object isUserOnRoute() {
+	public boolean isUserOnRoute() {
 		return up.isOnRoute();
 	}
 
@@ -131,8 +131,8 @@ public class RealTimeUpdateData {
 		return this.fri;
 	}
 
-	public void addFriend(int friendId, MovingPoint mp) {
-		this.fri.put(friendId, new NetMovingPoint(mp));
+	public void addFriend(int friendId, NetMovingPoint nmp) {
+		this.fri.put(friendId, nmp);
 	}
 
 	@Override

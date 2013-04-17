@@ -36,12 +36,14 @@ public class TravelTimeComputerTest {
 
 	@Test
 	public void singleStationaryParticipant() {
+		// a single update is not enough to computer times, so expect t=0 as result
 		computer.updateParticipant(generateParticipantId(), 1000.0, 0.0);
 		assertEquals(0.0, computer.evaluateTravelTimeBetween(0.0, 2000.0), 0.00);
 	}
 
 	@Test
 	public void singleMovingParticipantSingleUpdate() {
+		// a single update is not enough to computer times, so expect t=0 as result
 		double speed = 10.0; // km/h
 		computer.updateParticipant(generateParticipantId(), 1000.0, speed);
 		assertEquals(0.0, computer.evaluateTravelTimeBetween(0.0, 2000.0), 0.00);

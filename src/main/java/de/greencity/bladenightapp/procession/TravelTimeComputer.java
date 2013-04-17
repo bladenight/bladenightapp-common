@@ -107,8 +107,7 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 
 	@Override
 	public void removeParticipant(String deviceId) {
-		// getLog().debug("Removing participant " + deviceId);
-		// participantPositions.remove(deviceId);
+		// Nothing to do
 	}
 
 

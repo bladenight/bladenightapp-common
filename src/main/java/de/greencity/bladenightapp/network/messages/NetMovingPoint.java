@@ -5,9 +5,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import de.greencity.bladenightapp.procession.MovingPoint;
 
 public class NetMovingPoint {
-	// We use integers instead of double to save bandwidth
+	// We use integers instead of double's for distances to save bandwidth
 	public long pos;
 	public long spd;
+	private long eta;
 	public boolean ior;
 	public boolean iip;
 	public double lat;
@@ -86,10 +87,18 @@ public class NetMovingPoint {
 		return lon;
 	}
 
+	public long getEstimatedTimeToArrival() {
+		return eta;
+	}
+
+	public void setEstimatedTimeToArrival(long eta) {
+		this.eta = eta;
+	}
+
 	public void setLongitude(double lon) {
 		this.lon = lon;
 	}
-
+	
 
 	@Override
 	public String toString() {
