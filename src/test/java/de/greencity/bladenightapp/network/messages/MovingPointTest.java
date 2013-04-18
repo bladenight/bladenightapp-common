@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import de.greencity.bladenightapp.network.messages.NetMovingPoint;
+import de.greencity.bladenightapp.network.messages.MovingPointMessage;
 import de.greencity.bladenightapp.procession.MovingPoint;
 
 public class MovingPointTest {
@@ -18,7 +18,7 @@ public class MovingPointTest {
 		mp.setLinearSpeed(100.0);
 		mp.isInProcession(true);
 		mp.isOnRoute(true);
-		NetMovingPoint netMp = new NetMovingPoint(mp);
+		MovingPointMessage netMp = new MovingPointMessage(mp);
 		assertEquals(mp.getLatitude(), netMp.getLatitude(), 0.0);
 		assertEquals(mp.getLongitude(), netMp.getLongitude(), 0.0);
 		assertEquals(mp.getLinearPosition(), netMp.getPosition(), 0.0);
@@ -36,7 +36,7 @@ public class MovingPointTest {
 		mp.setLinearSpeed(100.0);
 		mp.isInProcession(true);
 		mp.isOnRoute(true);
-		NetMovingPoint netMp = new NetMovingPoint();
+		MovingPointMessage netMp = new MovingPointMessage();
 		netMp.copyFrom(mp);
 		assertEquals(mp.getLatitude(), netMp.getLatitude(), 0.0);
 		assertEquals(mp.getLongitude(), netMp.getLongitude(), 0.0);

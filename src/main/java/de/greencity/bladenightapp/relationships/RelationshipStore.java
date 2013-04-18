@@ -10,6 +10,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geotoolkit.util.NullArgumentException;
 
 import de.greencity.bladenightapp.exceptions.BadStateException;
 import de.greencity.bladenightapp.persistence.ListPersistor;
@@ -22,11 +23,17 @@ public class RelationshipStore {
 	}
 
 	public void read() throws IOException {
-		persistor.read();
+		if ( persistor != null )
+			persistor.read();
+		else
+			getLog().error("No persistor set");
 	}
 
 	public void write() throws IOException {
-		persistor.write();
+		if ( persistor != null )
+			persistor.write();
+		else
+			getLog().error("No persistor set");
 	}
 
 	public void setPersistor(ListPersistor<Relationship> persistor) {
@@ -37,25 +44,42 @@ public class RelationshipStore {
 	public HandshakeInfo newRequest(String deviceId1, int friendId1) {
 		synchronized (lock) {
 			long requestId = generateRequestId();
+			long id = generateRelationshipId();
 
 			// Delete any relationship that the user may already have with the same ids
 			deleteRelationship(deviceId1, friendId1);
 
+			check();
+
 			Relationship relationship = new Relationship(deviceId1);
+			relationship.setId(id);
 			relationship.setFriendId1(friendId1);
 			relationship.setRequestId(requestId);
 			relationships.add(relationship);
 
-			getLog().info("Created new request for " + deviceId1 + " " + requestId + " = " + relationship);
+			check();
+			
+			getLog().info("Created new request: " + relationship);
 
 			HandshakeInfo handshakeInfo = new HandshakeInfo();
 			handshakeInfo.setRequestId(requestId);
 			handshakeInfo.setFriendId(friendId1);
 
+			check();
+
 			return handshakeInfo;
 		}
 	}
 
+	public void check()  {
+		List<Long> ids = new ArrayList<Long>();
+		for ( Relationship r : relationships) {
+			if ( ids.contains(r.getId()) ) {
+				throw new NullPointerException("Error here " + r );
+			}
+			ids.add(r.getId());
+		}
+	}
 	public synchronized HandshakeInfo finalize(long requestId, String deviceId2, int friendId2) throws BadStateException, TimeoutException {
 		Relationship rel = getRelationshipForRequestId(requestId);
 
@@ -185,14 +209,22 @@ public class RelationshipStore {
 
 	/** Returns the deviceId's that have a relationship to the given one
 	 */
-	public List<RelationshipMember> getRelationships(String deviceId) {
+	public List<RelationshipMember> getAllRelationships(String deviceId) {
+		return getRelationships(deviceId, true);
+	}
+
+	public List<RelationshipMember> getFinalizedRelationships(String deviceId) {
+		return getRelationships(deviceId, false);
+	}
+
+	private List<RelationshipMember> getRelationships(String deviceId, boolean includeAll) {
 		List<RelationshipMember> list = new ArrayList<RelationshipMember>();
 		for (Relationship relationship : relationships ) {
-			if ( ! relationship.isPending() ) {
+			if ( includeAll || ! relationship.isPending() ) {
 				if ( deviceId.equals(relationship.getDeviceId1()))
-					list.add(new RelationshipMember(relationship.getFriendId1(), relationship.getDeviceId2()));
+					list.add(new RelationshipMember(relationship.getFriendId1(), relationship.getDeviceId2(), relationship.getRequestId()));
 				else if ( deviceId.equals(relationship.getDeviceId2()))
-					list.add(new RelationshipMember(relationship.getFriendId2(), relationship.getDeviceId1()));
+					list.add(new RelationshipMember(relationship.getFriendId2(), relationship.getDeviceId1(), relationship.getRequestId()));
 			}
 		}
 		return list;
@@ -232,7 +264,11 @@ public class RelationshipStore {
 			return true;
 		return false;
 	}
-	
+
+	public long size() {
+		return relationships.size();
+	}
+
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
@@ -257,6 +293,5 @@ public class RelationshipStore {
 	private long requestTimeout = 5 * 60 * 1000; // ms
 	private Object lock;
 	private ListPersistor<Relationship> persistor;
-
 
 }

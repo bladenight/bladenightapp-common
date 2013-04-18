@@ -4,7 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import de.greencity.bladenightapp.procession.MovingPoint;
 
-public class NetMovingPoint {
+public class MovingPointMessage {
 	// We use integers instead of double's for distances to save bandwidth
 	public long pos;
 	public long spd;
@@ -14,23 +14,23 @@ public class NetMovingPoint {
 	public double lat;
 	public double lon;
 	
-	public NetMovingPoint() {
+	public MovingPointMessage() {
 	}
 
-	public NetMovingPoint(long linearPosition, long linearSpeed) {
+	public MovingPointMessage(long linearPosition, long linearSpeed) {
 		setPosition(linearPosition);
 		isOnRoute(true);
 		setSpeed(linearSpeed);
 	}
 
-	public NetMovingPoint(long linearPosition, long linearSpeed, boolean isInProcession) {
+	public MovingPointMessage(long linearPosition, long linearSpeed, boolean isInProcession) {
 		setPosition(linearPosition);
 		isOnRoute(true);
 		setSpeed(linearSpeed);
 		isInProcession(isInProcession);
 	}
 
-	public NetMovingPoint(MovingPoint mp) {
+	public MovingPointMessage(MovingPoint mp) {
 		copyFrom(mp);
 	}
 	

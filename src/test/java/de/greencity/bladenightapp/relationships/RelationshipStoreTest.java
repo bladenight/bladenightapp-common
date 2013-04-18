@@ -54,9 +54,9 @@ public class RelationshipStoreTest {
 		store.setRequestIdLength(4);
 		for(long i=0; i < 1000 ; i++) {
 			HandshakeInfo handshakeInfo = store.newRequest(UUID.randomUUID().toString(), 42);
-			long relationshipId = handshakeInfo.getRequestId();
-			assertFalse("Ids shall be given only once " + i, map.containsKey(relationshipId));
-			map.put(relationshipId, 1);
+			long requestId = handshakeInfo.getRequestId();
+			assertFalse("Ids shall be given only once " + i, map.containsKey(requestId));
+			map.put(requestId, 1);
 		}
 
 	}
@@ -66,11 +66,11 @@ public class RelationshipStoreTest {
 		RelationshipStore store = new RelationshipStore();
 
 		Map<Long, Integer> map = new HashMap<Long, Integer>();
-		store.setRelationshipIdLength(4);
+		store.setRequestIdLength(4);
 		for(long i=0; i < 1000 ; i++) {
 			HandshakeInfo handshakeInfo = store.newRequest(UUID.randomUUID().toString(), 42);
-			long relationshipId = handshakeInfo.getRequestId();
-			assertFalse("Ids shall be given only once " + i, map.containsKey(relationshipId));
+			long relationshipId = store.getRelationshipForRequestId(handshakeInfo.getRequestId()).getId();
+			assertFalse("Ids shall be given only once " + relationshipId, map.containsKey(relationshipId));
 			map.put(relationshipId, 1);
 		}
 
@@ -103,8 +103,8 @@ public class RelationshipStoreTest {
 		assertFalse(store.exists(deviceId1, deviceId2));
 		assertFalse(store.exists(deviceId2, deviceId1));
 
-		assertEquals(0, store.getRelationships(deviceId1).size());
-		assertEquals(0, store.getRelationships(deviceId2).size());
+		assertEquals(0, store.getFinalizedRelationships(deviceId1).size());
+		assertEquals(0, store.getFinalizedRelationships(deviceId2).size());
 
 		handshakeInfo = store.finalize(relationshipId, deviceId2, friendId2);
 		assertEquals(friendId2, handshakeInfo.getFriendId());
@@ -114,13 +114,13 @@ public class RelationshipStoreTest {
 		assertTrue(store.exists(deviceId2, deviceId1));
 
 		{
-			List<RelationshipMember> list1 = store.getRelationships(deviceId1);
+			List<RelationshipMember> list1 = store.getFinalizedRelationships(deviceId1);
 			assertEquals(1, list1.size());
 			assertEquals(deviceId2, list1.get(0).getDeviceId());
 			assertEquals(friendId1, list1.get(0).getFriendId());
 		}
 		{
-			List<RelationshipMember> list2 = store.getRelationships(deviceId2);
+			List<RelationshipMember> list2 = store.getFinalizedRelationships(deviceId2);
 			assertEquals(1, list2.size());
 			assertEquals(deviceId1, list2.get(0).getDeviceId());
 			assertEquals(friendId2, list2.get(0).getFriendId());
@@ -148,7 +148,7 @@ public class RelationshipStoreTest {
 		handshakeInfo = store.newRequest(deviceId1, friendId1_3);
 		handshakeInfo = store.finalize(handshakeInfo.getRequestId(), deviceId3, 42);
 
-		List<RelationshipMember> list = store.getRelationships(deviceId1);
+		List<RelationshipMember> list = store.getFinalizedRelationships(deviceId1);
 
 		assertEquals(2, list.size());
 
@@ -199,8 +199,8 @@ public class RelationshipStoreTest {
 			HandshakeInfo handshakeInfo = store.newRequest(deviceId1, 100*i+42);
 			long relationshipId = handshakeInfo.getRequestId();
 			store.finalize(relationshipId, deviceId2, 100*i+43);
-			assertEquals(1, store.getRelationships(deviceId1).size());
-			assertEquals(1, store.getRelationships(deviceId2).size());
+			assertEquals(1, store.getFinalizedRelationships(deviceId1).size());
+			assertEquals(1, store.getFinalizedRelationships(deviceId2).size());
 		}
 	}
 

@@ -118,6 +118,35 @@ public class ListPersistorTest {
 		assertEquals(new MyListItem("string2", 2), list.get(1));
 	}
 
+	@Test
+	public void readFromDirTwice() throws IOException {
+		File dir = FileUtils.toFile(ListPersistorTest.class.getResource("/de.greencity.bladenightapp.persistence/mylistitems"));
+
+		List<MyListItem> list = new ArrayList<MyListItem>();
+		ListPersistor<MyListItem> persistor = new ListPersistor<MyListItem>(MyListItem.class);
+		persistor.setDirectory(dir);
+		persistor.setList(list);
+
+		persistor.read();
+		persistor.read();
+
+		assertEquals(2, list.size());
+	}
+
+	@Test(expected=IllegalStateException.class)
+	public void readDiscrepency() throws IOException {
+		File dir = FileUtils.toFile(ListPersistorTest.class.getResource("/de.greencity.bladenightapp.persistence/discrepency"));
+
+		List<MyListItem> list = new ArrayList<MyListItem>();
+		ListPersistor<MyListItem> persistor = new ListPersistor<MyListItem>(MyListItem.class);
+		persistor.setDirectory(dir);
+		persistor.setList(list);
+
+		persistor.read();
+
+		assertEquals(2, list.size());
+	}
+
 	@Test(expected=IOException.class)
 	public void readInvalidSyntax() throws IOException {
 		File dir = FileUtils.toFile(ListPersistorTest.class.getResource("/de.greencity.bladenightapp.persistence/invalidsyntax"));
@@ -142,15 +171,16 @@ public class ListPersistorTest {
 		persistor.setList(list);
 
 		list.add(new MyListItem("string",42));
-		list.add(new MyListItem("string",43));
-		MyListItem toBeDeleted = new MyListItem("to-be-deleted",43); 
-		list.add(toBeDeleted);
+		MyListItem toBeDeleted1 = new MyListItem("to-be-deleted-1",43); 
+		list.add(toBeDeleted1);
+		MyListItem toBeDeleted2 = new MyListItem("to-be-deleted-2",43); 
+		list.add(toBeDeleted2);
 
 		persistor.write();
 
 		assertEquals(3, directory.listFiles().length);
 
-		list.remove(toBeDeleted);
+		list.remove(toBeDeleted1);
 
 		persistor.write();
 
@@ -158,7 +188,17 @@ public class ListPersistorTest {
 
 		persistor.read();
 
-		assertTrue(! list.contains(toBeDeleted));
+		assertTrue(! list.contains(toBeDeleted1));
+
+		list.remove(toBeDeleted2);
+
+		persistor.write(toBeDeleted2);
+
+		assertEquals(1, directory.listFiles().length);
+
+		persistor.read();
+
+		assertTrue(! list.contains(toBeDeleted2));
 	}
 
 	private File createDirectory(String name) throws IOException {

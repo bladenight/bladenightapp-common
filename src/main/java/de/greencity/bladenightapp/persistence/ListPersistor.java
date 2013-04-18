@@ -75,7 +75,10 @@ public class ListPersistor<T extends ListItem> {
 
 	private void write(File file, ListItem item) throws IOException {
 		synchronized(list) {
-			FileUtils.write(file, getGson().toJson(item));
+			if ( list.contains(item))
+				FileUtils.write(file, getGson().toJson(item));
+			else if ( file.exists() )
+				file.delete();
 		}
 	}
 
@@ -91,19 +94,23 @@ public class ListPersistor<T extends ListItem> {
 	public void read() throws IOException {
 		List<T> readItems = new ArrayList<T>();
 		checkDirectory();
+
 		synchronized(list) {
 			File[] files = directory.listFiles();
 			for ( File file : files ) {
 				if ( isPersistenceFile(file) ) {
-					appendFile(file, readItems);
+					T item = appendFile(file, readItems);
+					String id = item.getPersistenceId();
+					if ( ! FilenameUtils.getBaseName(file.getName()).equals(id) )
+						throw new IllegalStateException("Discrepency found while : id=" + id + " file=" + file);
 				}
 			}
 			list.clear();
 			list.addAll(readItems);
 		}
 	}
-	
-	private void appendFile(File file, List<T> readItems) throws IOException {
+
+	private T appendFile(File file, List<T> readItems) throws IOException {
 		String fileContent = FileUtils.readFileToString(file, "UTF-8");
 		T item = null;
 		try {
@@ -116,6 +123,7 @@ public class ListPersistor<T extends ListItem> {
 			throw new IOException("Could not parse " + file);
 		}
 		readItems.add(item);
+		return item;
 	}
 
 	private void checkDirectory() throws IOException {

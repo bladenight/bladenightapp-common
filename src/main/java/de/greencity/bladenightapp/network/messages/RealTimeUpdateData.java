@@ -9,17 +9,17 @@ import de.greencity.bladenightapp.procession.MovingPoint;
 
 public class RealTimeUpdateData {
 	public RealTimeUpdateData() {
-		hea = new NetMovingPoint();
-		tai = new NetMovingPoint();
-		up = new NetMovingPoint();
-		fri = new ConcurrentHashMap<Integer, NetMovingPoint>();
+		hea = new MovingPointMessage();
+		tai = new MovingPointMessage();
+		up = new MovingPointMessage();
+		fri = new FriendsMessage();
 	}
 
-	public NetMovingPoint getUser() {
+	public MovingPointMessage getUser() {
 		return up;
 	}
 
-	public void setUser(NetMovingPoint mp) {
+	public void setUser(MovingPointMessage mp) {
 		this.up = mp;
 	}
 
@@ -52,7 +52,7 @@ public class RealTimeUpdateData {
 	}
 
 
-	public NetMovingPoint getHead() {
+	public MovingPointMessage getHead() {
 		return hea;
 	}
 
@@ -69,7 +69,7 @@ public class RealTimeUpdateData {
 		hea.copyFrom(mp);
 	}
 
-	public void setHead(NetMovingPoint mp) {
+	public void setHead(MovingPointMessage mp) {
 		hea = mp;
 	}
 
@@ -79,7 +79,7 @@ public class RealTimeUpdateData {
 		hea.isInProcession(false);
 	}
 
-	public NetMovingPoint getTail() {
+	public MovingPointMessage getTail() {
 		return tai;
 	}
 
@@ -91,7 +91,7 @@ public class RealTimeUpdateData {
 		tai.copyFrom(mp);
 	}
 
-	public void setTail(NetMovingPoint mp) {
+	public void setTail(MovingPointMessage mp) {
 		tai = mp;
 	}
 
@@ -127,12 +127,12 @@ public class RealTimeUpdateData {
 		this.rna = routeName;
 	}
 
-	public Map<Integer, NetMovingPoint> getFriendsMap() {
+	public FriendsMessage getFriends() {
 		return this.fri;
 	}
 
-	public void addFriend(int friendId, NetMovingPoint nmp) {
-		this.fri.put(friendId, nmp);
+	public void addFriend(int friendId, FriendMessage friend) {
+		this.fri.put(friendId, friend);
 	}
 
 	@Override
@@ -140,10 +140,10 @@ public class RealTimeUpdateData {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
-	public NetMovingPoint hea; 				// Head
-	public NetMovingPoint tai; 				// Tail
-	public Map<Integer, NetMovingPoint> fri;  	// Friends
-	public NetMovingPoint up;  				// User position
+	public MovingPointMessage hea; 				// Head
+	public MovingPointMessage tai; 				// Tail
+	public FriendsMessage fri;  	// Friends
+	public MovingPointMessage up;  				// User position
 
 	public double rle; 	// Route length
 	public String rna; 	// Route name
