@@ -8,6 +8,10 @@ import de.greencity.bladenightapp.time.SystemClock;
 
 public class Relationship implements ListItem {
 
+	public Relationship() {
+		this.clock = new SystemClock();
+	}
+
 	public Relationship(String deviceId1) {
 		this.deviceId1 = deviceId1;
 		this.clock = new SystemClock();
@@ -95,5 +99,5 @@ public class Relationship implements ListItem {
 	private String deviceId2;
 	private int friendId2; 
 	private long creationTimestamp;
-	private Clock clock;
+	transient private Clock clock;
 }

@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class ListPersistor<T extends ListItem> {
 
@@ -136,8 +137,9 @@ public class ListPersistor<T extends ListItem> {
 	}
 
 	private Gson getGson() {
-		if ( gson == null )
-			gson = new Gson();
+		if ( gson == null ) {
+			gson = new GsonBuilder().setPrettyPrinting().create();
+		}
 		return gson;
 	}
 

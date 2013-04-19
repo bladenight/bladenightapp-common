@@ -253,7 +253,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	public double evaluateTravelTimeBetween(double position1, double position2) {
 		computeIfTooOld();
 		double result = travelTimeComputer.evaluateTravelTimeBetween(position1, position2); 
-		getLog().info("evaluateTravelTimeBetween("+position1+","+position2+")");
+		getLog().debug("evaluateTravelTimeBetween("+position1+","+position2+")");
 		return result;
 	}
 
