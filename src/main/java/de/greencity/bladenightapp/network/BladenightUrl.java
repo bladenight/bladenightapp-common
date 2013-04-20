@@ -13,6 +13,7 @@ public enum BladenightUrl {
 	GET_ALL_ROUTE_NAMES("http://www.greencity.de/bladenight/app/rpc/getAllRouteNames"),
 	VERIFY_ADMIN_PASSWORD("http://www.greencity.de/bladenight/app/rpc/verifyAdminPassword"),
 	GET_FRIENDS("http://www.greencity.de/bladenight/app/rpc/getFriends"),
+	DELETE_RELATIONSHIP("http://www.greencity.de/bladenight/app/rpc/deleteRelationship"),
     ;
 
 	final public static String BASE = "http://www.greencity.de/bladenight/app/";
