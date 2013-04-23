@@ -97,6 +97,7 @@ public class ParticipantUpdater {
 
 		MovingPoint point = participant.getLastKnownPoint();
 
+		point.setAccuracy(participantInput.getAccuracy());
 		if ( locationOnRoute != null ) {
 			getLog().debug("update: findBestNewLocationOnRoute("+deviceId+") returned " + locationOnRoute.linearPosition);
 			point.update(participantInput.getLatitude(), participantInput.getLongitude(), locationOnRoute.linearPosition);

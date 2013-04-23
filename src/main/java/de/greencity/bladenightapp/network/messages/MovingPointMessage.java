@@ -5,14 +5,15 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import de.greencity.bladenightapp.procession.MovingPoint;
 
 public class MovingPointMessage {
-	// We use integers instead of double's for distances to save bandwidth
-	public long pos;
-	public long spd;
+	// We might use integers instead of double's to save bandwidth
+	private long pos;
+	private long spd;
 	private long eta;
-	public boolean ior;
-	public boolean iip;
-	public double lat;
-	public double lon;
+	private boolean ior;
+	private boolean iip;
+	private double lat;
+	private double lon;
+	private int acc;
 	
 	public MovingPointMessage() {
 	}
@@ -41,6 +42,7 @@ public class MovingPointMessage {
 		setLongitude(mp.getLongitude());
 		isOnRoute(mp.isOnRoute());
 		isInProcession(mp.isInProcession());
+		setAccuracy((int)mp.getAccuracy());
 	}
 
 	public long getPosition() {
@@ -99,6 +101,14 @@ public class MovingPointMessage {
 		this.lon = lon;
 	}
 	
+	public int getAccuracy() {
+		return acc;
+	}
+
+	public void setAccuracy(int acc) {
+		this.acc = acc;
+	}
+
 
 	@Override
 	public String toString() {

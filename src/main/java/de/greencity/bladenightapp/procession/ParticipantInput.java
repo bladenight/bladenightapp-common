@@ -10,6 +10,14 @@ public class ParticipantInput {
 		this.longitude = lon;
 	}
 
+	public ParticipantInput(String participantId, boolean isParticipating, double lat, double lon, int accuracy) {
+		this.participantId = participantId;
+		this.isParticipating = isParticipating;
+		this.latitude = lat;
+		this.longitude = lon;
+		this.accuracy = accuracy;
+	}
+
 	public String getParticipantId() {
 		return participantId;
 	}
@@ -47,7 +55,16 @@ public class ParticipantInput {
 		return isParticipating;
 	}
 
+	public double getAccuracy() {
+		return accuracy;
+	}
+
+	public void setAccuracy(double accuracy) {
+		this.accuracy = accuracy;
+	}
+
 	private double latitude, longitude;
 	private String participantId;
 	private boolean isParticipating;
+	private double accuracy;
 }

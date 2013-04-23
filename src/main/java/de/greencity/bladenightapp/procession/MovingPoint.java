@@ -108,6 +108,15 @@ public final class MovingPoint {
 		this.longitude = longitude;
 	}
 
+	public double getAccuracy() {
+		return accuracy;
+	}
+
+	public void setAccuracy(double accuracy) {
+		this.accuracy = accuracy;
+	}
+
+
 
 	public long getAge() {
 		return clock.currentTimeMillis() - timestamp;
@@ -124,7 +133,7 @@ public final class MovingPoint {
 
 	private double latitude;
 	private double longitude;
-
+	private double accuracy;
 	private boolean isOnRoute;
 	private boolean isInProcession;
 	private double linearPosition;

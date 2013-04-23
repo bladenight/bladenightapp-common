@@ -9,6 +9,14 @@ public class GpsInfo {
 		this.did = deviceId;
 	}
 
+	public GpsInfo(String deviceId, boolean isParticipating, double lat, double lon, int acc) {
+		coo = new LatLong(lat, lon);
+		this.par = isParticipating;
+		this.did = deviceId;
+		this.acc = acc;
+	}
+
+
 	public GpsInfo() {
 		coo = new LatLong();
 	}
@@ -44,13 +52,22 @@ public class GpsInfo {
 	public void isParticipating(boolean isParticipating) {
 		this.par = isParticipating;
 	}
-	
+
+	public int getAccuracy() {
+		return acc;
+	}
+
+	public void setAccuracy(int acc) {
+		this.acc = acc;
+	}
+
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
 	
-	public LatLong coo;
-	public String did;
-	public boolean par;
+	private LatLong coo;
+	private String did;
+	private boolean par;
+	private int acc;
 }

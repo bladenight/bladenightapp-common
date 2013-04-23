@@ -79,7 +79,7 @@ public final class Route {
 		}
 	}
 
-	public final double CORRIDOR_WIDTH  = 100.0;
+	public final double CORRIDOR_WIDTH  = 150.0;
 	public final double START_PERIMETER = 100.0;
 
 	public Route() {

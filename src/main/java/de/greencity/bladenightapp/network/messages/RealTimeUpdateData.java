@@ -1,8 +1,5 @@
 package de.greencity.bladenightapp.network.messages;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import de.greencity.bladenightapp.procession.MovingPoint;
@@ -26,6 +23,14 @@ public class RealTimeUpdateData {
 
 	public long getUserPosition() {
 		return up.getPosition();
+	}
+
+	public int getUserAccuracy() {
+		return up.getAccuracy();
+	}
+
+	public void setUserAccuracy(int accuracy) {
+		up.setAccuracy(accuracy);
 	}
 
 	public long getUserSpeed() {

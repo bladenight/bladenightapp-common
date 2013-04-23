@@ -1,10 +1,13 @@
 package de.greencity.bladenightapp.procession;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import de.greencity.bladenightapp.time.Clock;
 import de.greencity.bladenightapp.time.SystemClock;
 
 public class Participant {
 	public Participant() {
+		clock = new SystemClock();
 		lastLifeSign = clock.currentTimeMillis();
 		lastKnownPoint = new MovingPoint();
 	}
@@ -57,9 +60,14 @@ public class Participant {
 	public double getLinearSpeed() {
 		return lastKnownPoint.getLinearSpeed();
 	}
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
 
 	private String deviceId;
 	private MovingPoint lastKnownPoint;
 	private long lastLifeSign;
-	private Clock clock = new SystemClock();
+	private transient Clock clock;
 }
