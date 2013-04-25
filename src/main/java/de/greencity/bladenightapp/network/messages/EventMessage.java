@@ -1,5 +1,7 @@
 package de.greencity.bladenightapp.network.messages;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -10,7 +12,9 @@ import org.joda.time.format.DateTimeFormatter;
 
 import de.greencity.bladenightapp.events.Event;
 
-public class EventMessage {
+public class EventMessage implements Serializable {
+
+	private static final long serialVersionUID = 7035627836216623223L;
 
 	public enum EventStatus {
 		PEN,

@@ -10,20 +10,25 @@ public class Relationship implements ListItem {
 
 	public Relationship() {
 		this.clock = new SystemClock();
+		setCreationTimestamp();
 	}
 
 	public Relationship(String deviceId1) {
 		this.deviceId1 = deviceId1;
 		this.clock = new SystemClock();
-		this.creationTimestamp = clock.currentTimeMillis();
+		setCreationTimestamp();
 	}
 
 	public Relationship(String deviceId1, Clock clock) {
 		this.deviceId1 = deviceId1;
 		this.clock = clock;
-		this.creationTimestamp = clock.currentTimeMillis();
+		setCreationTimestamp();
 	}
 
+	public Relationship(Clock clock) {
+		this.clock = clock;
+		setCreationTimestamp();
+	}
 
 	public long getId() {
 		return id;
@@ -76,9 +81,21 @@ public class Relationship implements ListItem {
 	public long getAge() {
 		return clock.currentTimeMillis() - creationTimestamp;
 	}
-	
+
 	public boolean involves(String deviceId) {
 		return deviceId.equals(deviceId1) || deviceId.equals(deviceId2); 
+	}
+
+	public long getCreationTimestamp() {
+		return creationTimestamp;
+	}
+
+	public void setCreationTimestamp(long creationTimestamp) {
+		this.creationTimestamp = creationTimestamp;
+	}
+
+	public void setCreationTimestamp() {
+		this.creationTimestamp = clock.currentTimeMillis();
 	}
 
 	@Override
@@ -90,7 +107,7 @@ public class Relationship implements ListItem {
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
-	
+
 
 	private long id;
 	private long requestId;

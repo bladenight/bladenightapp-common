@@ -22,6 +22,7 @@ import org.junit.rules.TemporaryFolder;
 
 import de.greencity.bladenightapp.exceptions.BadStateException;
 import de.greencity.bladenightapp.persistence.ListPersistor;
+import de.greencity.bladenightapp.time.ControlledClock;
 import de.greencity.bladenightapp.time.Sleep;
 
 public class RelationshipStoreTest {
@@ -52,7 +53,7 @@ public class RelationshipStoreTest {
 
 		Map<Long, Integer> map = new HashMap<Long, Integer>();
 		store.setRequestIdLength(4);
-		for(long i=0; i < 1000 ; i++) {
+		for(long i=0; i < 500 ; i++) {
 			HandshakeInfo handshakeInfo = store.newRequest(UUID.randomUUID().toString(), 42);
 			long requestId = handshakeInfo.getRequestId();
 			assertFalse("Ids shall be given only once " + i, map.containsKey(requestId));
@@ -67,7 +68,7 @@ public class RelationshipStoreTest {
 
 		Map<Long, Integer> map = new HashMap<Long, Integer>();
 		store.setRequestIdLength(4);
-		for(long i=0; i < 1000 ; i++) {
+		for(long i=0; i < 500 ; i++) {
 			HandshakeInfo handshakeInfo = store.newRequest(UUID.randomUUID().toString(), 42);
 			long relationshipId = store.getRelationshipForRequestId(handshakeInfo.getRequestId()).getId();
 			assertFalse("Ids shall be given only once " + relationshipId, map.containsKey(relationshipId));
@@ -244,6 +245,41 @@ public class RelationshipStoreTest {
 		storeCheck.read();
 
 		assertExpectedDataInStore(storeCheck);
+	}
+
+	@Test
+	public void removeOutdatedRelationships()  {
+		RelationshipStore store = new RelationshipStore();
+		ControlledClock clock = new ControlledClock(0);
+		long id1 = 11;
+		Relationship relationship1 = new Relationship(clock);
+		relationship1.setId(id1);
+		assertTrue(relationship1.isPending());
+
+		long id2 = 12;
+		Relationship relationship2 = new Relationship(clock);
+		relationship2.setId(id2);
+		relationship2.setDeviceId2("SET");
+		assertTrue(! relationship2.isPending());
+
+		clock.set(1000);
+		assertEquals(1000, relationship1.getAge());
+		clock.set(2000);
+
+		Relationship relationship3 = new Relationship(clock);
+		long id3 = 13;
+		relationship3.setId(id3);
+		assertEquals(2000, relationship1.getAge());
+		assertEquals(0, relationship3.getAge());
+		
+		store.addRelationship(relationship1);
+		store.addRelationship(relationship2);
+		store.addRelationship(relationship3);
+		int hits = store.removePendingRelationshipsOlderThan(1000);
+		assertTrue(store.getRelationshipWithId(id1) == null);
+		assertTrue(store.getRelationshipWithId(id2) != null);
+		assertTrue(store.getRelationshipWithId(id3) != null);
+		assertEquals(2, hits);
 	}
 
 	void assertExpectedDataInStore(RelationshipStore store) throws BadStateException, TimeoutException {

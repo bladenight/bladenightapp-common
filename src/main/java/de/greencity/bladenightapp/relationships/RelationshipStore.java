@@ -10,7 +10,6 @@ import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geotoolkit.util.NullArgumentException;
 
 import de.greencity.bladenightapp.exceptions.BadStateException;
 import de.greencity.bladenightapp.persistence.ListPersistor;
@@ -58,7 +57,7 @@ public class RelationshipStore {
 			relationships.add(relationship);
 
 			check();
-			
+
 			getLog().info("Created new request: " + relationship);
 
 			HandshakeInfo handshakeInfo = new HandshakeInfo();
@@ -86,7 +85,7 @@ public class RelationshipStore {
 		finalizeCheck(requestId, deviceId2, rel);
 
 		deleteRelationship(deviceId2, friendId2);
-		
+
 		HandshakeInfo handshakeInfo = new HandshakeInfo();
 		synchronized (lock) {
 			handshakeInfo.setFriendId(friendId2);
@@ -108,7 +107,7 @@ public class RelationshipStore {
 		return null;
 	}
 
-	private Relationship getRelationshipWithId(long id) {
+	Relationship getRelationshipWithId(long id) {
 		for ( Relationship rel : relationships) {
 			if ( rel.getId() == id )
 				return rel;
@@ -249,6 +248,23 @@ public class RelationshipStore {
 				relationships.remove(list.remove(0));
 			}
 		}
+	}
+
+	public int removePendingRelationshipsOlderThan(long age) {
+		List<Relationship> toBeRemoved = new ArrayList<Relationship>();
+		for(Relationship relationship : relationships) {
+			if ( relationship.isPending() && relationship.getAge() > age )
+				toBeRemoved.add(relationship);
+		}
+		int hits = toBeRemoved.size(); 
+		if ( hits > 0 )
+			getLog().info("Removing " + hits + " relationship(s)");
+		deleteRelationships(toBeRemoved);
+		return hits;
+	}
+
+	void addRelationship(Relationship relationship) {
+		relationships.add(relationship);
 	}
 
 	private Random getRandom() {
