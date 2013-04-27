@@ -1,5 +1,6 @@
 package de.greencity.bladenightapp.events;
 
+import java.io.Serializable;
 import java.text.ParseException;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -14,7 +15,9 @@ import org.joda.time.format.DateTimeFormatter;
 
 import de.greencity.bladenightapp.persistence.ListItem;
 
-public class Event implements ListItem {
+public class Event implements ListItem, Serializable {
+	private static final long serialVersionUID = -5865857910368371094L;
+
 	public enum EventStatus {
 		PENDING("P"),
 		CONFIRMED("O"),

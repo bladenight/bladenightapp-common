@@ -51,9 +51,9 @@ public class AdminMessage {
 		long now = getClock().currentTimeMillis();
 		if ( getTimestamp() > now ) {
 			getLog().warn("Timestamp is in the future: " + this.toString());
-			return false;
 		}
-		if ( now - getTimestamp() > maxAge ) {
+		long diff = Math.abs(now - getTimestamp());
+		if ( diff > maxAge ) {
 			getLog().warn("Message expired: " + this.toString());
 			return false;
 		}

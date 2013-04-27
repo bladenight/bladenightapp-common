@@ -56,14 +56,14 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 			return;
 		}
 		long updateTime = clock.currentTimeMillis();
-		getLog().debug("deviceId="+deviceId);
+		getLog().trace("deviceId="+deviceId);
 		updateMapBasedOnParticipantUpdate(updateTime, data, deviceId, position);
 		data.position = position;
 		data.lastUpdate = updateTime;
 	}
 
 	private void updateMapBasedOnParticipantUpdate(long updateTime, ParticipantData data, String deviceId, double newPosition) {
-		getLog().debug("** updateMapBasedOnParticipantUpdate for "+deviceId);
+		getLog().trace("** updateMapBasedOnParticipantUpdate for "+deviceId);
 		long currentTime = clock.currentTimeMillis();
 		long deltaTime = (currentTime -  data.lastUpdate);
 
@@ -184,7 +184,7 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 				weight = 1.0;
 			}
 			time += weight * segmentMtt;
-			getLog().debug("segment="+segment + " mtt=" + segmentMtt + " sum=" + time);
+			getLog().trace("segment="+segment + " mtt=" + segmentMtt + " sum=" + time);
 		}
 		return time;
 	}

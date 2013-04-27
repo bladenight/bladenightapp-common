@@ -101,7 +101,7 @@ public class HeadAndTailComputer extends SegmentedLinearRoute implements Process
 		}
 
 		if ( bestHeadSegment < 0 || bestTailSegment < 0 ) {
-			getLog().debug("could not find the procession position");
+			getLog().trace("could not find the procession position");
 			return false;
 		}
 		

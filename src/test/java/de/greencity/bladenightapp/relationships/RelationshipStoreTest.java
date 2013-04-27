@@ -279,7 +279,7 @@ public class RelationshipStoreTest {
 		assertTrue(store.getRelationshipWithId(id1) == null);
 		assertTrue(store.getRelationshipWithId(id2) != null);
 		assertTrue(store.getRelationshipWithId(id3) != null);
-		assertEquals(2, hits);
+		assertEquals(1, hits);
 	}
 
 	void assertExpectedDataInStore(RelationshipStore store) throws BadStateException, TimeoutException {
