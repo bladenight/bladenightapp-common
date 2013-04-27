@@ -35,12 +35,14 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		int nSegments = 200;
 		headAndTailComputer = new HeadAndTailComputer(nSegments);
 		travelTimeComputer = new TravelTimeComputer(nSegments);
-		double routeLenght = route.getLength(); 
-		if ( routeLenght <= 0.0) {
-			routeLenght = 9999.0;
+		double routeLength = 0.0;
+		if ( route != null )
+			routeLength = route.getLength();
+		if ( routeLength <= 0.0) {
+			routeLength = 9999.0;
 		}
-		headAndTailComputer.setRouteLength(route.getLength());
-		travelTimeComputer.setRouteLength(route.getLength());
+		headAndTailComputer.setRouteLength(routeLength);
+		travelTimeComputer.setRouteLength(routeLength);
 	}
 
 	public Route getRoute() {
@@ -48,6 +50,10 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	}
 
 	public void setRoute(Route route) {
+		if ( route == null ) {
+			getLog().error("setRoute: refusing to set a null route");
+			return;
+		}
 		this.route = route;
 		initComputers();
 	}
