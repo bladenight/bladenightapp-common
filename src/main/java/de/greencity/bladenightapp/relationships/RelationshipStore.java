@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -79,7 +78,7 @@ public class RelationshipStore {
 			ids.add(r.getId());
 		}
 	}
-	public synchronized HandshakeInfo finalize(long requestId, String deviceId2, int friendId2) throws BadStateException, TimeoutException {
+	public synchronized HandshakeInfo finalize(long requestId, String deviceId2, int friendId2) throws BadStateException {
 		Relationship rel = getRelationshipForRequestId(requestId);
 
 		finalizeCheck(requestId, deviceId2, rel);
@@ -116,7 +115,7 @@ public class RelationshipStore {
 	}
 
 
-	private void finalizeCheck(long requestId, String deviceId2, Relationship rel) throws BadStateException, TimeoutException {
+	private void finalizeCheck(long requestId, String deviceId2, Relationship rel) throws BadStateException {
 		if ( rel == null ) {
 			String msg = "Not a valid pending relationship id: " + requestId;
 			getLog().warn(msg);
@@ -132,12 +131,6 @@ public class RelationshipStore {
 			getLog().warn(msg);
 			throw new BadStateException(msg);
 		}
-		if ( requestTimeout > 0 && rel.getAge() > requestTimeout ) {
-			relationships.remove(rel);
-			String msg = "Relationship request has timed out: "+rel;
-			getLog().warn(msg);
-			throw new TimeoutException(msg);
-		}
 	}
 
 	public void setRelationshipIdLength(int digits) {
@@ -146,10 +139,6 @@ public class RelationshipStore {
 
 	public void setRequestIdLength(int digits) {
 		requestIdLength = digits; 
-	}
-
-	public void setRequestTimeOut(long timeout) {
-		this.requestTimeout = timeout;
 	}
 
 	synchronized long generateRequestId() {
@@ -306,7 +295,6 @@ public class RelationshipStore {
 	private transient Random random = null;
 	private int requestIdLength = 6;
 	private int relationshipIdLength = 12;
-	private long requestTimeout = 5 * 60 * 1000; // ms
 	private Object lock;
 	private ListPersistor<Relationship> persistor;
 

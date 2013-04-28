@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.impl.NoOpLog;
@@ -23,7 +22,6 @@ import org.junit.rules.TemporaryFolder;
 import de.greencity.bladenightapp.exceptions.BadStateException;
 import de.greencity.bladenightapp.persistence.ListPersistor;
 import de.greencity.bladenightapp.time.ControlledClock;
-import de.greencity.bladenightapp.time.Sleep;
 
 public class RelationshipStoreTest {
 
@@ -89,7 +87,7 @@ public class RelationshipStoreTest {
 	}
 
 	@Test
-	public void finalizeRelation() throws BadStateException, TimeoutException {
+	public void finalizeRelation() throws BadStateException {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
 		int friendId1 = 42;
@@ -133,7 +131,7 @@ public class RelationshipStoreTest {
 	}
 
 	@Test
-	public void multipleRelations() throws BadStateException, TimeoutException {
+	public void multipleRelations() throws BadStateException {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
 		int friendId1_2 = 42;
@@ -161,7 +159,7 @@ public class RelationshipStoreTest {
 	}
 
 	@Test(expected=BadStateException.class)
-	public void duplicateFinalization() throws BadStateException, TimeoutException {
+	public void duplicateFinalization() throws BadStateException {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
 		String deviceId2 = UUID.randomUUID().toString();
@@ -173,7 +171,7 @@ public class RelationshipStoreTest {
 	}
 
 	@Test(expected=BadStateException.class)
-	public void invalidFinalization() throws BadStateException, TimeoutException {
+	public void invalidFinalization() throws BadStateException {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
 		String deviceId2 = UUID.randomUUID().toString();
@@ -183,7 +181,7 @@ public class RelationshipStoreTest {
 	}
 
 	@Test(expected=BadStateException.class)
-	public void selfRelationship() throws BadStateException, TimeoutException {
+	public void selfRelationship() throws BadStateException {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
 		HandshakeInfo handshakeInfo = store.newRequest(deviceId1, 42);
@@ -192,7 +190,7 @@ public class RelationshipStoreTest {
 	}
 
 	@Test(expected=BadStateException.class)
-	public void duplicateRelationship() throws BadStateException, TimeoutException {
+	public void duplicateRelationship() throws BadStateException {
 		RelationshipStore store = new RelationshipStore();
 		String deviceId1 = UUID.randomUUID().toString();
 		String deviceId2 = UUID.randomUUID().toString();
@@ -206,23 +204,8 @@ public class RelationshipStoreTest {
 	}
 
 
-	@Test(expected=TimeoutException.class)
-	public void testTimeout() throws InterruptedException, BadStateException, TimeoutException {
-		RelationshipStore store = new RelationshipStore();
-
-		store.setRequestTimeOut(1); // ms
-		String deviceId1 = UUID.randomUUID().toString();
-		String deviceId2 = UUID.randomUUID().toString();
-		HandshakeInfo handshakeInfo = store.newRequest(deviceId1, 42);
-		long relationshipId = handshakeInfo.getRequestId();
-
-		Sleep.sleep(2); // ms
-
-		store.finalize(relationshipId, deviceId2, 142);
-	}
-
 	@Test
-	public void readWrite() throws IOException, BadStateException, TimeoutException {
+	public void readWrite() throws IOException, BadStateException {
 		File persistenceDirectory = FileUtils.toFile(RelationshipStoreTest.class.getResource("/de.greencity.bladenightapp.relationships/store1"));
 		assertNotNull(persistenceDirectory);
 		
@@ -282,9 +265,7 @@ public class RelationshipStoreTest {
 		assertEquals(1, hits);
 	}
 
-	void assertExpectedDataInStore(RelationshipStore store) throws BadStateException, TimeoutException {
-		store.setRequestTimeOut(0);
-
+	void assertExpectedDataInStore(RelationshipStore store) throws BadStateException {
 		assertTrue(store.exists("existing-device-1", "existing-device-2"));
 
 		long requestId = 885989;
