@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.greencity.bladenightapp.events.Event.EventStatus;
+import de.greencity.bladenightapp.persistence.InconsistencyException;
 import de.greencity.bladenightapp.persistence.ListPersistor;
 
 public class EventsListTest {
@@ -90,7 +91,7 @@ public class EventsListTest {
 	}
 
 	@Test
-	public void readEventsFromDir() throws IOException {
+	public void readEventsFromDir() throws IOException, InconsistencyException {
 		File dir = FileUtils.toFile(EventList.class.getResource("/de.greencity.bladenightapp.events/set1/"));
 		// EventList eventList = EventList.newFromDir(dir);
 		EventList eventList = new EventList();
@@ -108,7 +109,7 @@ public class EventsListTest {
 	}
 
 	@Test
-	public void writeEventsToDir() throws IOException, ParseException {
+	public void writeEventsToDir() throws IOException, ParseException, InconsistencyException {
 		String referenceDate = "2020-02-17T23:00";
 		Event event1 = new Event.Builder()
 		.setStartDate("2012-02-03T20:00")
@@ -164,7 +165,7 @@ public class EventsListTest {
 	}
 
 	@Test
-	public void persistency() throws IOException {
+	public void persistency() throws IOException, InconsistencyException {
 		File srcDir = FileUtils.toFile(EventList.class.getResource("/de.greencity.bladenightapp.events/set1/"));
 		File tmpFolder = createTemporaryFolder();
 		File persistenceFolder = new File(tmpFolder, "copy");

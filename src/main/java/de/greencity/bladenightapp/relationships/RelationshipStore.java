@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import de.greencity.bladenightapp.exceptions.BadStateException;
+import de.greencity.bladenightapp.persistence.InconsistencyException;
 import de.greencity.bladenightapp.persistence.ListPersistor;
 
 public class RelationshipStore {
@@ -20,7 +21,7 @@ public class RelationshipStore {
 		lock = new Object();
 	}
 
-	public void read() throws IOException {
+	public void read() throws IOException, InconsistencyException {
 		if ( persistor != null )
 			persistor.read();
 		else

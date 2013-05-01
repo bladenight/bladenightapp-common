@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import de.greencity.bladenightapp.exceptions.BadStateException;
+import de.greencity.bladenightapp.persistence.InconsistencyException;
 import de.greencity.bladenightapp.persistence.ListPersistor;
 import de.greencity.bladenightapp.time.ControlledClock;
 
@@ -205,7 +206,7 @@ public class RelationshipStoreTest {
 
 
 	@Test
-	public void readWrite() throws IOException, BadStateException {
+	public void readWrite() throws IOException, BadStateException, InconsistencyException {
 		File persistenceDirectory = FileUtils.toFile(RelationshipStoreTest.class.getResource("/de.greencity.bladenightapp.relationships/store1"));
 		assertNotNull(persistenceDirectory);
 		

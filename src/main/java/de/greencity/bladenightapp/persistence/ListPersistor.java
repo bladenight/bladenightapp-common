@@ -92,7 +92,7 @@ public class ListPersistor<T extends ListItem> {
 	}
 
 
-	public void read() throws IOException {
+	public void read() throws IOException, InconsistencyException {
 		List<T> readItems = new ArrayList<T>();
 		checkDirectory();
 
@@ -103,7 +103,7 @@ public class ListPersistor<T extends ListItem> {
 					T item = appendFile(file, readItems);
 					String id = item.getPersistenceId();
 					if ( ! FilenameUtils.getBaseName(file.getName()).equals(id) )
-						throw new IllegalStateException("Discrepency found while : id=" + id + " file=" + file);
+						throw new InconsistencyException("Discrepency found while : id=" + id + " file=" + file);
 				}
 			}
 			list.clear();

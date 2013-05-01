@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 
 import de.greencity.bladenightapp.events.Event.EventStatus;
+import de.greencity.bladenightapp.persistence.InconsistencyException;
 import de.greencity.bladenightapp.persistence.ListPersistor;
 
 public class EventList implements Iterable<Event> {
@@ -22,7 +23,7 @@ public class EventList implements Iterable<Event> {
 		events = new ArrayList<Event>();
 	}
 
-	public void read() throws IOException {
+	public void read() throws IOException, InconsistencyException {
 		persistor.read();
 	}
 

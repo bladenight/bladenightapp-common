@@ -101,7 +101,7 @@ public class ListPersistorTest {
 	}
 
 	@Test
-	public void readFromDir() throws IOException {
+	public void readFromDir() throws IOException, InconsistencyException {
 		File dir = FileUtils.toFile(ListPersistorTest.class.getResource("/de.greencity.bladenightapp.persistence/mylistitems"));
 
 		List<MyListItem> list = new ArrayList<MyListItem>();
@@ -119,7 +119,7 @@ public class ListPersistorTest {
 	}
 
 	@Test
-	public void readFromDirTwice() throws IOException {
+	public void readFromDirTwice() throws IOException, InconsistencyException {
 		File dir = FileUtils.toFile(ListPersistorTest.class.getResource("/de.greencity.bladenightapp.persistence/mylistitems"));
 
 		List<MyListItem> list = new ArrayList<MyListItem>();
@@ -134,7 +134,7 @@ public class ListPersistorTest {
 	}
 
 	@Test(expected=IllegalStateException.class)
-	public void readDiscrepency() throws IOException {
+	public void readDiscrepency() throws IOException, InconsistencyException {
 		File dir = FileUtils.toFile(ListPersistorTest.class.getResource("/de.greencity.bladenightapp.persistence/discrepency"));
 
 		List<MyListItem> list = new ArrayList<MyListItem>();
@@ -148,7 +148,7 @@ public class ListPersistorTest {
 	}
 
 	@Test(expected=IOException.class)
-	public void readInvalidSyntax() throws IOException {
+	public void readInvalidSyntax() throws IOException, InconsistencyException {
 		File dir = FileUtils.toFile(ListPersistorTest.class.getResource("/de.greencity.bladenightapp.persistence/invalidsyntax"));
 
 		List<MyListItem> list = new ArrayList<MyListItem>();
@@ -163,7 +163,7 @@ public class ListPersistorTest {
 
 
 	@Test
-	public void deleteDeprecatedItems() throws IOException {
+	public void deleteDeprecatedItems() throws IOException, InconsistencyException {
 		List<MyListItem> list = new ArrayList<MyListItem>();
 		File directory = createDirectory("deleteDeprecatedItems");
 		ListPersistor<MyListItem> persistor = new ListPersistor<MyListItem>(MyListItem.class);
