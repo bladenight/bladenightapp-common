@@ -133,7 +133,7 @@ public class ListPersistorTest {
 		assertEquals(2, list.size());
 	}
 
-	@Test(expected=IllegalStateException.class)
+	@Test(expected=InconsistencyException.class)
 	public void readDiscrepency() throws IOException, InconsistencyException {
 		File dir = FileUtils.toFile(ListPersistorTest.class.getResource("/de.greencity.bladenightapp.persistence/discrepency"));
 
