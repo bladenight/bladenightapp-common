@@ -130,6 +130,10 @@ public class ParticipantUpdater {
 			l.evaluation *= evaluateCandidateOnDistanceToStart(l);
 			l.evaluation *= evaluateCandidateOnDistanceToPrevious(l);
 			l.evaluation *= evaluateCandidateOnDistanceToProcession(l);
+			
+			// TODO improve the algorithm to make this hack unnecessary
+			if ( l.linearPosition < minLinearPosition )
+				l.evaluation = 0;
 		}
 
 
@@ -251,5 +255,8 @@ public class ParticipantUpdater {
 	private double processionHeadPosition;
 	private double routeLength;
 	private Clock clock = new SystemClock();
+	
+	// TODO simple but effective hack to bring the algorithm on track when history is lost (server restart) 
+	public static double minLinearPosition = 0.0;
 
 }
