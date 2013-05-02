@@ -15,6 +15,7 @@ public enum BladenightUrl {
 	GET_FRIENDS("http://www.greencity.de/bladenight/app/rpc/getFriends"),
 	DELETE_RELATIONSHIP("http://www.greencity.de/bladenight/app/rpc/deleteRelationship"),
 	SET_MIN_POSITION("http://www.greencity.de/bladenight/app/rpc/setMinimumLinearPosition"),
+	KILL_SERVER("http://www.greencity.de/bladenight/app/rpc/killServer"),
     ;
 
 	final public static String BASE = "http://www.greencity.de/bladenight/app/";
