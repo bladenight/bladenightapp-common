@@ -4,6 +4,7 @@ public enum BladenightError {
 	INTERNAL_ERROR("http://greencity.de/bladenightapp/internalError"),
 	INVALID_ARGUMENT("http://greencity.de/bladenightapp/invalidArgument"),
 	INVALID_PASSWORD("http://greencity.de/bladenightapp/invalidPassword"),
+	OUTDATED_CLIENT("http://greencity.de/bladenightapp/outdatedClient"),
     ;
 
     private BladenightError(final String text) {
