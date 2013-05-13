@@ -12,6 +12,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
+import org.joda.time.Minutes;
 
 import de.greencity.bladenightapp.events.Event.EventStatus;
 import de.greencity.bladenightapp.persistence.InconsistencyException;
@@ -38,7 +39,7 @@ public class EventList implements Iterable<Event> {
 	}
 
 
-	public Event getActiveEvent() {
+	public Event getNextEvent() {
 		Event nextEvent = null;
 		DateTime now = new DateTime();
 		for ( Event event : events ) {
@@ -51,8 +52,24 @@ public class EventList implements Iterable<Event> {
 		return nextEvent;
 	}
 
-	public void setActiveRoute(String routeName) {
-		Event event = getActiveEvent();
+	public boolean isLive(Event event) {
+		if ( ! event.equals(getNextEvent()) )
+			return false;
+		if ( event.getStatus() != EventStatus.CONFIRMED )
+			return false;
+
+		if (event.getStartDate().isBeforeNow() && event.getEndDate().isBeforeNow())
+			return true;
+
+		DateTime now = new DateTime();
+		Minutes minutesToStart = Minutes.minutesBetween(now, event.getStartDate());
+		
+		return minutesToStart.getMinutes() < CONSIDER_LIVE_MINUTES;
+	}
+
+
+	public void setNextRoute(String routeName) {
+		Event event = getNextEvent();
 		if ( event == null ) {
 			getLog().error("setActiveRoute: No current event found");
 			return;
@@ -60,8 +77,8 @@ public class EventList implements Iterable<Event> {
 		event.setRouteName(routeName);
 	}
 
-	public void setActiveStatus(EventStatus newStatus) {
-		Event event = getActiveEvent();
+	public void setStatusOfNextEvent(EventStatus newStatus) {
+		Event event = getNextEvent();
 		if ( event == null ) {
 			getLog().error("setActiveStatus: No current event found");
 			return;
@@ -126,5 +143,7 @@ public class EventList implements Iterable<Event> {
 
 	protected List<Event> events;
 	private ListPersistor<Event> persistor;
+	private static final int CONSIDER_LIVE_MINUTES = 30;
+
 
 }

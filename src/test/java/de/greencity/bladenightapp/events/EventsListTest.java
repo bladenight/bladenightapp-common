@@ -38,7 +38,7 @@ public class EventsListTest {
 		EventList manager = new EventList();
 		manager.addEvent(event1);
 		manager.addEvent(event2);
-		Event returnedEvent = manager.getActiveEvent();
+		Event returnedEvent = manager.getNextEvent();
 		assertNull(returnedEvent);
 	}
 
@@ -50,7 +50,7 @@ public class EventsListTest {
 		EventList manager = new EventList();
 		manager.addEvent(event1);
 		manager.addEvent(event2);
-		Event returnedEvent = manager.getActiveEvent();
+		Event returnedEvent = manager.getNextEvent();
 		assertNotNull(returnedEvent);
 
 		assertEquals(new Event.Builder().setStartDate("2021-06-01T21:00").build(), returnedEvent);		
@@ -59,14 +59,35 @@ public class EventsListTest {
 
 	@Test
 	public void getNextEventWithOngoingEvent() throws ParseException {
-		EventList manager = getComplicatedSituation();
+		EventList eventList = getComplicatedSituation();
 
 		DateTime now = new DateTime();
 
-		Event returnedEvent = manager.getActiveEvent();
-		assertNotNull(returnedEvent);
-		assertTrue(returnedEvent.getStartDate().isBefore(now));		
-		assertTrue(returnedEvent.getEndDate().isAfter(now));		
+		Event nextEvent = eventList.getNextEvent();
+		assertNotNull(nextEvent);
+		assertTrue(nextEvent.getStartDate().isBefore(now));		
+		assertTrue(nextEvent.getEndDate().isAfter(now));		
+	}
+	
+	@Test
+	public void isLive() {
+		EventList eventList = getComplicatedSituation();
+		Event event1 = eventList.get(0);
+		assertTrue(! eventList.isLive(event1));		
+
+		Event event2 = eventList.get(1);
+
+		event2.setStatus(EventStatus.CANCELLED);
+		assertTrue(! eventList.isLive(event2));		
+		
+		event2.setStatus(EventStatus.CONFIRMED);
+		assertTrue(eventList.isLive(event2));		
+
+		event2.setStatus(EventStatus.PENDING);
+		assertTrue(! eventList.isLive(event2));		
+
+		Event event3 = eventList.get(2);
+		assertTrue(! eventList.isLive(event3));		
 	}
 
 	private EventList getComplicatedSituation() {
@@ -99,7 +120,7 @@ public class EventsListTest {
 		persistor.setDirectory(dir);
 		eventList.setPersistor(persistor);
 		eventList.read();
-		Event returnedEvent = eventList.getActiveEvent();
+		Event returnedEvent = eventList.getNextEvent();
 		assertNotNull(returnedEvent);
 		assertEquals( new DateTime("2020-03-03T21:00"), returnedEvent.getStartDate());
 		assertEquals(300, returnedEvent.getParticipants());
@@ -159,7 +180,7 @@ public class EventsListTest {
 		EventList eventList2 = new EventList();
 		eventList2.setPersistor(persistor);
 		eventList2.read();
-		Event returnedEvent = eventList2.getActiveEvent();
+		Event returnedEvent = eventList2.getNextEvent();
 		assertNotNull(returnedEvent);
 		assertEquals(event3, returnedEvent);		
 	}
@@ -177,20 +198,20 @@ public class EventsListTest {
 		EventList eventList = new EventList();
 		eventList.setPersistor(persistor);
 		eventList.read();
-		Event returnedEvent = eventList.getActiveEvent();
+		Event returnedEvent = eventList.getNextEvent();
 		assertNotNull(returnedEvent);
 		assertEquals( new DateTime("2020-03-03T21:00"), returnedEvent.getStartDate());
 		assertEquals("route3.gpx", returnedEvent.getRouteName());
 
 		String newRouteName = "Changed route";
-		eventList.setActiveRoute(newRouteName);
-		eventList.setActiveStatus(EventStatus.CANCELLED);
+		eventList.setNextRoute(newRouteName);
+		eventList.setStatusOfNextEvent(EventStatus.CANCELLED);
 		eventList.write();
 
 		EventList eventListCheck = new EventList();
 		eventListCheck.setPersistor(persistor);
 		eventListCheck.read();
-		assertEquals(newRouteName, eventListCheck.getActiveEvent().getRouteName());
+		assertEquals(newRouteName, eventListCheck.getNextEvent().getRouteName());
 
 		assertEquals(eventList, eventListCheck);
 	}
