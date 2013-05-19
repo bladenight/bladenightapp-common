@@ -7,11 +7,11 @@ import org.apache.commons.logging.LogFactory;
 import de.greencity.bladenightapp.events.Event;
 import de.greencity.bladenightapp.events.EventList;
 
-public class EventListMessage {
+public class EventsListMessage {
 	public EventMessage[] evt = new EventMessage[0];
 
-	public static EventListMessage newFromEventsList(EventList list) {
-		EventListMessage message = new EventListMessage();
+	public static EventsListMessage newFromEventsList(EventList list) {
+		EventsListMessage message = new EventsListMessage();
 		message.copyFromEventsList(list);
 		return message;
 	}
@@ -47,12 +47,12 @@ public class EventListMessage {
 	private static Log log;
 
 	public static void setLog(Log log) {
-		EventListMessage.log = log;
+		EventsListMessage.log = log;
 	}
 
 	protected static Log getLog() {
 		if (log == null)
-			setLog(LogFactory.getLog(EventListMessage.class));
+			setLog(LogFactory.getLog(EventsListMessage.class));
 		return log;
 	}
 
