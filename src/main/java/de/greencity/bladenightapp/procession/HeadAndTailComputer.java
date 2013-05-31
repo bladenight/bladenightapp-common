@@ -7,9 +7,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class HeadAndTailComputer extends SegmentedLinearRoute implements ProcessionParticipantsListener {
-	// TODO put the greeediness in the config file
-	final double processionGreediness = 4.2;
-
 	private static class Segment {
 		public double score;
 	}
@@ -144,12 +141,24 @@ public class HeadAndTailComputer extends SegmentedLinearRoute implements Process
 		return globalScore;
 	}
 
+	public double getProcessionGreediness() {
+		return processionGreediness;
+	}
+
+	/***
+	 * The lower the greediness, the more likely some participants will be ignored
+	 * 
+	 */
+	public void setProcessionGreediness(double processionGreediness) {
+		this.processionGreediness = processionGreediness;
+	}
+
 
 	private Segment[] segments;
 	private Map<String, ParticipantData> participantPositions;
 	private double headPosition;
 	private double tailPosition;
-	// private long meanUpdateAge;
+	double processionGreediness = 4.2;
 
 	private static Log log;
 

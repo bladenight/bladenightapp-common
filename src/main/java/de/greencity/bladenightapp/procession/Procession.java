@@ -290,6 +290,13 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		this.clock = clock;
 	}
 
+	public double getProcessionGreediness() {
+		return headAndTailComputer.getProcessionGreediness();
+	}
+
+	public void setProcessionGreediness(double processionGreediness) {
+		headAndTailComputer.setProcessionGreediness(processionGreediness);
+	}
 
 	private Route 				route;
 	private MovingPoint 		headMovingPoint;
