@@ -86,10 +86,19 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 	public synchronized Participant updateParticipant(ParticipantInput participantInput) {
 		getLog().debug("updateParticipant: " + participantInput);
+
 		String participantId = participantInput.getParticipantId();
-		Participant participant = participants.get(participantId);
-		if ( participant == null ) {
-			participant = getOrCreateParticipant(participantId);
+
+		Participant participant;
+
+		if ( participantInput.isParticipating() ) {
+			participant = participants.get(participantId);
+			if ( participant == null ) {
+				participant = getOrCreateParticipant(participantId);
+			}
+		}
+		else {
+			participant = newParticipant(participantId);
 		}
 
 		List<ProjectedLocation> potentialLocations = route.projectPosition(participantInput.getLatitude(), participantInput.getLongitude());
@@ -104,14 +113,14 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 				build();
 
 		updater.updateParticipant();
-
+		
 		if ( participant.isOnRoute() && participantInput.isParticipating() ) {
 			headAndTailComputer.updateParticipant(participantId, participant.getLinearPosition(), participant.getLinearSpeed());
 			travelTimeComputer.updateParticipant(participantId, participant.getLinearPosition(), participant.getLinearSpeed());
 		}
 		else {
 			headAndTailComputer.removeParticipant(participantId);
-			travelTimeComputer.updateParticipant(participantId, participant.getLinearPosition(), participant.getLinearSpeed());
+			travelTimeComputer.removeParticipant(participantId);
 		}
 
 		return participant;
@@ -125,10 +134,15 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	private Participant getOrCreateParticipant(String id) {
 		Participant p = participants.get(id);
 		if ( p == null ) {
-			p = new Participant();
-			p.setDeviceId(id);
+			p = newParticipant(id);
 			participants.put(id, p);
 		}
+		return p;
+	}
+
+	private Participant newParticipant(String id) {
+		Participant p = new Participant();
+		p.setDeviceId(id);
 		return p;
 	}
 
@@ -168,7 +182,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		getLog().debug("compute");
 
 		lastComputeTime = clock.currentTimeMillis();
-		
+
 		if ( route == null ) {
 			getLog().error("compute: no route available");
 			return;
@@ -237,7 +251,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 			compute();
 		}
 	}
-	
+
 	private boolean isMaxComputeAgeEnabled() {
 		return maxComputeAge >= 0;
 	}
