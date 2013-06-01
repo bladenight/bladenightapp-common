@@ -21,7 +21,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	}
 
 	private void init() {
-		participants = new ConcurrentHashMap<String, Participant>();
+		trackedParticipants = new ConcurrentHashMap<String, Participant>();
 		headMovingPoint = new MovingPoint();
 		tailMovingPoint = new MovingPoint();
 		route = new Route();
@@ -60,23 +60,23 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 	// Returned list is read-only!
 	public List<Participant> getParticipants() {
-		return new ArrayList<Participant>(participants.values());
+		return new ArrayList<Participant>(trackedParticipants.values());
 	}
 
 	public void removeParticipant(String deviceId) {
 		getLog().info("Removing participant " + deviceId);
-		participants.remove(deviceId);
+		trackedParticipants.remove(deviceId);
 		headAndTailComputer.removeParticipant(deviceId);
 		travelTimeComputer.removeParticipant(deviceId);
 	}
 
 	public int getParticipantCount() {
-		return participants.size();
+		return trackedParticipants.size();
 	}
 
 	public int getParticipantsOnRoute() {
 		int count = 0;
-		for ( Participant p : participants.values()) {
+		for ( Participant p : trackedParticipants.values()) {
 			if ( p.isOnRoute() ) {
 				count++;
 			}
@@ -91,13 +91,15 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 		Participant participant;
 
+		// TODO redesign the situation where a participant is not participating (sic)
 		if ( participantInput.isParticipating() ) {
-			participant = participants.get(participantId);
+			participant = trackedParticipants.get(participantId);
 			if ( participant == null ) {
 				participant = getOrCreateParticipant(participantId);
 			}
 		}
 		else {
+			// we create a temporary participant and we don't add it to the list of tracked participants
 			participant = newParticipant(participantId);
 		}
 
@@ -128,14 +130,14 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 	// Result is read-only
 	public Participant getParticipant(String id) {
-		return participants.get(id);
+		return trackedParticipants.get(id);
 	}
 
 	private Participant getOrCreateParticipant(String id) {
-		Participant p = participants.get(id);
+		Participant p = trackedParticipants.get(id);
 		if ( p == null ) {
 			p = newParticipant(id);
-			participants.put(id, p);
+			trackedParticipants.put(id, p);
 		}
 		return p;
 	}
@@ -195,7 +197,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 		long startTime = System.currentTimeMillis();
 
-		List<Participant> participantList = new ArrayList<Participant>(participants.values());
+		List<Participant> participantList = new ArrayList<Participant>(trackedParticipants.values());
 		getLog().debug("compute: " + participantList.size() + " participants are registered");
 
 		if ( ! headAndTailComputer.compute() ) {
@@ -324,7 +326,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	protected double updateSmoothingFactor = 0.0;
 
 
-	private Map<String, Participant> participants;
+	private Map<String, Participant> trackedParticipants;
 
 	private static Log log;
 
