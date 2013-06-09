@@ -64,10 +64,8 @@ public class TraceLogger {
 	}
 	
 	public void writeWithTimeLimit(long timeLimitInMs) throws IOException {
-		System.out.println("lastWriteTime="+lastWriteTime);
 		if ( lastWriteTime != null ) {
 			long lastWriteAge = new Duration(lastWriteTime, new DateTime()).getMillis();
-			System.out.println("lastWriteage="+lastWriteAge);
 			if ( lastWriteAge < timeLimitInMs )
 				return;
 		}
