@@ -31,7 +31,7 @@ public class ProtocolTest {
 		 List<String> lines = FileUtils.readLines(tempFile, "UTF-8");
 		 assertEquals(1, lines.size());
 
-		 Pattern p = Pattern.compile("^([0-9]+)\t(.*)\t(.*)\t(.*)");
+		 Pattern p = Pattern.compile("^([^\t]+)\t(.*)\t(.*)\t(.*)");
 		 Matcher m = p.matcher(lines.get(0));
 
 		 assertEquals(true, m.find());
