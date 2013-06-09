@@ -9,6 +9,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 public class Protocol {
 
@@ -21,7 +24,7 @@ public class Protocol {
 
 	public synchronized void write(String type, String ...colums) {
 		try {
-			String timeString = String.valueOf(System.currentTimeMillis());
+			String timeString = dateTimeFormatter.print(new DateTime());
 			String[] timeArray = {timeString, type};
 			String[] both = ArrayUtils.addAll(timeArray, colums);
 			String line = StringUtils.join(both,"\t");
@@ -58,4 +61,5 @@ public class Protocol {
 
 	// private File file;
 	private BufferedWriter writer;
+	static final DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTime();
 }
