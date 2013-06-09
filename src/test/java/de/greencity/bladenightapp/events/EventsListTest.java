@@ -19,6 +19,7 @@ import org.junit.Test;
 import de.greencity.bladenightapp.events.Event.EventStatus;
 import de.greencity.bladenightapp.persistence.InconsistencyException;
 import de.greencity.bladenightapp.persistence.ListPersistor;
+import de.greencity.bladenightapp.testutils.Files;
 
 public class EventsListTest {
 
@@ -155,7 +156,7 @@ public class EventsListTest {
 		eventList.addEvent(event2);
 		eventList.addEvent(event3);
 
-		File tmpFolder = createTemporaryFolder();
+		File tmpFolder = Files.createTemporaryFolder();
 
 		ListPersistor<Event> persistor = new ListPersistor<Event>(Event.class);
 		persistor.setDirectory(tmpFolder);
@@ -188,7 +189,7 @@ public class EventsListTest {
 	@Test
 	public void persistency() throws IOException, InconsistencyException {
 		File srcDir = FileUtils.toFile(EventList.class.getResource("/de.greencity.bladenightapp.events/set1/"));
-		File tmpFolder = createTemporaryFolder();
+		File tmpFolder = Files.createTemporaryFolder();
 		File persistenceFolder = new File(tmpFolder, "copy");
 		FileUtils.copyDirectory(srcDir, persistenceFolder);
 
@@ -245,14 +246,4 @@ public class EventsListTest {
 		assertTrue(eventList.get(1).getStartDate().isBefore(eventList.get(2).getStartDate()));
 		
 	}
-
-	public File createTemporaryFolder() throws IOException  {
-		File file = File.createTempFile("tmpfolder", ".d");
-		file.delete();
-		file.mkdir();
-		assertTrue(file.exists());
-		assertTrue(file.isDirectory());
-		return file;
-	}
-
 }
