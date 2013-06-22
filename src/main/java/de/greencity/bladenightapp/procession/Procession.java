@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import de.greencity.bladenightapp.procession.ProcessionParticipantsListener.ParticipantData;
 import de.greencity.bladenightapp.procession.tasks.ComputeSchedulerClient;
 import de.greencity.bladenightapp.procession.tasks.ParticipantCollectorClient;
 import de.greencity.bladenightapp.routes.Route;
@@ -117,8 +118,9 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		updater.updateParticipant();
 		
 		if ( participant.isOnRoute() && participantInput.isParticipating() ) {
-			headAndTailComputer.updateParticipant(participantId, participant.getLinearPosition(), participant.getLinearSpeed());
-			travelTimeComputer.updateParticipant(participantId, participant.getLinearPosition(), participant.getLinearSpeed());
+			ParticipantData participantData = new ParticipantData(participant.getLinearPosition(), participant.getLinearSpeed(), participantInput.getAccuracy()); 
+			headAndTailComputer.updateParticipant(participantId, participantData);
+			travelTimeComputer.updateParticipant(participantId, participantData);
 		}
 		else {
 			headAndTailComputer.removeParticipant(participantId);

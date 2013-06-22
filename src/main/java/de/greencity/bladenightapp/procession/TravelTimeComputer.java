@@ -20,8 +20,8 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 		public double meanTravelTime;
 	}
 
-	private static class ParticipantData {
-		ParticipantData(int nSegments, long lastUpdate, double position) {
+	private static class ParticipantStatistics {
+		ParticipantStatistics(int nSegments, long lastUpdate, double position) {
 			this.position = position;
 			this.lastUpdate = lastUpdate;
 			this.segments = TravelTimeComputer.newSegmentArray(nSegments);
@@ -38,7 +38,7 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 	TravelTimeComputer(int nSegments) {
 		super(nSegments);
 		this.segments = TravelTimeComputer.newSegmentArray(nSegments);
-		participantPositions = new ConcurrentHashMap<String, ParticipantData>();
+		participantPositions = new ConcurrentHashMap<String, ParticipantStatistics>();
 	}
 
 	static Segment[] newSegmentArray(int size) {
@@ -49,20 +49,20 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 	}
 	
 	@Override
-	public synchronized void updateParticipant(String deviceId, double position, double speed) {
-		ParticipantData data = participantPositions.get(deviceId);
-		if ( data == null ) {
-			participantPositions.put(deviceId, new ParticipantData(getNumberOfSegments(), clock.currentTimeMillis(), position));
+	public synchronized void updateParticipant(String deviceId, ParticipantData participantData) {
+		ParticipantStatistics statistics = participantPositions.get(deviceId);
+		if ( statistics == null ) {
+			participantPositions.put(deviceId, new ParticipantStatistics(getNumberOfSegments(), clock.currentTimeMillis(), participantData.position));
 			return;
 		}
 		long updateTime = clock.currentTimeMillis();
 		getLog().trace("deviceId="+deviceId);
-		updateMapBasedOnParticipantUpdate(updateTime, data, deviceId, position);
-		data.position = position;
-		data.lastUpdate = updateTime;
+		updateMapBasedOnParticipantUpdate(updateTime, statistics, deviceId, participantData.position);
+		statistics.position = participantData.position;
+		statistics.lastUpdate = updateTime;
 	}
 
-	private void updateMapBasedOnParticipantUpdate(long updateTime, ParticipantData data, String deviceId, double newPosition) {
+	private void updateMapBasedOnParticipantUpdate(long updateTime, ParticipantStatistics data, String deviceId, double newPosition) {
 		getLog().trace("** updateMapBasedOnParticipantUpdate for "+deviceId);
 		long currentTime = clock.currentTimeMillis();
 		long deltaTime = (currentTime -  data.lastUpdate);
@@ -137,7 +137,7 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 			newSegments[segment].lastUpdate = clockTime;
 
 			long minLastUpdate = 0;
-			for (ParticipantData participantData : participantPositions.values()) {
+			for (ParticipantStatistics participantData : participantPositions.values()) {
 				getLog().trace("  computeTravelTimeForAllSegments: meanTravelTime=" + participantData.segments[segment].meanTravelTime);
 				if ( participantData.segments[segment].meanTravelTime > 0.0 )
 					weightedValues.add(new WeightedValue(participantData.segments[segment].meanTravelTime, participantData.segments[segment].lastUpdate));
@@ -203,7 +203,7 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 	
 
 	private Clock clock = new SystemClock();
-	private ConcurrentHashMap<String, ParticipantData> participantPositions;
+	private ConcurrentHashMap<String, ParticipantStatistics> participantPositions;
 	private static Log log;
 	private Segment[] segments;
 	private double meanTravelTimeOverAllSegments = 0;

@@ -11,23 +11,14 @@ public class HeadAndTailComputer extends SegmentedLinearRoute implements Process
 		public double score;
 	}
 
-	static class ParticipantData {
-		ParticipantData(double position, double speed) {
-			this.position = position;
-			this.speed = speed;
-		}
-		public double position;
-		public double speed;
-	}
-
 	HeadAndTailComputer(int nSegments) {
 		super(nSegments);
 		participantPositions = new ConcurrentHashMap<String, ParticipantData>();
 	}
 
 	@Override
-	public void updateParticipant(String deviceId, double position, double speed) {
-		participantPositions.put(deviceId, new ParticipantData(position,speed));
+	public void updateParticipant(String deviceId, ParticipantData participantData) {
+		participantPositions.put(deviceId, participantData);
 	}
 
 	@Override
@@ -44,17 +35,33 @@ public class HeadAndTailComputer extends SegmentedLinearRoute implements Process
 			ParticipantData data = participantPositions.get(deviceId);
 			if ( data.position >= 0 && data.position <= getRouteLength() ) {
 				getLog().debug("User " + deviceId + " is at " + data.position);
+				getLog().info("User " + deviceId + " acc=" + data.accuracy);
 				int segment = getSegmentForLinearPosition(data.position);
-				segments[segment].score++;
-				// Moving participants get a bonus:
-				if ( data.speed > 0 )
-					segments[segment].score++;
+				
+				double participantScore = 1.0; 
+				
+				// Prefer moving participants:
+				if ( data.speed > 0.0 )
+					participantScore *= movingBonus;
 
-				// TODO reenable bonus based on age
+				participantScore *= accuracyBonus(data.accuracy);
 
-				getLog().debug("score["+segment+"]="+segments[segment].score);
+				segments[segment].score += participantScore;
 			}
 		}
+	}
+	
+	// TODO replace these hard-coded pragmatic values by something better 
+	private double accuracyBonus(double accuracy) {
+		if ( accuracy <= 0.0 ) // no value available
+			return 0.5;
+		if ( accuracy <= 30.0 )
+			return 1.0;
+		if ( accuracy <= 100.0 )
+			return 0.5;
+		if ( accuracy <= 500.0 )
+			return 0.1;
+		return 0.05;
 	}
 
 	/**
@@ -158,7 +165,8 @@ public class HeadAndTailComputer extends SegmentedLinearRoute implements Process
 	private Map<String, ParticipantData> participantPositions;
 	private double headPosition;
 	private double tailPosition;
-	double processionGreediness = 4.2;
+	double processionGreediness = 6;
+	double movingBonus = 3;
 
 	private static Log log;
 

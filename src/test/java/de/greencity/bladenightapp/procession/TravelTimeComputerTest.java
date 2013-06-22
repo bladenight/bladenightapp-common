@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.greencity.bladenightapp.procession.ProcessionParticipantsListener.ParticipantData;
 import de.greencity.bladenightapp.time.ControlledClock;
 
 public class TravelTimeComputerTest {
@@ -37,7 +38,7 @@ public class TravelTimeComputerTest {
 	@Test
 	public void singleStationaryParticipant() {
 		// a single update is not enough to computer times, so expect t=0 as result
-		computer.updateParticipant(generateParticipantId(), 1000.0, 0.0);
+		computer.updateParticipant(generateParticipantId(), new ParticipantData(1000.0, 0.0, 0.0));
 		assertEquals(0.0, computer.evaluateTravelTimeBetween(0.0, 2000.0), 0.00);
 	}
 
@@ -45,7 +46,7 @@ public class TravelTimeComputerTest {
 	public void singleMovingParticipantSingleUpdate() {
 		// a single update is not enough to computer times, so expect t=0 as result
 		double speed = 10.0; // km/h
-		computer.updateParticipant(generateParticipantId(), 1000.0, speed);
+		computer.updateParticipant(generateParticipantId(), new ParticipantData(1000.0, speed, 0.0));
 		assertEquals(0.0, computer.evaluateTravelTimeBetween(0.0, 2000.0), 0.00);
 	}
 
@@ -58,9 +59,9 @@ public class TravelTimeComputerTest {
 		String deviceId = generateParticipantId();
 		ControlledClock clock = new ControlledClock();
 		computer.setClock(clock);
-		computer.updateParticipant(deviceId, initialPosition, speedKmh );
+		computer.updateParticipant(deviceId, new ParticipantData(initialPosition, speedKmh, 0.0));
 		clock.increment(deltaTime);
-		computer.updateParticipant(deviceId, newPosition, speedKmh);
+		computer.updateParticipant(deviceId, new ParticipantData(newPosition, speedKmh, 0.0));
 
 		computer.computeTravelTimeForAllSegments();
 
@@ -96,7 +97,7 @@ public class TravelTimeComputerTest {
 			for (int participant=0; participant<nParticipants; participant++) {
 				double offset = processionLength * participant / nParticipants;
 				double newPosition = initialPosition + offset + deltaPos;
-				computer.updateParticipant("RUNNING-" + participant, newPosition, speedKmh );
+				computer.updateParticipant("RUNNING-" + participant, new ParticipantData(newPosition, speedKmh, 0.0));
 				maxPos = Math.max(maxPos,newPosition);
 			}
 			clock.increment(deltaTime);

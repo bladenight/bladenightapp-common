@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.greencity.bladenightapp.procession.ProcessionParticipantsListener.ParticipantData;
+
 public class HeadAndTailComputerTest {
 	HeadAndTailComputer computer;
 	
@@ -32,7 +34,7 @@ public class HeadAndTailComputerTest {
 
 	@Test
 	public void singleParticipant() {
-		computer.updateParticipant(generateParticipantId(), 1000.0, 0.0);
+		computer.updateParticipant(generateParticipantId(), new ParticipantData(1000.0, 0.0, 0.0));
 		computer.compute();
 		assertEquals(1000.0, computer.getTailPosition(), 1.0);
 		assertEquals(1000.0, computer.getHeadPosition(), 1.0);
@@ -40,8 +42,8 @@ public class HeadAndTailComputerTest {
 
 	@Test
 	public void twoParticipants() {
-		computer.updateParticipant(generateParticipantId(), 1000.0, 0.0);
-		computer.updateParticipant(generateParticipantId(), 1100.0, 0.0);
+		computer.updateParticipant(generateParticipantId(), new ParticipantData(1000.0, 0.0, 0.0));
+		computer.updateParticipant(generateParticipantId(), new ParticipantData(1100.0, 0.0, 0.0));
 		computer.compute();
 		assertEquals(1000.0, computer.getTailPosition(), 1.0);
 		assertEquals(1100.0, computer.getHeadPosition(), 1.0);
@@ -49,23 +51,33 @@ public class HeadAndTailComputerTest {
 
 	@Test
 	public void speedBonus() {
-		computer.updateParticipant(generateParticipantId(), 1000.0, 0.0);
-		computer.updateParticipant(generateParticipantId(), 1100.0, 0.0);
-		computer.updateParticipant(generateParticipantId(), 8000.0, 10.0);
-		computer.updateParticipant(generateParticipantId(), 8100.0, 10.0);
+		computer.updateParticipant(generateParticipantId(), new ParticipantData(1000.0, 0.0, 0.0));
+		computer.updateParticipant(generateParticipantId(), new ParticipantData(1100.0, 0.0, 0.0));
+		computer.updateParticipant(generateParticipantId(), new ParticipantData(8000.0, 10.0, 0.0));
+		computer.updateParticipant(generateParticipantId(), new ParticipantData(8100.0, 10.0, 0.0));
 		computer.compute();
 		assertEquals(8000.0, computer.getTailPosition(), 1.0);
 		assertEquals(8100.0, computer.getHeadPosition(), 1.0);
 	}
 
 	@Test
+	public void accuracyBonus() {
+		computer.updateParticipant(generateParticipantId(), new ParticipantData(1000.0, 10.0, 1000.0));
+		computer.updateParticipant(generateParticipantId(), new ParticipantData(1100.0, 10.0, 1000.0));
+		computer.updateParticipant(generateParticipantId(), new ParticipantData(8000.0, 10.0, 10.0));
+		computer.compute();
+		assertEquals(8000.0, computer.getTailPosition(), 1.0);
+		assertEquals(8000.0, computer.getHeadPosition(), 1.0);
+	}
+
+	@Test
 	public void removingParticipants() {
 		String id1 = "Dyn-1";
 		String id2 = "Dyn-2";
-		computer.updateParticipant("Static-1", 1000.0, 0.0);
-		computer.updateParticipant("Static-2", 1100.0, 0.0);
-		computer.updateParticipant(id1, 8000.0, 10.0);
-		computer.updateParticipant(id2, 8100.0, 10.0);
+		computer.updateParticipant("Static-1", new ParticipantData(1000.0, 0.0, 0.0));
+		computer.updateParticipant("Static-2", new ParticipantData(1100.0, 0.0, 0.0));
+		computer.updateParticipant(id1, new ParticipantData(8000.0, 10.0, 0.0));
+		computer.updateParticipant(id2, new ParticipantData(8100.0, 10.0, 0.0));
 		computer.compute();
 		computer.removeParticipant(id1);
 		computer.removeParticipant(id2);
