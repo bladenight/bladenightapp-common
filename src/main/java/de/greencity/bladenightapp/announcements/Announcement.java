@@ -1,4 +1,4 @@
-package announcements;
+package de.greencity.bladenightapp.announcements;
 
 public class Announcement {
 	
