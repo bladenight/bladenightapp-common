@@ -48,7 +48,7 @@ public class RelationshipStore {
 			// Delete any relationship that the user may already have with the same ids
 			deleteRelationship(deviceId1, friendId1);
 
-			check();
+			checkForDuplicateIds();
 
 			Relationship relationship = new Relationship(deviceId1);
 			relationship.setId(id);
@@ -56,7 +56,7 @@ public class RelationshipStore {
 			relationship.setRequestId(requestId);
 			relationships.add(relationship);
 
-			check();
+			checkForDuplicateIds();
 
 			getLog().info("Created new request: " + relationship);
 
@@ -64,13 +64,13 @@ public class RelationshipStore {
 			handshakeInfo.setRequestId(requestId);
 			handshakeInfo.setFriendId(friendId1);
 
-			check();
+			checkForDuplicateIds();
 
 			return handshakeInfo;
 		}
 	}
 
-	public void check()  {
+	public void checkForDuplicateIds()  {
 		List<Long> ids = new ArrayList<Long>();
 		for ( Relationship r : relationships) {
 			if ( ids.contains(r.getId()) ) {
