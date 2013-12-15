@@ -9,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import de.greencity.bladenightapp.procession.ProcessionParticipantsListener.ParticipantData;
+import de.greencity.bladenightapp.procession.Statistics.Segment;
 import de.greencity.bladenightapp.procession.tasks.ComputeSchedulerClient;
 import de.greencity.bladenightapp.procession.tasks.ParticipantCollectorClient;
 import de.greencity.bladenightapp.routes.Route;
@@ -17,6 +18,11 @@ import de.greencity.bladenightapp.time.Clock;
 import de.greencity.bladenightapp.time.SystemClock;
 
 public class Procession implements ComputeSchedulerClient, ParticipantCollectorClient {
+	public Procession(Clock clock) {
+		this.clock = clock;
+		init();
+	}
+
 	public Procession() {
 		init();
 	}
@@ -36,6 +42,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		int nSegments = 200;
 		headAndTailComputer = new HeadAndTailComputer(nSegments);
 		travelTimeComputer = new TravelTimeComputer(nSegments);
+		travelTimeComputer.setClock(clock);
 		double routeLength = 0.0;
 		if ( route != null )
 			routeLength = route.getLength();
@@ -116,7 +123,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 				build();
 
 		updater.updateParticipant();
-		
+
 		if ( participant.isOnRoute() && participantInput.isParticipating() ) {
 			ParticipantData participantData = new ParticipantData(participant.getLinearPosition(), participant.getLinearSpeed(), participantInput.getAccuracy()); 
 			headAndTailComputer.updateParticipant(participantId, participantData);
@@ -304,10 +311,6 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 		this.updateSmoothingFactor = updateSmoothingFactor;
 	}
 
-	public void setClock(Clock clock) {
-		this.clock = clock;
-	}
-
 	public double getProcessionGreediness() {
 		return headAndTailComputer.getProcessionGreediness();
 	}
@@ -315,6 +318,36 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	public void setProcessionGreediness(double processionGreediness) {
 		headAndTailComputer.setProcessionGreediness(processionGreediness);
 	}
+
+	public Statistics getStatistics() {
+		int nSegments = travelTimeComputer.getNumberOfSegments();
+		SegmentedLinearRoute segmentedLinearRoute = new SegmentedLinearRoute(nSegments, route.getLength());
+		double segmentLength = segmentedLinearRoute.getSegmentLength();
+		double sumSpeed = 0;
+		int nSegmentsWithSpeed = 0;
+		Statistics statistics = new Statistics();
+		statistics.segments = new Segment[nSegments];
+		for(int segment=0 ; segment < nSegments ; segment++) {
+			statistics.segments[segment] = new Segment();
+			//			System.out.println("segment="+segment);
+			//			System.out.println("segmentLength="+segmentLength);
+			//			System.out.println("time="+travelTimeComputer.getTravelTimeForSegment(segment));
+			double speed = 3600.0 * (segmentLength / travelTimeComputer.getTravelTimeForSegment(segment));
+			statistics.segments[segment].speed = speed;
+			if ( ! Double.isNaN(speed)  ) {
+				sumSpeed += speed;
+				nSegmentsWithSpeed ++;
+			}
+		}
+		if ( nSegmentsWithSpeed > 0 )
+			statistics.averageSpeed = (sumSpeed / nSegmentsWithSpeed);
+		for(Participant p : trackedParticipants.values()) {
+			int segment = segmentedLinearRoute.getSegmentForLinearPosition(p.getLinearPosition());
+			statistics.segments[segment].nParticipants++;
+		}
+		return statistics;
+	}
+
 
 	private Route 				route;
 	private MovingPoint 		headMovingPoint;

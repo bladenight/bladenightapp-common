@@ -35,7 +35,7 @@ public class HeadAndTailComputer extends SegmentedLinearRoute implements Process
 			ParticipantData data = participantPositions.get(deviceId);
 			if ( data.position >= 0 && data.position <= getRouteLength() ) {
 				getLog().debug("User " + deviceId + " is at " + data.position);
-				getLog().info("User " + deviceId + " acc=" + data.accuracy);
+				getLog().debug("User " + deviceId + " acc=" + data.accuracy);
 				int segment = getSegmentForLinearPosition(data.position);
 				
 				double participantScore = 1.0; 

@@ -14,6 +14,7 @@ import de.greencity.bladenightapp.time.ControlledClock;
 
 public class TravelTimeComputerTest {
 	TravelTimeComputer computer;
+	final int nSegments = 100;
 	
 	@BeforeClass
 	public static void beforeClass() {
@@ -25,16 +26,21 @@ public class TravelTimeComputerTest {
 
 	@Before
 	public void before() {
-		computer = new TravelTimeComputer(100);
+		computer = new TravelTimeComputer(nSegments);
 		computer.setRouteLength(10000.0);
 	}
 
 	@Test(expected=IllegalStateException.class)
 	public void noRouteLength() {
-		computer = new TravelTimeComputer(100);
+		computer = new TravelTimeComputer(nSegments);
 		computer.evaluateTravelTimeBetween(0.0, 2000.0);
 	}
 
+	@Test
+	public void getNumberOfSegments() {
+		assertEquals(nSegments, computer.getNumberOfSegments());
+	}
+	
 	@Test
 	public void singleStationaryParticipant() {
 		// a single update is not enough to computer times, so expect t=0 as result

@@ -21,8 +21,7 @@ public class ParticipantCollectorTest {
 	@Before
 	public void init() {
 		clock = new ControlledClock();
-		procession = new Procession();
-		procession.setClock(clock);
+		procession = new Procession(clock);
 		collector = new ParticipantCollector(procession);
 		collector.setClock(clock);
 		

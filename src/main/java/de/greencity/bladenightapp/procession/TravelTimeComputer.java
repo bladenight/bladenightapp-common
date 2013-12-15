@@ -15,7 +15,7 @@ import de.greencity.bladenightapp.time.SystemClock;
 
 public class TravelTimeComputer extends SegmentedLinearRoute implements ProcessionParticipantsListener {
 
-	private static class Segment {
+	public static class Segment {
 		public long lastUpdate;
 		public double meanTravelTime;
 	}
@@ -157,6 +157,15 @@ public class TravelTimeComputer extends SegmentedLinearRoute implements Processi
 		segments = newSegments;
 		updateMeanTravelTimeOverAllSegments();
 		getLog().info("** computeTravelTimeForAllSegments finished in "+ (System.currentTimeMillis() - startTime) + "ms");
+	}
+
+	/** Time in ms
+	 * 
+	 * @param segment
+	 * @return
+	 */
+	public double getTravelTimeForSegment(int segment) {
+		return segments[segment].meanTravelTime;
 	}
 
 	public double evaluateTravelTimeBetween(double position1, double position2) {

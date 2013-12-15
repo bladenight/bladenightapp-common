@@ -1,6 +1,7 @@
 package de.greencity.bladenightapp.procession;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -13,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.greencity.bladenightapp.events.EventList;
+import de.greencity.bladenightapp.procession.Statistics.Segment;
 import de.greencity.bladenightapp.routes.Route;
 
 public class ProcessionTest {
@@ -84,7 +86,8 @@ public class ProcessionTest {
 	public void singleParticipantEvolvingOnOverlappingSegments() {
 		String participantId = generateParticipantId();
 
-		// assertEquals(0.0, procession.evaluateTravelTimeBetween(0.0, 10000.0), 0.0);
+		assertEquals(0.0, procession.evaluateTravelTimeBetween(0.0, 10000.0), 0.0);
+		verifyStatistics(procession, 0);
 
 		// Start on an overlap to make it hard
 		double lat1 = 48.128642;
@@ -92,7 +95,7 @@ public class ProcessionTest {
 		updateParticipant(participantId, lat1, lon1);
 		assertProcessionIn(6080, 6095);
 
-		// assertEquals(0.0, procession.evaluateTravelTimeBetween(0.0, 10000.0), 0.0);
+		assertEquals(0.0, procession.evaluateTravelTimeBetween(0.0, 10000.0), 0.0);
 
 		// Move further on the overlapping segment:
 		double lat2 = 48.124311;
@@ -100,7 +103,8 @@ public class ProcessionTest {
 		updateParticipant(participantId, lat2, lon2);
 		assertProcessionIn(6880, 6900);
 
-		// assertTrue(procession.evaluateTravelTimeBetween(0.0, 10000.0) > 0.0);
+		assertTrue(procession.evaluateTravelTimeBetween(0.0, 10000.0) > 0.0);
+		verifyStatistics(procession, 1);
 
 		// Further, but not on the overlap anymore:
 		double lat3 = 48.100605;
@@ -116,6 +120,22 @@ public class ProcessionTest {
 		// the algorithm is able to reset itself
 		updateParticipant(participantId, 48.139941, 11.536054);
 		assertProcessionIn(3735, 3740);
+	}
+
+	private void verifyStatistics(Procession procession, int expectedActiveSegments) {
+		Statistics statistics = procession.getStatistics();
+		assertNotNull(statistics);
+		assertNotNull(statistics.segments);
+		{
+			int found = 0;
+			for(Segment segment : statistics.segments) {
+				if ( segment.nParticipants > 0 && segment.speed > 0.0 )
+					found++;
+			}
+			assertEquals(expectedActiveSegments, found);
+		}
+		if ( expectedActiveSegments > 0 )
+			assertTrue(statistics.averageSpeed > 0.0);
 	}
 
 
