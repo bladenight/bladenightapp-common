@@ -233,6 +233,8 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 
 		travelTimeComputer.computeTravelTimeForAllSegments(0.75);
 
+		computeStatistics();
+		
 		long endTime = System.currentTimeMillis();
 
 		getLog().debug("compute: compute time: " + (endTime-startTime)+"ms");
@@ -320,6 +322,10 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	}
 
 	public Statistics getStatistics() {
+		return statistics; 
+	}
+	
+	public void computeStatistics() {
 		int nSegments = travelTimeComputer.getNumberOfSegments();
 		SegmentedLinearRoute segmentedLinearRoute = new SegmentedLinearRoute(nSegments, route.getLength());
 		double segmentLength = segmentedLinearRoute.getSegmentLength();
@@ -345,7 +351,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 			int segment = segmentedLinearRoute.getSegmentForLinearPosition(p.getLinearPosition());
 			statistics.segments[segment].nParticipants++;
 		}
-		return statistics;
+		this.statistics = statistics;
 	}
 
 
@@ -354,6 +360,7 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
 	private MovingPoint 		tailMovingPoint;
 	private HeadAndTailComputer headAndTailComputer;
 	private TravelTimeComputer 	travelTimeComputer;
+	private Statistics			statistics;
 	private long 				maxComputeAge = -1;
 	private long 				lastComputeTime = -1;
 	private Clock 				clock = new SystemClock();

@@ -87,7 +87,8 @@ public class ProcessionTest {
 		String participantId = generateParticipantId();
 
 		assertEquals(0.0, procession.evaluateTravelTimeBetween(0.0, 10000.0), 0.0);
-		verifyStatistics(procession, 0);
+
+		assertTrue(procession.getStatistics() == null);
 
 		// Start on an overlap to make it hard
 		double lat1 = 48.128642;

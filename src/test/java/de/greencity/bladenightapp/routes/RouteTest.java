@@ -19,6 +19,8 @@ public class RouteTest {
 
 	final String path = "/de.greencity.bladenightapp.routes/Ost - lang.kml";
 	private Route route;
+	final private double referenceRouteLength = 16727.0;
+	final private double referenceLengthPrecision = 1.0;
 	
 	@Before
 	public void init() {
@@ -30,7 +32,7 @@ public class RouteTest {
 
 	@Test
 	public void checkLoad() {
-		assertEquals(16727, route.getLength(), 1.0);
+		assertEquals(referenceRouteLength, route.getLength(), referenceLengthPrecision);
 		assertEquals(81, route.getNumberOfSegments());
 		String filePath = route.getFilePath();
 		filePath = filePath.replace("\\", "/"); // For Windows
@@ -79,5 +81,56 @@ public class RouteTest {
 		Route.LatLong latLong = route.convertLinearPositionToLatLong(10000);
 		assertEquals(48.10365084245633, latLong.lat, 0.0000001);
 		assertEquals(11.561568708527084, latLong.lon, 0.0000001);
+	}
+
+	@Test
+	public void getPartialRouteFullRoute() {
+		List<Route.LatLong> list = route.getPartialRoute(0,route.getLength());
+		assertEquals(route.getNumberOfSegments(), list.size());
+	}
+
+	@Test
+	public void getPartialRouteStartAfterEnd() {
+		List<Route.LatLong> list = route.getPartialRoute(2000,1000);
+		assertEquals(0, list.size());
+	}
+
+	@Test
+	public void getPartialRouteStartEqualsEnd() {
+		double pos = 1000;
+		List<Route.LatLong> list = route.getPartialRoute(pos, pos);
+		assertEquals(2, list.size());
+		Route.LatLong latLong = route.convertLinearPositionToLatLong(pos);
+		assertEquals(latLong, list.get(0));
+		assertEquals(latLong, list.get(1));
+	}
+
+	@Test
+	public void getPartialRouteNormalCase() {
+		double precision = 0.0000001;
+		List<Route.LatLong> list = route.getPartialRoute(2000, 3000);
+		assertEquals(4, list.size());
+		
+		assertEquals(48.138134828986175, list.get(0).lat, precision);
+		assertEquals(11.52106488988085, list.get(0).lon, precision);
+		
+		assertEquals(48.14003010104577, list.get(1).lat, precision);
+		assertEquals(11.51835491785466, list.get(1).lon, precision);
+		
+		assertEquals(48.14134836096864, list.get(2).lat, precision);
+		assertEquals(11.51876014201025, list.get(2).lon, precision);
+		
+		assertEquals(48.14057416765811, list.get(3).lat, precision);
+		assertEquals(11.526176919530192, list.get(3).lon, precision);
+	}
+
+
+	@Test
+	public void cropPosition() {
+		assertEquals(0, route.cropPosition(-1), referenceLengthPrecision);
+		assertEquals(0, route.cropPosition(0), referenceLengthPrecision);
+		assertEquals(1, route.cropPosition(1), referenceLengthPrecision);
+		assertEquals(referenceRouteLength, route.cropPosition(referenceRouteLength), referenceLengthPrecision);
+		assertEquals(referenceRouteLength, route.cropPosition(referenceRouteLength+1), referenceLengthPrecision);
 	}
 }

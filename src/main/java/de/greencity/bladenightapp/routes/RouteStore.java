@@ -52,8 +52,13 @@ public class RouteStore {
 	}
 
 	private File getFileFromRouteName(String routeName) {
+		File[] fileList = baseDirDirectory.listFiles();
+		if ( fileList == null ) {
+			getLog().error("Could not retrieve route files. Does the directory exist ? \n" + baseDirDirectory);
+			return null;
+		}
 		// Scan the directory for a file with a matching name
-		for (final File fileEntry : baseDirDirectory.listFiles()) {
+		for (final File fileEntry : fileList) {
 			if ( isValidRouteFile(fileEntry) && routeName.equals(getNameFromPath(fileEntry.getAbsolutePath()) ) )
 				return fileEntry;
 		}

@@ -6,10 +6,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.LogFactory;
 import org.geotoolkit.display.shape.ShapeUtilities;
 import org.geotoolkit.geometry.DirectPosition2D;
@@ -217,14 +217,19 @@ public final class Route {
 
 	// TODO create test
 	public LatLong convertLinearPositionToLatLong(double linearPosition) {
+		PointOnSegment pointOnSegment = getPointOnSegmentForPosition(linearPosition);
+		return pointOnSegment.latLong;
+	}
+
+	private PointOnSegment getPointOnSegmentForPosition(double linearPosition) {
 		double currentSegmentSum = 0.0;
 		List<LatLong> nodes = getNodesLatLong();
+		PointOnSegment pointOnSegment = new PointOnSegment();
 		synchronized (nodes) {
 			for ( int nodeIndex = 0 ; nodeIndex < nodes.size()-1; nodeIndex++) {
 				LatLong node1 = nodes.get(nodeIndex);
 				LatLong node2 = nodes.get(nodeIndex+1);
-				
-				double segmentLength = CoordinatesConversion.getOrthodromicDistance(node1.lat, node1.lon, node2.lat, node2.lon);
+				double segmentLength = getSegmentLength(nodes, nodeIndex);
 				// node1.distance(node2);
 				double missingLength = linearPosition - currentSegmentSum;
 				if ( missingLength <= segmentLength  ) {
@@ -232,14 +237,65 @@ public final class Route {
 					// TODO this is mathematically not correct, but good enough on short distances for now 
 					double lat = node1.lat + positionOnSegment * (node2.lat - node1.lat );
 					double lon = node1.lon + positionOnSegment * (node2.lon - node1.lon );
-					return new LatLong(lat,lon);
+					pointOnSegment.latLong = new LatLong(lat,lon);
+					pointOnSegment.positionOnSegment = positionOnSegment;
+					pointOnSegment.segmentIndex = nodeIndex;
+					return pointOnSegment;
 				}
 				currentSegmentSum += segmentLength;
 			}
 			// Looks like the requested position is after the end of the route.
-			return new LatLong(nodes.get(nodes.size()-1));
+			int nodeIndex = nodes.size()-1;
+			pointOnSegment.latLong = new LatLong(nodes.get(nodeIndex));
+			pointOnSegment.positionOnSegment = getSegmentLength(nodes, nodeIndex);
+			pointOnSegment.segmentIndex = nodeIndex - 1;
+			return pointOnSegment;
 		}
 	}
+
+	private static double getSegmentLength(List<LatLong> nodes, int nodeIndex) {
+		LatLong node1 = nodes.get(nodeIndex);
+		LatLong node2 = nodes.get(nodeIndex+1);
+		return CoordinatesConversion.getOrthodromicDistance(node1.lat, node1.lon, node2.lat, node2.lon);
+	}
+
+	public List<LatLong> getPartialRoute(double startPosition, double endPosition) {
+		List<LatLong> list = new ArrayList<Route.LatLong>();
+		startPosition = cropPosition(startPosition);
+		endPosition = cropPosition(endPosition);
+		if ( startPosition > endPosition )
+			return list;
+		if ( startPosition == endPosition ) {
+			LatLong latLong = convertLinearPositionToLatLong(startPosition);
+			list.add(latLong);
+			list.add(latLong);
+			return list;
+		}
+
+		PointOnSegment pointOnSegmentStart = getPointOnSegmentForPosition(startPosition);
+		PointOnSegment pointOnSegmentEnd = getPointOnSegmentForPosition(endPosition);
+		
+		if ( pointOnSegmentStart.positionOnSegment > 0 )
+			list.add(convertLinearPositionToLatLong(startPosition));
+
+		for ( int nodeIndex = pointOnSegmentStart.segmentIndex + 1 ; nodeIndex <= pointOnSegmentEnd.segmentIndex ; nodeIndex ++) {
+			list.add(nodesLatLong.get(nodeIndex));
+		}
+
+		if ( pointOnSegmentEnd.positionOnSegment > 0 )
+			list.add(convertLinearPositionToLatLong(endPosition));
+
+		return list;
+	}
+	
+	public double cropPosition(double position) {
+		if ( position > length )
+			position = length;
+		if ( position < 0 )
+			position = 0;
+		return position;
+	}
+
 
 	protected String name;
 	protected String filePath;
@@ -249,6 +305,12 @@ public final class Route {
 	// Unfortunately, geotooltkit doesn't seem to be able to project a point on a lat/long based curve segment
 	// So we keep a copy of the nodes in a metric system 
 	protected List<DirectPosition2D> nodesInMetricSystem;
+	
+	private class PointOnSegment {
+		public int segmentIndex;
+		public double positionOnSegment;
+		public LatLong latLong;
+	}
 
 	private static Log log;
 

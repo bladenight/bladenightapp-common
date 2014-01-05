@@ -14,6 +14,10 @@ public class Statistics {
 		public double speed;
 	};
 	
+	Statistics() {
+		this.segments = new Segment[0];
+	}
+	
 	public Segment[] segments;
 	public double averageSpeed;
 }
