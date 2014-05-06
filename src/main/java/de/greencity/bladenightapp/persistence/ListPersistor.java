@@ -102,8 +102,9 @@ public class ListPersistor<T extends ListItem> {
 				if ( isPersistenceFile(file) ) {
 					T item = appendFile(file, readItems);
 					String id = item.getPersistenceId();
-					if ( ! FilenameUtils.getBaseName(file.getName()).equals(id) )
-						throw new InconsistencyException("Discrepency found while : id=" + id + " file=" + file);
+					String baseName = FilenameUtils.getBaseName(file.getName()); 
+					if ( ! baseName.equals(id) )
+						throw new InconsistencyException("Discrepency found. Expecting:=" + id + " Got:" + baseName);
 				}
 			}
 			list.clear();
