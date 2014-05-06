@@ -2,7 +2,6 @@ package de.greencity.bladenightapp.events;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.util.Locale;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -18,7 +17,6 @@ import de.greencity.bladenightapp.persistence.ListItem;
 
 public class Event implements ListItem, Serializable {
 	private static final long serialVersionUID = -5865857910368371094L;
-	private static DateTimeFormatter toDateFormat = getDestinationDateFormatter(Locale.getDefault());
 
 	public enum EventStatus {
 		PENDING("P"),
@@ -130,16 +128,18 @@ public class Event implements ListItem, Serializable {
 		return startDate;
 	}
 
-	public String getStartDateAsString() {
-		return toDateFormat.print((DateTime)getStartDate());
+	public String getStartDateAsString(String format) {
+		DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(format);
+		return dateFormatter.print((DateTime)getStartDate());
 	}
 
 	public DateTime getEndDate() {
 		return startDate.plus(duration);
 	}
 
-	public String getEndDateAsString() {
-		return toDateFormat.print((DateTime)getEndDate());
+	public String getEndDateAsString(String format) {
+		DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(format);
+		return dateFormatter.print((DateTime)getEndDate());
 	}
 
 
@@ -153,7 +153,7 @@ public class Event implements ListItem, Serializable {
 
 	@Override
 	public String getPersistenceId() {
-		return getStartDateAsString();
+		return getStartDateAsString("yyyy-MM-dd");
 	}
 
 	@Override
@@ -200,23 +200,6 @@ public class Event implements ListItem, Serializable {
 				buffer.append(value);
 			}
 		};
-	}
-	
-	private static DateTimeFormatter getDestinationDateFormatter(Locale locale) {
-		String country = locale.getISO3Country();
-		String localString = locale.toString();
-		if ( localString.startsWith("de") ||  "DEU".equals(country) ) {
-			return DateTimeFormat.forPattern("dd. MMM YY, HH:mm").withLocale(locale);
-		}
-		if ( localString.startsWith("fr") ||  "FRA".equals(country) ) {
-			return DateTimeFormat.forPattern("dd MMM YY, HH:mm").withLocale(locale);
-		}
-		if ( localString.startsWith("en") ||  "USA".equals(country) ) {
-			return DateTimeFormat.forStyle("MS").withLocale(locale);
-		}
-		else {
-			return DateTimeFormat.forStyle("MS").withLocale(locale);
-		}
 	}
 
 
