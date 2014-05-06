@@ -142,7 +142,8 @@ public class EventList implements Iterable<Event> {
 	}
 
 	protected List<Event> events;
-	private ListPersistor<Event> persistor;
+	// don't serialize the persistor (e.g. transient)
+	private transient ListPersistor<Event> persistor;
 	private static final int CONSIDER_LIVE_MINUTES = 30;
 
 

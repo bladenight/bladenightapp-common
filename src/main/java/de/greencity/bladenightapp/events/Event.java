@@ -91,7 +91,7 @@ public class Event implements ListItem, Serializable {
 
 	}
 
-	Event() {
+	public Event() {
 		duration = new Duration(0);
 		status = EventStatus.PENDING;				
 	}
