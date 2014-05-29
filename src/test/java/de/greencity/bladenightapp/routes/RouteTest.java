@@ -156,4 +156,31 @@ public class RouteTest {
 		assertEquals(80.0, p.positionOnSegment,1.0);
 		assertEquals(route.getNodesLatLong().get(route.getNodesLatLong().size()-1), p.latLong);
 	}
+	
+	@Test
+	public void getPartialRouteSameSegment() {
+		List<LatLong> list = route.getPartialRoute(0.0, 10.0);
+		assertEquals(2, list.size());
+		assertEquals(route.getNodesLatLong().get(0), list.get(0));
+		assertEquals(48.1307493, route.getNodesLatLong().get(1).lat, 0.00001);
+		assertEquals(11.5392264, route.getNodesLatLong().get(1).lon, 0.00001);
+		
+	}
+	
+	@Test
+	public void getPartialRouteDifferentSegments() {
+		List<LatLong> list = route.getPartialRoute(1000.0, 2000.0);
+		assertEquals(5, list.size());
+		assertEquals(48.1323665, route.getNodesLatLong().get(0).lat, 0.00001);
+		assertEquals(11.5395768, route.getNodesLatLong().get(0).lon, 0.00001);
+		
+	}
+	@Test
+	public void getPartialRouteLastSegment() {
+		List<LatLong> list = route.getPartialRoute(referenceRouteLength-10, referenceRouteLength+10);
+		assertEquals(2, list.size());
+		assertEquals(48.1323665, route.getNodesLatLong().get(0).lat, 0.00001);
+		assertEquals(11.5395768, route.getNodesLatLong().get(0).lon, 0.00001);
+		assertEquals(route.getNodesLatLong().get(route.getNodesLatLong().size()-1), list.get(1));
+	}
 }

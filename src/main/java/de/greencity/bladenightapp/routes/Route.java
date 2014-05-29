@@ -60,14 +60,14 @@ public final class Route {
 		public double evaluation;
 
 		public ProjectedLocation() {
-			
+
 		}
 
 		public ProjectedLocation(double distanceToSegment, double linearPosition) {
 			this.distanceToSegment = distanceToSegment;
 			this.linearPosition = linearPosition;
 		}
-		
+
 		@Override
 		public boolean equals(Object obj) {
 			return EqualsBuilder.reflectionEquals(this, obj, true);
@@ -90,7 +90,7 @@ public final class Route {
 		nodesLatLong = new ArrayList<LatLong>();
 		nodesInMetricSystem = new ArrayList<DirectPosition2D>();
 	}
-	
+
 	public boolean load(File file) {
 		RouteKmlLoader loader = new RouteKmlLoader();
 		if ( ! loader.load(file))
@@ -275,20 +275,28 @@ public final class Route {
 
 		PointOnSegment pointOnSegmentStart = getPointOnSegmentForPosition(startPosition);
 		PointOnSegment pointOnSegmentEnd = getPointOnSegmentForPosition(endPosition);
-		
-		if ( pointOnSegmentStart.relativePositionOnSegment > 0 )
-			list.add(convertLinearPositionToLatLong(startPosition));
 
-		for ( int nodeIndex = pointOnSegmentStart.segmentIndex + 1 ; nodeIndex <= pointOnSegmentEnd.segmentIndex ; nodeIndex ++) {
-			list.add(nodesLatLong.get(nodeIndex));
+		if (  pointOnSegmentStart.segmentIndex < pointOnSegmentEnd.segmentIndex ) {
+			if ( pointOnSegmentStart.relativePositionOnSegment > 0 )
+				list.add(convertLinearPositionToLatLong(startPosition));
+
+			if (  pointOnSegmentStart.segmentIndex < pointOnSegmentEnd.segmentIndex ) {
+				for ( int nodeIndex = pointOnSegmentStart.segmentIndex + 1 ; nodeIndex <= pointOnSegmentEnd.segmentIndex ; nodeIndex ++) {
+					list.add(nodesLatLong.get(nodeIndex));
+				}
+
+				if ( pointOnSegmentEnd.relativePositionOnSegment > 0 )
+					list.add(convertLinearPositionToLatLong(endPosition));
+			}
 		}
-
-		if ( pointOnSegmentEnd.relativePositionOnSegment > 0 )
+		else {
+			list.add(convertLinearPositionToLatLong(startPosition));
 			list.add(convertLinearPositionToLatLong(endPosition));
+		}
 
 		return list;
 	}
-	
+
 	public double cropPosition(double position) {
 		if ( position > length )
 			position = length;
@@ -306,7 +314,7 @@ public final class Route {
 	// Unfortunately, geotooltkit doesn't seem to be able to project a point on a lat/long based curve segment
 	// So we keep a copy of the nodes in a metric system 
 	protected List<DirectPosition2D> nodesInMetricSystem;
-	
+
 	class PointOnSegment {
 		public int segmentIndex;
 		/* Relative position on segment, between 0 and 1 */
