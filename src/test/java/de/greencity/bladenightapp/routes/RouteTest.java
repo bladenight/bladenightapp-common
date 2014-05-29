@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import de.greencity.bladenightapp.events.EventList;
 import de.greencity.bladenightapp.routes.Route.LatLong;
+import de.greencity.bladenightapp.routes.Route.PointOnSegment;
 import de.greencity.bladenightapp.routes.Route.ProjectedLocation;
 
 public class RouteTest {
@@ -132,5 +133,27 @@ public class RouteTest {
 		assertEquals(1, route.cropPosition(1), referenceLengthPrecision);
 		assertEquals(referenceRouteLength, route.cropPosition(referenceRouteLength), referenceLengthPrecision);
 		assertEquals(referenceRouteLength, route.cropPosition(referenceRouteLength+1), referenceLengthPrecision);
+	}
+	
+	@Test
+	public void getPointOnSegmentForPosition() {
+		PointOnSegment p = route.getPointOnSegmentForPosition(0);
+		assertEquals(0, p.segmentIndex);
+		assertEquals(0, p.relativePositionOnSegment,0);
+		assertEquals(route.getNodesLatLong().get(0), p.latLong);
+
+		p = route.getPointOnSegmentForPosition(291);
+		assertEquals(1, p.segmentIndex);
+		assertEquals(0.2115, p.relativePositionOnSegment,0.0001);
+		assertEquals(109.0, p.positionOnSegment,1.0);
+		assertEquals(48.13129, p.latLong.lat, 0.00001);
+		assertEquals(11.53800, p.latLong.lon, 0.00001);
+
+		// Position after the route end. We expect the last point of the route as result
+		p = route.getPointOnSegmentForPosition(referenceRouteLength + 100.0);
+		assertEquals(route.getNumberOfSegments()-1, p.segmentIndex);
+		assertEquals(1.0, p.relativePositionOnSegment,0.0);
+		assertEquals(80.0, p.positionOnSegment,1.0);
+		assertEquals(route.getNodesLatLong().get(route.getNodesLatLong().size()-1), p.latLong);
 	}
 }

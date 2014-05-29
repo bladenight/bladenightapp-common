@@ -221,7 +221,7 @@ public final class Route {
 		return pointOnSegment.latLong;
 	}
 
-	private PointOnSegment getPointOnSegmentForPosition(double linearPosition) {
+	PointOnSegment getPointOnSegmentForPosition(double linearPosition) {
 		double currentSegmentSum = 0.0;
 		List<LatLong> nodes = getNodesLatLong();
 		PointOnSegment pointOnSegment = new PointOnSegment();
@@ -230,15 +230,15 @@ public final class Route {
 				LatLong node1 = nodes.get(nodeIndex);
 				LatLong node2 = nodes.get(nodeIndex+1);
 				double segmentLength = getSegmentLength(nodes, nodeIndex);
-				// node1.distance(node2);
 				double missingLength = linearPosition - currentSegmentSum;
 				if ( missingLength <= segmentLength  ) {
-					double positionOnSegment = missingLength / segmentLength;
+					double relativePositionOnSegment = missingLength / segmentLength;
 					// TODO this is mathematically not correct, but good enough on short distances for now 
-					double lat = node1.lat + positionOnSegment * (node2.lat - node1.lat );
-					double lon = node1.lon + positionOnSegment * (node2.lon - node1.lon );
+					double lat = node1.lat + relativePositionOnSegment * (node2.lat - node1.lat );
+					double lon = node1.lon + relativePositionOnSegment * (node2.lon - node1.lon );
 					pointOnSegment.latLong = new LatLong(lat,lon);
-					pointOnSegment.positionOnSegment = positionOnSegment;
+					pointOnSegment.relativePositionOnSegment = relativePositionOnSegment;
+					pointOnSegment.positionOnSegment = missingLength;
 					pointOnSegment.segmentIndex = nodeIndex;
 					return pointOnSegment;
 				}
@@ -247,7 +247,8 @@ public final class Route {
 			// Looks like the requested position is after the end of the route.
 			int nodeIndex = nodes.size()-1;
 			pointOnSegment.latLong = new LatLong(nodes.get(nodeIndex));
-			pointOnSegment.positionOnSegment = getSegmentLength(nodes, nodeIndex);
+			pointOnSegment.positionOnSegment = getSegmentLength(nodes, nodeIndex-1);
+			pointOnSegment.relativePositionOnSegment = 1;
 			pointOnSegment.segmentIndex = nodeIndex - 1;
 			return pointOnSegment;
 		}
@@ -275,14 +276,14 @@ public final class Route {
 		PointOnSegment pointOnSegmentStart = getPointOnSegmentForPosition(startPosition);
 		PointOnSegment pointOnSegmentEnd = getPointOnSegmentForPosition(endPosition);
 		
-		if ( pointOnSegmentStart.positionOnSegment > 0 )
+		if ( pointOnSegmentStart.relativePositionOnSegment > 0 )
 			list.add(convertLinearPositionToLatLong(startPosition));
 
 		for ( int nodeIndex = pointOnSegmentStart.segmentIndex + 1 ; nodeIndex <= pointOnSegmentEnd.segmentIndex ; nodeIndex ++) {
 			list.add(nodesLatLong.get(nodeIndex));
 		}
 
-		if ( pointOnSegmentEnd.positionOnSegment > 0 )
+		if ( pointOnSegmentEnd.relativePositionOnSegment > 0 )
 			list.add(convertLinearPositionToLatLong(endPosition));
 
 		return list;
@@ -306,9 +307,12 @@ public final class Route {
 	// So we keep a copy of the nodes in a metric system 
 	protected List<DirectPosition2D> nodesInMetricSystem;
 	
-	private class PointOnSegment {
+	class PointOnSegment {
 		public int segmentIndex;
-		public double positionOnSegment;
+		/* Relative position on segment, between 0 and 1 */
+		public double relativePositionOnSegment; 
+		/* Absolute position on segment, in meters */
+		public double positionOnSegment; 
 		public LatLong latLong;
 	}
 
