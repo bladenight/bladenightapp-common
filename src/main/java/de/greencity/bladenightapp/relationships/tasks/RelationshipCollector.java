@@ -9,48 +9,48 @@ import de.greencity.bladenightapp.relationships.RelationshipStore;
 import de.greencity.bladenightapp.time.Sleep;
 
 public class RelationshipCollector implements Runnable {
-	public RelationshipCollector(RelationshipStore store, long period, long maxAge) {
-		this.store = store;
-		this.period = period;
-		this.maxAge = maxAge;
-	}
-	
-	@Override
-	public void run() {
-		boolean cont = true;
-		while (cont) {
-			int hits = store.removePendingRelationshipsOlderThan(maxAge);
-			if ( hits > 0 )
-				try {
-					store.write();
-				} catch (IOException e) {
-					getLog().error("Error while writting:",e);
-				}
-			try {
-				Sleep.sleep(period);
-			} catch (InterruptedException e) {
-				cont = false;
-			}
-		}
-	}
-	
-	public boolean shallContinue() {
-		return true;
-	}
+    public RelationshipCollector(RelationshipStore store, long period, long maxAge) {
+        this.store = store;
+        this.period = period;
+        this.maxAge = maxAge;
+    }
 
-	private RelationshipStore store;
-	private long period;
-	private long maxAge;
+    @Override
+    public void run() {
+        boolean cont = true;
+        while (cont) {
+            int hits = store.removePendingRelationshipsOlderThan(maxAge);
+            if ( hits > 0 )
+                try {
+                    store.write();
+                } catch (IOException e) {
+                    getLog().error("Error while writting:",e);
+                }
+            try {
+                Sleep.sleep(period);
+            } catch (InterruptedException e) {
+                cont = false;
+            }
+        }
+    }
 
-	private static Log log;
+    public boolean shallContinue() {
+        return true;
+    }
 
-	public static void setLog(Log log) {
-		RelationshipCollector.log = log;
-	}
+    private RelationshipStore store;
+    private long period;
+    private long maxAge;
 
-	protected static Log getLog() {
-		if (log == null)
-			setLog(LogFactory.getLog(RelationshipCollector.class));
-		return log;
-	}
+    private static Log log;
+
+    public static void setLog(Log log) {
+        RelationshipCollector.log = log;
+    }
+
+    protected static Log getLog() {
+        if (log == null)
+            setLog(LogFactory.getLog(RelationshipCollector.class));
+        return log;
+    }
 }

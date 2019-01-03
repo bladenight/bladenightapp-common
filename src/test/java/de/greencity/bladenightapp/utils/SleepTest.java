@@ -8,11 +8,11 @@ import de.greencity.bladenightapp.time.Sleep;
 
 public class SleepTest {
 
-	@Test
-	public void sleepTest() throws InterruptedException {
-		long start = System.currentTimeMillis();
-		long requestedMs = 1;
-		Sleep.sleep(requestedMs);
-		assertTrue(System.currentTimeMillis() - start >= requestedMs);
-	}
+    @Test
+    public void sleepTest() throws InterruptedException {
+        long start = System.currentTimeMillis();
+        long requestedMs = 1;
+        Sleep.sleep(requestedMs);
+        assertTrue(System.currentTimeMillis() - start >= requestedMs);
+    }
 }

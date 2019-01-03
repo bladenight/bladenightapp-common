@@ -18,69 +18,69 @@ import de.greencity.bladenightapp.events.EventList;
 
 
 public class RouteStoreTest {
-	RouteStore routeStore;
+    RouteStore routeStore;
 
-	@BeforeClass
-	static public void initializeClass() {
-		RouteStore.setLog(new NoOpLog());
-		RouteKmlLoader.setLog(new NoOpLog());
-	}
+    @BeforeClass
+    static public void initializeClass() {
+        RouteStore.setLog(new NoOpLog());
+        RouteKmlLoader.setLog(new NoOpLog());
+    }
 
-	@Before
-	public void initialize() {
-		File baseDir = FileUtils.toFile(EventList.class.getResource("/de.greencity.bladenightapp.routes/"));
-		routeStore = new RouteStore(baseDir);
-	}
+    @Before
+    public void initialize() {
+        File baseDir = FileUtils.toFile(EventList.class.getResource("/de.greencity.bladenightapp.routes/"));
+        routeStore = new RouteStore(baseDir);
+    }
 
-	@Test
-	public void getAvailableRoutes() {
-		List<String> list = routeStore.getAvailableRoutes();
-		assertTrue(list.contains("Nord - kurz"));
-		assertTrue(list.contains("Ost - kurz"));
-		assertTrue(list.contains("Ost - lang"));
-		assertTrue(list.contains("West - kurz"));
-		assertTrue(list.contains("West - lang"));
-	}
+    @Test
+    public void getAvailableRoutes() {
+        List<String> list = routeStore.getAvailableRoutes();
+        assertTrue(list.contains("Nord - kurz"));
+        assertTrue(list.contains("Ost - kurz"));
+        assertTrue(list.contains("Ost - lang"));
+        assertTrue(list.contains("West - kurz"));
+        assertTrue(list.contains("West - lang"));
+    }
 
-	@Test
-	public void getExistingRoute() {
-		String routeName = "Nord - kurz";
-		Route route = routeStore.getRoute(routeName);
-		assertNotNull(route);
-		// Make sure the right route has been loaded by the store:
-		assertEquals(12606, route.getLength(), 1.0);
-		// the route name must set by the store:
-		assertEquals(routeName, route.getName());
-	}
+    @Test
+    public void getExistingRoute() {
+        String routeName = "Nord - kurz";
+        Route route = routeStore.getRoute(routeName);
+        assertNotNull(route);
+        // Make sure the right route has been loaded by the store:
+        assertEquals(12606, route.getLength(), 1.0);
+        // the route name must set by the store:
+        assertEquals(routeName, route.getName());
+    }
 
-	@Test
-	public void getExistingRoute2() {
-		String routeName = "Ost - lang";
-		Route route = routeStore.getRoute(routeName);
-		assertNotNull(route);
-		// Make sure the right route has been loaded by the store:
-		assertEquals(16728, route.getLength(), 1.0);
-		// the route name must set by the store:
-		assertEquals(routeName, route.getName());
-	}
+    @Test
+    public void getExistingRoute2() {
+        String routeName = "Ost - lang";
+        Route route = routeStore.getRoute(routeName);
+        assertNotNull(route);
+        // Make sure the right route has been loaded by the store:
+        assertEquals(16728, route.getLength(), 1.0);
+        // the route name must set by the store:
+        assertEquals(routeName, route.getName());
+    }
 
-	@Test
-	public void loadInvalidFile() {
-		String routeName = "invalid-kml-file";
-		Route route = routeStore.getRoute(routeName);
-		assertNull(route);
-	}
+    @Test
+    public void loadInvalidFile() {
+        String routeName = "invalid-kml-file";
+        Route route = routeStore.getRoute(routeName);
+        assertNull(route);
+    }
 
-	@Test
-	public void loadDirectory() {
-		String routeName = "directory";
-		Route route = routeStore.getRoute(routeName);
-		assertNull(route);
-	}
+    @Test
+    public void loadDirectory() {
+        String routeName = "directory";
+        Route route = routeStore.getRoute(routeName);
+        assertNull(route);
+    }
 
-	@Test
-	public void getNonExistingRoute() {
-		Route route = routeStore.getRoute("Non existing route");
-		assertNull(route);
-	}
+    @Test
+    public void getNonExistingRoute() {
+        Route route = routeStore.getRoute("Non existing route");
+        assertNull(route);
+    }
 }

@@ -17,26 +17,26 @@ public class ProtocolTest {
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
-    
-	@Test
-	public void test() throws IOException {
-		File tempFile = testFolder.newFile("protocol.txt");
-		Protocol protocol = new Protocol(tempFile);
-		String type = Protocol.WAMPIN;
-		String msg1 = "SOMETAG";
-		String msg2 = "My message";
-		protocol.write(type, msg1, msg2);
-		protocol.close();
 
-		 List<String> lines = FileUtils.readLines(tempFile, "UTF-8");
-		 assertEquals(1, lines.size());
+    @Test
+    public void test() throws IOException {
+        File tempFile = testFolder.newFile("protocol.txt");
+        Protocol protocol = new Protocol(tempFile);
+        String type = Protocol.WAMPIN;
+        String msg1 = "SOMETAG";
+        String msg2 = "My message";
+        protocol.write(type, msg1, msg2);
+        protocol.close();
 
-		 Pattern p = Pattern.compile("^([^\t]+)\t(.*)\t(.*)\t(.*)");
-		 Matcher m = p.matcher(lines.get(0));
+         List<String> lines = FileUtils.readLines(tempFile, "UTF-8");
+         assertEquals(1, lines.size());
 
-		 assertEquals(true, m.find());
-		 assertEquals(type, m.group(2));
-		 assertEquals(msg1, m.group(3));
-		 assertEquals(msg2, m.group(4));
-	}
+         Pattern p = Pattern.compile("^([^\t]+)\t(.*)\t(.*)\t(.*)");
+         Matcher m = p.matcher(lines.get(0));
+
+         assertEquals(true, m.find());
+         assertEquals(type, m.group(2));
+         assertEquals(msg1, m.group(3));
+         assertEquals(msg2, m.group(4));
+    }
 }

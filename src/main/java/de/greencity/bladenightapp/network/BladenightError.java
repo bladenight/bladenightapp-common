@@ -1,18 +1,18 @@
 package de.greencity.bladenightapp.network;
 
 public enum BladenightError {
-	INTERNAL_ERROR("http://greencity.de/bladenightapp/internalError"),
-	INVALID_ARGUMENT("http://greencity.de/bladenightapp/invalidArgument"),
-	INVALID_PASSWORD("http://greencity.de/bladenightapp/invalidPassword"),
-	OUTDATED_CLIENT("http://greencity.de/bladenightapp/outdatedClient"),
+    INTERNAL_ERROR("http://greencity.de/bladenightapp/internalError"),
+    INVALID_ARGUMENT("http://greencity.de/bladenightapp/invalidArgument"),
+    INVALID_PASSWORD("http://greencity.de/bladenightapp/invalidPassword"),
+    OUTDATED_CLIENT("http://greencity.de/bladenightapp/outdatedClient"),
     ;
 
     private BladenightError(final String text) {
         this.text = text;
     }
-    
+
     public String getText() {
-    	return text;
+        return text;
     }
 
     private final String text;

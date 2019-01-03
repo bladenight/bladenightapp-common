@@ -14,73 +14,73 @@ import org.apache.commons.logging.LogFactory;
 
 public class ValueReader {
 
-	public class Entry {
+    public class Entry {
 
-		Entry(String line) {
-			parseLine(line);
-		}
+        Entry(String line) {
+            parseLine(line);
+        }
 
-		private void parseLine(String line) {
-			map = new HashMap<String, String>();
-			Pattern pattern = Pattern.compile("([a-z]+)=([^\\t]*)");
-			Matcher matcher = pattern.matcher(line);
-			while (matcher.find()) {
-				map.put(matcher.group(1), matcher.group(2));
-			}
-		}
+        private void parseLine(String line) {
+            map = new HashMap<String, String>();
+            Pattern pattern = Pattern.compile("([a-z]+)=([^\\t]*)");
+            Matcher matcher = pattern.matcher(line);
+            while (matcher.find()) {
+                map.put(matcher.group(1), matcher.group(2));
+            }
+        }
 
-		public double getDouble(String key) {
-			return Double.parseDouble(map.get(key));
-		}
+        public double getDouble(String key) {
+            return Double.parseDouble(map.get(key));
+        }
 
-		public String getString(String key) {
-			return map.get(key);
-		}
+        public String getString(String key) {
+            return map.get(key);
+        }
 
-		private Map<String, String> map;
-	}
+        private Map<String, String> map;
+    }
 
-	public interface Consumer {
-		public void consume(Entry entry);
-	}
+    public interface Consumer {
+        public void consume(Entry entry);
+    }
 
-	public ValueReader(File file, Consumer consumer) {
-		this.file = file;
-		this.consumer = consumer;
-	}
+    public ValueReader(File file, Consumer consumer) {
+        this.file = file;
+        this.consumer = consumer;
+    }
 
-	public void read() throws IOException {
-		BufferedReader bufferedReader = null;
-		try {
-			String line;
-			bufferedReader = new BufferedReader(new FileReader(file));
-			while ((line = bufferedReader.readLine()) != null) {
-				consumer.consume(new Entry(line));
-			}
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			try {
-				if (bufferedReader != null)
-					bufferedReader.close();
-			} catch (IOException ex) {
-				// We don't care
-			}
-		}
-	}
+    public void read() throws IOException {
+        BufferedReader bufferedReader = null;
+        try {
+            String line;
+            bufferedReader = new BufferedReader(new FileReader(file));
+            while ((line = bufferedReader.readLine()) != null) {
+                consumer.consume(new Entry(line));
+            }
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            try {
+                if (bufferedReader != null)
+                    bufferedReader.close();
+            } catch (IOException ex) {
+                // We don't care
+            }
+        }
+    }
 
-	private File file;
-	private Consumer consumer;
+    private File file;
+    private Consumer consumer;
 
-	private static Log log;
+    private static Log log;
 
-	public static void setLog(Log log) {
-		ValueReader.log = log;
-	}
+    public static void setLog(Log log) {
+        ValueReader.log = log;
+    }
 
-	protected static Log getLog() {
-		if (log == null)
-			setLog(LogFactory.getLog(ValueReader.class));
-		return log;
-	}
+    protected static Log getLog() {
+        if (log == null)
+            setLog(LogFactory.getLog(ValueReader.class));
+        return log;
+    }
 }

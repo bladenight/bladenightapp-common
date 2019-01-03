@@ -12,141 +12,141 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class KeyValueStore implements KeyValueStoreInterface  {
 
-	abstract public boolean readExternalResource(String identifier);
+    abstract public boolean readExternalResource(String identifier);
 
-	abstract public boolean writeExternalResource(String identifier);
+    abstract public boolean writeExternalResource(String identifier);
 
-	abstract public String getString(String key);
+    abstract public String getString(String key);
 
-	abstract public void setString(String key, String value);
+    abstract public void setString(String key, String value);
 
-	public String getString(String key, String defaultValue) {
-		String value = getString(key);
-		if ( value == null )
-			return defaultValue;
-		else
-			return value;
-	}
+    public String getString(String key, String defaultValue) {
+        String value = getString(key);
+        if ( value == null )
+            return defaultValue;
+        else
+            return value;
+    }
 
-	public String getNonNullString(String key) throws IllegalArgumentException {
-		String value = getString(key);
-		if ( value == null ) {
-			String msg = "Property \"" + key + "\" is not defined in \"" + identifier + "\"";
-			getLog().error(msg);
-			throw(new IllegalArgumentException(msg));
-		}
-		return value;
-	}
+    public String getNonNullString(String key) throws IllegalArgumentException {
+        String value = getString(key);
+        if ( value == null ) {
+            String msg = "Property \"" + key + "\" is not defined in \"" + identifier + "\"";
+            getLog().error(msg);
+            throw(new IllegalArgumentException(msg));
+        }
+        return value;
+    }
 
-	public long getLong(String key, long defaultValue) {
-		String value = getString(key);
-		if ( value == null )
-			return defaultValue;
-		else
-			return Long.parseLong(value);
-	}
+    public long getLong(String key, long defaultValue) {
+        String value = getString(key);
+        if ( value == null )
+            return defaultValue;
+        else
+            return Long.parseLong(value);
+    }
 
-	public int getInt(String key, int defaultValue) {
-		String value = getString(key);
-		if ( value == null )
-			return defaultValue;
-		else
-			return Integer.parseInt(value);
-	}
+    public int getInt(String key, int defaultValue) {
+        String value = getString(key);
+        if ( value == null )
+            return defaultValue;
+        else
+            return Integer.parseInt(value);
+    }
 
-	public double getDouble(String key, double defaultValue) {
-		String value = getString(key);
-		if ( value == null )
-			return defaultValue;
-		else
-			return Double.parseDouble(value);
-	}
+    public double getDouble(String key, double defaultValue) {
+        String value = getString(key);
+        if ( value == null )
+            return defaultValue;
+        else
+            return Double.parseDouble(value);
+    }
 
-	public Date getDate(String key, String defaultValue) throws ParseException {
-		String value = getString(key);
-		if ( value == null )
-			return parseDateString(defaultValue);
-		else
-			return parseDateString(value);
-	}
+    public Date getDate(String key, String defaultValue) throws ParseException {
+        String value = getString(key);
+        if ( value == null )
+            return parseDateString(defaultValue);
+        else
+            return parseDateString(value);
+    }
 
-	public Date getDate(String key) throws IllegalArgumentException, ParseException {
-		String value = getNonNullString(key);
-		return parseDateString(value);
-	}
-	
-	private Date parseDateString(String dateString) throws ParseException {
-		SimpleDateFormat format = new SimpleDateFormat("y-M-d H:m");
-		return format.parse(dateString);
-	}
+    public Date getDate(String key) throws IllegalArgumentException, ParseException {
+        String value = getNonNullString(key);
+        return parseDateString(value);
+    }
 
-	public String getPath(String key) {
-		return getPath(key, null);
-	}
+    private Date parseDateString(String dateString) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("y-M-d H:m");
+        return format.parse(dateString);
+    }
 
-	public String getPath(String key, String defaultPath) {
-		String value = getString(key);
-		if ( value == null ) {
-			if ( defaultPath != null ) {
-				value = defaultPath;
-			}
-			else {
-				logUndefinedKey("w", key);
-				return null;
-			}
-		}
-		// TODO refactor and make OS independent
-		if ( ! value.startsWith("/") && basePath != null ) {
-			// Relative path
-			return basePath + "/" + value;
-		}
-		else {
-			return value;
-		}
-	}
+    public String getPath(String key) {
+        return getPath(key, null);
+    }
 
-	void logUndefinedKey(String level, String key) {
-		String msg = "Property \"" + key + "\" is not defined in \"" + identifier + "\"";
-		if ( level.equals("i")) {
-			getLog().info(msg);
-		}
-		else if ( level.equals("t")) {
-			getLog().trace(msg);
-		}
-		else if ( level.equals("w")) {
-			getLog().warn(msg);
-		}
-		else if ( level.equals("t")) {
-			getLog().error(msg);
-		}
-	}
-	public String getBasePath() {
-		return basePath;
-	}
+    public String getPath(String key, String defaultPath) {
+        String value = getString(key);
+        if ( value == null ) {
+            if ( defaultPath != null ) {
+                value = defaultPath;
+            }
+            else {
+                logUndefinedKey("w", key);
+                return null;
+            }
+        }
+        // TODO refactor and make OS independent
+        if ( ! value.startsWith("/") && basePath != null ) {
+            // Relative path
+            return basePath + "/" + value;
+        }
+        else {
+            return value;
+        }
+    }
 
-	public void setBasePath(String basePath) {
-		this.basePath = basePath;
-	}
+    void logUndefinedKey(String level, String key) {
+        String msg = "Property \"" + key + "\" is not defined in \"" + identifier + "\"";
+        if ( level.equals("i")) {
+            getLog().info(msg);
+        }
+        else if ( level.equals("t")) {
+            getLog().trace(msg);
+        }
+        else if ( level.equals("w")) {
+            getLog().warn(msg);
+        }
+        else if ( level.equals("t")) {
+            getLog().error(msg);
+        }
+    }
+    public String getBasePath() {
+        return basePath;
+    }
 
-	/**
-	 * Used to retrieve and save the store, and also in the log 
-	 */
-	protected String identifier;
+    public void setBasePath(String basePath) {
+        this.basePath = basePath;
+    }
 
-	/**
-	 * Base path for the path values which are relative.
-	 */
-	protected String basePath; 
-	
-	private static Log log;
+    /**
+     * Used to retrieve and save the store, and also in the log
+     */
+    protected String identifier;
 
-	public static void setLog(Log log) {
-		KeyValueStore.log = log;
-	}
+    /**
+     * Base path for the path values which are relative.
+     */
+    protected String basePath;
 
-	protected static Log getLog() {
-		if (log == null)
-			log = LogFactory.getLog(KeyValueStore.class);
-		return log;
-	}
+    private static Log log;
+
+    public static void setLog(Log log) {
+        KeyValueStore.log = log;
+    }
+
+    protected static Log getLog() {
+        if (log == null)
+            log = LogFactory.getLog(KeyValueStore.class);
+        return log;
+    }
 }

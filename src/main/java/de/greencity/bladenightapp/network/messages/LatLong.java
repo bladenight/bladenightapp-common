@@ -4,44 +4,44 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class LatLong {
-	LatLong() {
-	}
+    LatLong() {
+    }
 
-	public LatLong(double lat, double lon) {
-		setLatitude(lat);
-		setLongitude(lon);
-	}
+    public LatLong(double lat, double lon) {
+        setLatitude(lat);
+        setLongitude(lon);
+    }
 
-	public double getLatitude() {
-		return la;
-	}
+    public double getLatitude() {
+        return la;
+    }
 
-	public void setLatitude(double la) {
-		this.la = convertToInternal(la);
-	}
+    public void setLatitude(double la) {
+        this.la = convertToInternal(la);
+    }
 
-	public double getLongitude() {
-		return lo;
-	}
+    public double getLongitude() {
+        return lo;
+    }
 
-	public void setLongitude(double lo) {
-		this.lo = convertToInternal(lo);
-	}
-	
-	private double convertToInternal(double d) {
-		return Math.round(d * precision) / precision;
-	}
+    public void setLongitude(double lo) {
+        this.lo = convertToInternal(lo);
+    }
 
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
-	}
-	
-	@Override
-	public boolean equals(Object o) {
-		return EqualsBuilder.reflectionEquals(this, o, false);
-	}
-	
-	public double la, lo;
-	final static public double precision = 10000;
+    private double convertToInternal(double d) {
+        return Math.round(d * precision) / precision;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return EqualsBuilder.reflectionEquals(this, o, false);
+    }
+
+    public double la, lo;
+    final static public double precision = 10000;
 }

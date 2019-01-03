@@ -3,18 +3,18 @@ package de.greencity.bladenightapp.network.messages;
 
 public class SetMinimumLinearPosition extends AdminMessage {
 
-	public SetMinimumLinearPosition(double value, String password) {
-		setValue(value);
-		authenticate(password);
-	}
-	
-	public double getValue() {
-		return val;
-	}
+    public SetMinimumLinearPosition(double value, String password) {
+        setValue(value);
+        authenticate(password);
+    }
 
-	public void setValue(double val) {
-		this.val = val;
-	}
+    public double getValue() {
+        return val;
+    }
 
-	private double val;
+    public void setValue(double val) {
+        this.val = val;
+    }
+
+    private double val;
 }

@@ -8,59 +8,59 @@ import de.greencity.bladenightapp.events.Event;
 import de.greencity.bladenightapp.events.EventList;
 
 public class EventListMessage {
-	public EventMessage[] evt = new EventMessage[0];
+    public EventMessage[] evt = new EventMessage[0];
 
-	public static EventListMessage newFromEventsList(EventList list) {
-		EventListMessage message = new EventListMessage();
-		message.copyFromEventsList(list);
-		return message;
-	}
+    public static EventListMessage newFromEventsList(EventList list) {
+        EventListMessage message = new EventListMessage();
+        message.copyFromEventsList(list);
+        return message;
+    }
 
-	public void copyFromEventsList(EventList list) {
-		evt = new EventMessage[list.size()];
-		int i = 0;
-		for (Event e : list) {
-			evt[i++] = EventMessage.newFromEvent(e);
-		}
-	}
+    public void copyFromEventsList(EventList list) {
+        evt = new EventMessage[list.size()];
+        int i = 0;
+        for (Event e : list) {
+            evt[i++] = EventMessage.newFromEvent(e);
+        }
+    }
 
-	public EventList convertToEventsList() {
-		EventList list = new EventList();
-		for (int i=0; i<evt.length; i++) {
-			list.addEvent(evt[i].toEvent());
-		}
-		return list;
-	}
+    public EventList convertToEventsList() {
+        EventList list = new EventList();
+        for (int i=0; i<evt.length; i++) {
+            list.addEvent(evt[i].toEvent());
+        }
+        return list;
+    }
 
-	public EventMessage[] getEvents() {
-		return evt;
-	}
+    public EventMessage[] getEvents() {
+        return evt;
+    }
 
-	public void setEvents(EventMessage[] evt) {
-		this.evt = evt;
-	}
-	
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
-	}
-	private static Log log;
+    public void setEvents(EventMessage[] evt) {
+        this.evt = evt;
+    }
 
-	public static void setLog(Log log) {
-		EventListMessage.log = log;
-	}
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
+    private static Log log;
 
-	protected static Log getLog() {
-		if (log == null)
-			setLog(LogFactory.getLog(EventListMessage.class));
-		return log;
-	}
+    public static void setLog(Log log) {
+        EventListMessage.log = log;
+    }
 
-	public int size() {
-		return evt.length;
-	}
+    protected static Log getLog() {
+        if (log == null)
+            setLog(LogFactory.getLog(EventListMessage.class));
+        return log;
+    }
 
-	public EventMessage get(int position) {
-		return evt[position];
-	}
+    public int size() {
+        return evt.length;
+    }
+
+    public EventMessage get(int position) {
+        return evt[position];
+    }
 }

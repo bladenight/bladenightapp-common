@@ -14,25 +14,25 @@ import org.junit.Test;
 import de.greencity.bladenightapp.events.EventList;
 
 public class RouteKmlLoaderTest {
-	private RouteKmlLoader routeKmlLoader;
-	@BeforeClass
-	static public void initializeClass() {
-	}
+    private RouteKmlLoader routeKmlLoader;
+    @BeforeClass
+    static public void initializeClass() {
+    }
 
-	@Before
-	public void initialize() {
-		routeKmlLoader = new RouteKmlLoader();
-	}
+    @Before
+    public void initialize() {
+        routeKmlLoader = new RouteKmlLoader();
+    }
 
-	@Test
-	public void load() {
-		String path = "/de.greencity.bladenightapp.routes/Nord - kurz.kml";
-		File file = FileUtils.toFile(EventList.class.getResource(path));
-		assertTrue(routeKmlLoader.load(file));
-		List<Route.LatLong> nodes = routeKmlLoader.getNodes();
-		
-		assertEquals(76, nodes.size());
-		assertEquals(new Route.LatLong(48.13246449995051, 11.54349921573263), nodes.get(0));
-	}
+    @Test
+    public void load() {
+        String path = "/de.greencity.bladenightapp.routes/Nord - kurz.kml";
+        File file = FileUtils.toFile(EventList.class.getResource(path));
+        assertTrue(routeKmlLoader.load(file));
+        List<Route.LatLong> nodes = routeKmlLoader.getNodes();
+
+        assertEquals(76, nodes.size());
+        assertEquals(new Route.LatLong(48.13246449995051, 11.54349921573263), nodes.get(0));
+    }
 
 }

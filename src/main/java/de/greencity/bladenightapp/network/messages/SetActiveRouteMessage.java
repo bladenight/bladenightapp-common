@@ -3,18 +3,18 @@ package de.greencity.bladenightapp.network.messages;
 
 public class SetActiveRouteMessage extends AdminMessage {
 
-	public SetActiveRouteMessage(String routeName, String password) {
-		setRouteName(routeName);
-		authenticate(password);
-	}
-	
-	public String getRouteName() {
-		return rou;
-	}
+    public SetActiveRouteMessage(String routeName, String password) {
+        setRouteName(routeName);
+        authenticate(password);
+    }
 
-	public void setRouteName(String rou) {
-		this.rou = rou;
-	}
+    public String getRouteName() {
+        return rou;
+    }
 
-	private String rou;
+    public void setRouteName(String rou) {
+        this.rou = rou;
+    }
+
+    private String rou;
 }

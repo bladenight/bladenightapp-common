@@ -20,131 +20,131 @@ import de.greencity.bladenightapp.persistence.ListPersistor;
 
 public class EventList implements Iterable<Event> {
 
-	public EventList() {
-		events = new ArrayList<Event>();
-	}
+    public EventList() {
+        events = new ArrayList<Event>();
+    }
 
-	public void read() throws IOException, InconsistencyException {
-		persistor.read();
-	}
+    public void read() throws IOException, InconsistencyException {
+        persistor.read();
+    }
 
-	public void write() throws IOException {
-		persistor.write();
-	}
+    public void write() throws IOException {
+        persistor.write();
+    }
 
-	public void setPersistor(ListPersistor<Event> persistor) {
-		persistor.setGson(EventGsonHelper.getGson());
-		persistor.setList(events);
-		this.persistor = persistor;
-	}
-
-
-	public Event getNextEvent() {
-		Event nextEvent = null;
-		DateTime now = new DateTime();
-		for ( Event event : events ) {
-			if ( now.isBefore(event.getEndDate()) ) {
-				if ( nextEvent == null || event.getStartDate().isBefore(nextEvent.getStartDate()) )
-					nextEvent = event;
-			}
-
-		}
-		return nextEvent;
-	}
-
-	public boolean isLive(Event event) {
-		if ( ! event.equals(getNextEvent()) )
-			return false;
-		if ( event.getStatus() != EventStatus.CONFIRMED )
-			return false;
-
-		if (event.getStartDate().isBeforeNow() && event.getEndDate().isBeforeNow())
-			return true;
-
-		DateTime now = new DateTime();
-		Minutes minutesToStart = Minutes.minutesBetween(now, event.getStartDate());
-		
-		return minutesToStart.getMinutes() < CONSIDER_LIVE_MINUTES;
-	}
+    public void setPersistor(ListPersistor<Event> persistor) {
+        persistor.setGson(EventGsonHelper.getGson());
+        persistor.setList(events);
+        this.persistor = persistor;
+    }
 
 
-	public void setNextRoute(String routeName) {
-		Event event = getNextEvent();
-		if ( event == null ) {
-			getLog().error("setActiveRoute: No current event found");
-			return;
-		}
-		event.setRouteName(routeName);
-	}
+    public Event getNextEvent() {
+        Event nextEvent = null;
+        DateTime now = new DateTime();
+        for ( Event event : events ) {
+            if ( now.isBefore(event.getEndDate()) ) {
+                if ( nextEvent == null || event.getStartDate().isBefore(nextEvent.getStartDate()) )
+                    nextEvent = event;
+            }
 
-	public void setStatusOfNextEvent(EventStatus newStatus) {
-		Event event = getNextEvent();
-		if ( event == null ) {
-			getLog().error("setActiveStatus: No current event found");
-			return;
-		}
-		event.setStatus(newStatus);
-	}
+        }
+        return nextEvent;
+    }
+
+    public boolean isLive(Event event) {
+        if ( ! event.equals(getNextEvent()) )
+            return false;
+        if ( event.getStatus() != EventStatus.CONFIRMED )
+            return false;
+
+        if (event.getStartDate().isBeforeNow() && event.getEndDate().isBeforeNow())
+            return true;
+
+        DateTime now = new DateTime();
+        Minutes minutesToStart = Minutes.minutesBetween(now, event.getStartDate());
+
+        return minutesToStart.getMinutes() < CONSIDER_LIVE_MINUTES;
+    }
 
 
-	public void addEvent(Event event) {
-		events.add(event);
-	}
+    public void setNextRoute(String routeName) {
+        Event event = getNextEvent();
+        if ( event == null ) {
+            getLog().error("setActiveRoute: No current event found");
+            return;
+        }
+        event.setRouteName(routeName);
+    }
 
-	public Event get(int pos) {
-		return events.get(pos);
-	}
+    public void setStatusOfNextEvent(EventStatus newStatus) {
+        Event event = getNextEvent();
+        if ( event == null ) {
+            getLog().error("setActiveStatus: No current event found");
+            return;
+        }
+        event.setStatus(newStatus);
+    }
 
-	public void sortByStartDate() {
-		Comparator<Event> comparator = new Comparator<Event>() {
 
-			@Override
-			public int compare(Event e1, Event e2) {
-				return (e1.getStartDate().compareTo(e2.getStartDate()));
-			}
-		};
-		Collections.sort(events, comparator);
-	}
+    public void addEvent(Event event) {
+        events.add(event);
+    }
 
-	public int size() {
-		return events.size();
-	}
+    public Event get(int pos) {
+        return events.get(pos);
+    }
 
-	public int indexOf(Event event) {
-		return events.indexOf(event);
-	}
+    public void sortByStartDate() {
+        Comparator<Event> comparator = new Comparator<Event>() {
 
-	@Override
-	public Iterator<Event> iterator() {
-		return events.iterator();
-	}
+            @Override
+            public int compare(Event e1, Event e2) {
+                return (e1.getStartDate().compareTo(e2.getStartDate()));
+            }
+        };
+        Collections.sort(events, comparator);
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		return EqualsBuilder.reflectionEquals(this, obj);
-	}
+    public int size() {
+        return events.size();
+    }
 
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
-	}
+    public int indexOf(Event event) {
+        return events.indexOf(event);
+    }
 
-	private static Log log;
+    @Override
+    public Iterator<Event> iterator() {
+        return events.iterator();
+    }
 
-	public static void setLog(Log log) {
-		EventList.log = log;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
 
-	protected static Log getLog() {
-		if (log == null)
-			setLog(LogFactory.getLog(EventList.class));
-		return log;
-	}
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
 
-	protected List<Event> events;
-	// don't serialize the persistor (e.g. transient)
-	private transient ListPersistor<Event> persistor;
-	private static final int CONSIDER_LIVE_MINUTES = 30;
+    private static Log log;
+
+    public static void setLog(Log log) {
+        EventList.log = log;
+    }
+
+    protected static Log getLog() {
+        if (log == null)
+            setLog(LogFactory.getLog(EventList.class));
+        return log;
+    }
+
+    protected List<Event> events;
+    // don't serialize the persistor (e.g. transient)
+    private transient ListPersistor<Event> persistor;
+    private static final int CONSIDER_LIVE_MINUTES = 30;
 
 
 }

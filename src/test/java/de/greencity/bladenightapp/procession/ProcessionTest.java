@@ -19,186 +19,186 @@ import de.greencity.bladenightapp.routes.Route;
 
 public class ProcessionTest {
 
-	final String path = "/de.greencity.bladenightapp.routes/Ost - lang.kml";
-	private Route route;
-	private Procession procession;
+    final String path = "/de.greencity.bladenightapp.routes/Ost - lang.kml";
+    private Route route;
+    private Procession procession;
 
-	@BeforeClass
-	static public void initClass() {
-		Procession.setLog(new NoOpLog());
-		TravelTimeComputer.setLog(new NoOpLog());
-		HeadAndTailComputer.setLog(new NoOpLog());
-	}
+    @BeforeClass
+    static public void initClass() {
+        Procession.setLog(new NoOpLog());
+        TravelTimeComputer.setLog(new NoOpLog());
+        HeadAndTailComputer.setLog(new NoOpLog());
+    }
 
-	@Before
-	public void init() {
-		File file = FileUtils.toFile(EventList.class.getResource(path));
-		route = new Route();
-		assertTrue(route.load(file));
-		assertTrue(route.getLength() > 0);
-		procession = new Procession();
-		procession.setRoute(route);
-	}
+    @Before
+    public void init() {
+        File file = FileUtils.toFile(EventList.class.getResource(path));
+        route = new Route();
+        assertTrue(route.load(file));
+        assertTrue(route.getLength() > 0);
+        procession = new Procession();
+        procession.setRoute(route);
+    }
 
-	@Test
-	public void testInitialConfiguration() {
-		assertEquals(0, procession.getParticipantCount());
-	}
+    @Test
+    public void testInitialConfiguration() {
+        assertEquals(0, procession.getParticipantCount());
+    }
 
-	@Test
-	public void singleParticipantOnRoute() {
-		String deviceId = addParticipant(48.134750, 11.531566);
-		assertEquals(1, procession.getParticipantCount());
-		assertProcessionIn(850, 1000);
-		assertTrue(procession.getLength() < 100);
-		assertTrue(procession.getHead().isInProcession());
-		assertTrue(procession.getHead().isOnRoute());
-		assertTrue(procession.getTail().isInProcession());
-		assertTrue(procession.getTail().isOnRoute());
-		assertTrue(procession.getParticipant(deviceId).getLastKnownPoint().isInProcession());
-		assertTrue(procession.getParticipant(deviceId).getLastKnownPoint().isOnRoute());
-	}
+    @Test
+    public void singleParticipantOnRoute() {
+        String deviceId = addParticipant(48.134750, 11.531566);
+        assertEquals(1, procession.getParticipantCount());
+        assertProcessionIn(850, 1000);
+        assertTrue(procession.getLength() < 100);
+        assertTrue(procession.getHead().isInProcession());
+        assertTrue(procession.getHead().isOnRoute());
+        assertTrue(procession.getTail().isInProcession());
+        assertTrue(procession.getTail().isOnRoute());
+        assertTrue(procession.getParticipant(deviceId).getLastKnownPoint().isInProcession());
+        assertTrue(procession.getParticipant(deviceId).getLastKnownPoint().isOnRoute());
+    }
 
-	@Test
-	public void singleParticipantOffRoute() {
-		String deviceId = addParticipant(0,0);
-		assertEquals(1, procession.getParticipantCount());
-		assertTrue(! procession.getHead().isInProcession());
-		assertTrue(! procession.getHead().isOnRoute());
-		assertTrue(! procession.getTail().isInProcession());
-		assertTrue(! procession.getTail().isOnRoute());
-		assertTrue(! procession.getParticipant(deviceId).getLastKnownPoint().isInProcession());
-		assertTrue(! procession.getParticipant(deviceId).getLastKnownPoint().isOnRoute());
-	}
+    @Test
+    public void singleParticipantOffRoute() {
+        String deviceId = addParticipant(0,0);
+        assertEquals(1, procession.getParticipantCount());
+        assertTrue(! procession.getHead().isInProcession());
+        assertTrue(! procession.getHead().isOnRoute());
+        assertTrue(! procession.getTail().isInProcession());
+        assertTrue(! procession.getTail().isOnRoute());
+        assertTrue(! procession.getParticipant(deviceId).getLastKnownPoint().isInProcession());
+        assertTrue(! procession.getParticipant(deviceId).getLastKnownPoint().isOnRoute());
+    }
 
-	@Test
-	public void autoCompute() {
-		ParticipantInput input = new ParticipantInput("autoComputeDisabled", true, 48.134750, 11.531566); 
-		procession.updateParticipant(input);
-		assertEquals(1, procession.getParticipantCount());
-		assertEquals(0, procession.getHeadPosition(), 0.0);
-		procession.setMaxComputeAge(0);
-		// Head position shall be updated with explicit call to compute()
-		assertEquals(909, procession.getHeadPosition(), 1.0);
-	}
+    @Test
+    public void autoCompute() {
+        ParticipantInput input = new ParticipantInput("autoComputeDisabled", true, 48.134750, 11.531566);
+        procession.updateParticipant(input);
+        assertEquals(1, procession.getParticipantCount());
+        assertEquals(0, procession.getHeadPosition(), 0.0);
+        procession.setMaxComputeAge(0);
+        // Head position shall be updated with explicit call to compute()
+        assertEquals(909, procession.getHeadPosition(), 1.0);
+    }
 
-	@Test
-	public void singleParticipantEvolvingOnOverlappingSegments() {
-		String participantId = generateParticipantId();
+    @Test
+    public void singleParticipantEvolvingOnOverlappingSegments() {
+        String participantId = generateParticipantId();
 
-		assertEquals(0.0, procession.evaluateTravelTimeBetween(0.0, 10000.0), 0.0);
+        assertEquals(0.0, procession.evaluateTravelTimeBetween(0.0, 10000.0), 0.0);
 
-		assertTrue(procession.getStatistics() == null);
+        assertTrue(procession.getStatistics() == null);
 
-		// Start on an overlap to make it hard
-		double lat1 = 48.128642;
-		double lon1 = 11.555716;
-		updateParticipant(participantId, lat1, lon1);
-		assertProcessionIn(6080, 6095);
+        // Start on an overlap to make it hard
+        double lat1 = 48.128642;
+        double lon1 = 11.555716;
+        updateParticipant(participantId, lat1, lon1);
+        assertProcessionIn(6080, 6095);
 
-		assertEquals(0.0, procession.evaluateTravelTimeBetween(0.0, 10000.0), 0.0);
+        assertEquals(0.0, procession.evaluateTravelTimeBetween(0.0, 10000.0), 0.0);
 
-		// Move further on the overlapping segment:
-		double lat2 = 48.124311;
-		double lon2 = 11.563947;
-		updateParticipant(participantId, lat2, lon2);
-		assertProcessionIn(6880, 6900);
+        // Move further on the overlapping segment:
+        double lat2 = 48.124311;
+        double lon2 = 11.563947;
+        updateParticipant(participantId, lat2, lon2);
+        assertProcessionIn(6880, 6900);
 
-		assertTrue(procession.evaluateTravelTimeBetween(0.0, 10000.0) > 0.0);
-		verifyStatistics(procession, 1);
+        assertTrue(procession.evaluateTravelTimeBetween(0.0, 10000.0) > 0.0);
+        verifyStatistics(procession, 1);
 
-		// Further, but not on the overlap anymore:
-		double lat3 = 48.100605;
-		double lon3 = 11.552637;
-		updateParticipant(participantId, lat3, lon3);
-		assertProcessionIn(10935, 10945);
+        // Further, but not on the overlap anymore:
+        double lat3 = 48.100605;
+        double lon3 = 11.552637;
+        updateParticipant(participantId, lat3, lon3);
+        assertProcessionIn(10935, 10945);
 
-		// Back the same point as before, but now on the return path
-		updateParticipant(participantId, lat2, lon2);
-		assertProcessionIn(14300, 14310);
+        // Back the same point as before, but now on the return path
+        updateParticipant(participantId, lat2, lon2);
+        assertProcessionIn(14300, 14310);
 
-		// Set participant back to beginning of the route to make sure
-		// the algorithm is able to reset itself
-		updateParticipant(participantId, 48.139941, 11.536054);
-		assertProcessionIn(3735, 3740);
-	}
+        // Set participant back to beginning of the route to make sure
+        // the algorithm is able to reset itself
+        updateParticipant(participantId, 48.139941, 11.536054);
+        assertProcessionIn(3735, 3740);
+    }
 
-	private void verifyStatistics(Procession procession, int expectedActiveSegments) {
-		Statistics statistics = procession.getStatistics();
-		assertNotNull(statistics);
-		assertNotNull(statistics.segments);
-		{
-			int found = 0;
-			for(Segment segment : statistics.segments) {
-				if ( segment.nParticipants > 0 && segment.speed > 0.0 )
-					found++;
-			}
-			assertEquals(expectedActiveSegments, found);
-		}
-		if ( expectedActiveSegments > 0 )
-			assertTrue(statistics.averageSpeed > 0.0);
-	}
-
-
-	@Test
-	public void multipleParticipants() {
-		double lat1 = 48.135607;
-		double lon1 = 11.524631;
-
-		double lat2 = 48.139625;
-		double lon2 = 11.518710;
-
-		int nParticipants = 100;
-		for ( int i = 0 ; i < nParticipants ; i++) {
-			double lat = lat1 + (lat2-lat1) * i / nParticipants;
-			double lon = lon1 + (lon2-lon1) * i / nParticipants;
-			addParticipant(lat, lon);
-		}
-		assertEquals(nParticipants, procession.getParticipantCount());
-
-		assertProcessionIn(1600, 2300);
-
-		assertTrue(procession.getLength() > 500);
-	}
-	
-	@Test
-	public void removeParticipant() {
-		String id1 = addParticipant(48.135607, 11.524631);
-		String id2 = addParticipant(48.139625, 11.518710);
-		assertEquals(2, procession.getParticipantCount());
-		procession.removeParticipant(id1);
-		assertEquals(1, procession.getParticipantCount());
-		assertTrue(procession.getParticipant(id2) != null);
-		assertTrue(procession.getParticipant(id1) == null);
-	}
+    private void verifyStatistics(Procession procession, int expectedActiveSegments) {
+        Statistics statistics = procession.getStatistics();
+        assertNotNull(statistics);
+        assertNotNull(statistics.segments);
+        {
+            int found = 0;
+            for(Segment segment : statistics.segments) {
+                if ( segment.nParticipants > 0 && segment.speed > 0.0 )
+                    found++;
+            }
+            assertEquals(expectedActiveSegments, found);
+        }
+        if ( expectedActiveSegments > 0 )
+            assertTrue(statistics.averageSpeed > 0.0);
+    }
 
 
-	private String addParticipant(double lat, double lon) {
-		String participantId = generateParticipantId();
-		updateParticipant(participantId, lat, lon);
-		return participantId;
-	}
+    @Test
+    public void multipleParticipants() {
+        double lat1 = 48.135607;
+        double lon1 = 11.524631;
 
-	private void updateParticipant(String participantId, double lat, double lon) {
-		ParticipantInput input = new ParticipantInput(participantId, true, lat, lon); 
-		procession.updateParticipant(input);
-		procession.compute();
-	}
+        double lat2 = 48.139625;
+        double lon2 = 11.518710;
 
-	private String generateParticipantId() {
-		return UUID.randomUUID().toString();
-	}
+        int nParticipants = 100;
+        for ( int i = 0 ; i < nParticipants ; i++) {
+            double lat = lat1 + (lat2-lat1) * i / nParticipants;
+            double lon = lon1 + (lon2-lon1) * i / nParticipants;
+            addParticipant(lat, lon);
+        }
+        assertEquals(nParticipants, procession.getParticipantCount());
 
-	private void assertProcessionIn(double min, double max) {
-		MovingPoint head = procession.getHead();
-		MovingPoint tail = procession.getTail();
+        assertProcessionIn(1600, 2300);
 
-		assertTrue(head.getLinearPosition() >= min);
-		assertTrue(head.getLinearPosition() <= max);
+        assertTrue(procession.getLength() > 500);
+    }
 
-		assertTrue(tail.getLinearPosition() >= min);
-		assertTrue(tail.getLinearPosition() <= max);
+    @Test
+    public void removeParticipant() {
+        String id1 = addParticipant(48.135607, 11.524631);
+        String id2 = addParticipant(48.139625, 11.518710);
+        assertEquals(2, procession.getParticipantCount());
+        procession.removeParticipant(id1);
+        assertEquals(1, procession.getParticipantCount());
+        assertTrue(procession.getParticipant(id2) != null);
+        assertTrue(procession.getParticipant(id1) == null);
+    }
 
-		assertTrue(head.getLinearPosition() >= tail.getLinearPosition());
-	}
+
+    private String addParticipant(double lat, double lon) {
+        String participantId = generateParticipantId();
+        updateParticipant(participantId, lat, lon);
+        return participantId;
+    }
+
+    private void updateParticipant(String participantId, double lat, double lon) {
+        ParticipantInput input = new ParticipantInput(participantId, true, lat, lon);
+        procession.updateParticipant(input);
+        procession.compute();
+    }
+
+    private String generateParticipantId() {
+        return UUID.randomUUID().toString();
+    }
+
+    private void assertProcessionIn(double min, double max) {
+        MovingPoint head = procession.getHead();
+        MovingPoint tail = procession.getTail();
+
+        assertTrue(head.getLinearPosition() >= min);
+        assertTrue(head.getLinearPosition() <= max);
+
+        assertTrue(tail.getLinearPosition() >= min);
+        assertTrue(tail.getLinearPosition() <= max);
+
+        assertTrue(head.getLinearPosition() >= tail.getLinearPosition());
+    }
 }

@@ -9,64 +9,64 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import de.greencity.bladenightapp.routes.Route;
 
 public class RouteMessage {
-	public LatLong[] nod; // node list
-	public int len;
-	public String nam;
+    public LatLong[] nod; // node list
+    public int len;
+    public String nam;
 
-	public RouteMessage() {
-		nod = new LatLong[0];
-		nam = "undefined route name";
-	}
+    public RouteMessage() {
+        nod = new LatLong[0];
+        nam = "undefined route name";
+    }
 
-	public RouteMessage(Route r) {
-		copyFromRoute(r);
-	}
+    public RouteMessage(Route r) {
+        copyFromRoute(r);
+    }
 
-	public static RouteMessage newFromRoute(Route r) {
-		RouteMessage routeMessage = new RouteMessage();
-		routeMessage.copyFromRoute(r);
-		return routeMessage;
-	}
+    public static RouteMessage newFromRoute(Route r) {
+        RouteMessage routeMessage = new RouteMessage();
+        routeMessage.copyFromRoute(r);
+        return routeMessage;
+    }
 
-	public void copyFromRoute(Route r) {
-		len = (int) r.getLength();
-		nod = new LatLong[r.getNumberOfSegments()+1];
-		int i = 0;
-		for (Route.LatLong rll : r.getNodesLatLong() ) {
-			nod[i++] = new LatLong(rll.lat, rll.lon);
-		}
-		setRouteName(r.getName());
-	}
-	
-	public List<LatLong> getNodes() {
-		return Arrays.asList(nod);
-	}
+    public void copyFromRoute(Route r) {
+        len = (int) r.getLength();
+        nod = new LatLong[r.getNumberOfSegments()+1];
+        int i = 0;
+        for (Route.LatLong rll : r.getNodesLatLong() ) {
+            nod[i++] = new LatLong(rll.lat, rll.lon);
+        }
+        setRouteName(r.getName());
+    }
 
-	public String getRouteName() {
-		return nam;
-	}
+    public List<LatLong> getNodes() {
+        return Arrays.asList(nod);
+    }
+
+    public String getRouteName() {
+        return nam;
+    }
 
 
-	public int getRouteLength() {
-		return len;
-	}
+    public int getRouteLength() {
+        return len;
+    }
 
-	public void setRouteLength(int length) {
-		this.len = length;
-	}
+    public void setRouteLength(int length) {
+        this.len = length;
+    }
 
-	public void setRouteName(String routeName) {
-		this.nam = routeName;
-	}
+    public void setRouteName(String routeName) {
+        this.nam = routeName;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		return EqualsBuilder.reflectionEquals(this, obj);
-	}
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
 
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
-	}
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
 
 }

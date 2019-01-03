@@ -5,153 +5,153 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import de.greencity.bladenightapp.procession.MovingPoint;
 
 public class RealTimeUpdateData {
-	public RealTimeUpdateData() {
-		hea = new MovingPointMessage();
-		tai = new MovingPointMessage();
-		up = new MovingPointMessage();
-		fri = new FriendsMessage();
-	}
+    public RealTimeUpdateData() {
+        hea = new MovingPointMessage();
+        tai = new MovingPointMessage();
+        up = new MovingPointMessage();
+        fri = new FriendsMessage();
+    }
 
-	public MovingPointMessage getUser() {
-		return up;
-	}
+    public MovingPointMessage getUser() {
+        return up;
+    }
 
-	public void setUser(MovingPointMessage mp) {
-		this.up = mp;
-	}
-
-
-	public long getUserPosition() {
-		return up.getPosition();
-	}
-
-	public int getUserAccuracy() {
-		return up.getAccuracy();
-	}
-
-	public void setUserAccuracy(int accuracy) {
-		up.setAccuracy(accuracy);
-	}
-
-	public long getUserSpeed() {
-		return up.getSpeed();
-	}
+    public void setUser(MovingPointMessage mp) {
+        this.up = mp;
+    }
 
 
-	public void setUserPosition(long position, long speed) {
-		up.setPosition(position);
-		up.setSpeed(speed);
-	}
+    public long getUserPosition() {
+        return up.getPosition();
+    }
 
-	public void isUserOnRoute(boolean isOnRoute) {
-		up.isOnRoute(isOnRoute);
-	}
+    public int getUserAccuracy() {
+        return up.getAccuracy();
+    }
 
-	public boolean isUserOnRoute() {
-		return up.isOnRoute();
-	}
+    public void setUserAccuracy(int accuracy) {
+        up.setAccuracy(accuracy);
+    }
 
-
-	public void isUserInProcession(boolean isOnProcession) {
-		up.isInProcession(isOnProcession);
-	}
+    public long getUserSpeed() {
+        return up.getSpeed();
+    }
 
 
-	public MovingPointMessage getHead() {
-		return hea;
-	}
+    public void setUserPosition(long position, long speed) {
+        up.setPosition(position);
+        up.setSpeed(speed);
+    }
 
-	public double getHeadPosition() {
-		return hea.getPosition();
-	}
+    public void isUserOnRoute(boolean isOnRoute) {
+        up.isOnRoute(isOnRoute);
+    }
 
-	public void invalidateHead() {
-		hea.isOnRoute(false);
-		hea.isInProcession(false);
-	}
-	
-	public void setHead(MovingPoint mp) {
-		hea.copyFrom(mp);
-	}
-
-	public void setHead(MovingPointMessage mp) {
-		hea = mp;
-	}
+    public boolean isUserOnRoute() {
+        return up.isOnRoute();
+    }
 
 
-	public void invalidateTail() {
-		hea.isOnRoute(false);
-		hea.isInProcession(false);
-	}
+    public void isUserInProcession(boolean isOnProcession) {
+        up.isInProcession(isOnProcession);
+    }
 
-	public MovingPointMessage getTail() {
-		return tai;
-	}
 
-	public double getTailPosition() {
-		return tai.getPosition();
-	}
+    public MovingPointMessage getHead() {
+        return hea;
+    }
 
-	public void setTail(MovingPoint mp) {
-		tai.copyFrom(mp);
-	}
+    public double getHeadPosition() {
+        return hea.getPosition();
+    }
 
-	public void setTail(MovingPointMessage mp) {
-		tai = mp;
-	}
+    public void invalidateHead() {
+        hea.isOnRoute(false);
+        hea.isInProcession(false);
+    }
 
-	public int getUserTotal() {
-		return ust;
-	}
+    public void setHead(MovingPoint mp) {
+        hea.copyFrom(mp);
+    }
 
-	public void setUserTotal(int count) {
-		this.ust = count;
-	}
+    public void setHead(MovingPointMessage mp) {
+        hea = mp;
+    }
 
-	public int getUserOnRoute() {
-		return usr;
-	}
 
-	public void setUserOnRoute(int count) {
-		this.usr = count;
-	}
+    public void invalidateTail() {
+        hea.isOnRoute(false);
+        hea.isInProcession(false);
+    }
 
-	public double getRouteLength() {
-		return rle;
-	}
+    public MovingPointMessage getTail() {
+        return tai;
+    }
 
-	public void setRouteLength(double length) {
-		this.rle = length;
-	}
+    public double getTailPosition() {
+        return tai.getPosition();
+    }
 
-	public String getRouteName() {
-		return rna;
-	}
+    public void setTail(MovingPoint mp) {
+        tai.copyFrom(mp);
+    }
 
-	public void setRouteName(String routeName) {
-		this.rna = routeName;
-	}
+    public void setTail(MovingPointMessage mp) {
+        tai = mp;
+    }
 
-	public FriendsMessage getFriends() {
-		return this.fri;
-	}
+    public int getUserTotal() {
+        return ust;
+    }
 
-	public void addFriend(int friendId, FriendMessage friend) {
-		this.fri.put(friendId, friend);
-	}
+    public void setUserTotal(int count) {
+        this.ust = count;
+    }
 
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
-	}
+    public int getUserOnRoute() {
+        return usr;
+    }
 
-	public MovingPointMessage hea; 				// Head
-	public MovingPointMessage tai; 				// Tail
-	public FriendsMessage fri;  	// Friends
-	public MovingPointMessage up;  				// User position
+    public void setUserOnRoute(int count) {
+        this.usr = count;
+    }
 
-	public double rle; 	// Route length
-	public String rna; 	// Route name
-	public int ust; 		// Total number of clients connected
-	public int usr; 		// Total number of clients on the route
+    public double getRouteLength() {
+        return rle;
+    }
+
+    public void setRouteLength(double length) {
+        this.rle = length;
+    }
+
+    public String getRouteName() {
+        return rna;
+    }
+
+    public void setRouteName(String routeName) {
+        this.rna = routeName;
+    }
+
+    public FriendsMessage getFriends() {
+        return this.fri;
+    }
+
+    public void addFriend(int friendId, FriendMessage friend) {
+        this.fri.put(friendId, friend);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
+
+    public MovingPointMessage hea;              // Head
+    public MovingPointMessage tai;              // Tail
+    public FriendsMessage fri;      // Friends
+    public MovingPointMessage up;               // User position
+
+    public double rle;  // Route length
+    public String rna;  // Route name
+    public int ust;         // Total number of clients connected
+    public int usr;         // Total number of clients on the route
 }
