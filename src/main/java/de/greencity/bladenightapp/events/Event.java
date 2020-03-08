@@ -1,8 +1,5 @@
 package de.greencity.bladenightapp.events;
 
-import java.io.Serializable;
-import java.text.ParseException;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -10,8 +7,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.joda.time.Interval;
+import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
+import java.io.Serializable;
+import java.text.ParseException;
 
 import de.greencity.bladenightapp.persistence.ListItem;
 
@@ -149,6 +151,12 @@ public class Event implements ListItem, Serializable {
 
     public void setStatus(EventStatus status) {
         this.status = status;
+    }
+
+    public boolean isActive() {
+        boolean isCurrent = new Interval( getStartDate().minusMinutes( 15 ), getEndDate().plusMinutes(15)).contains( new DateTime() );
+        boolean isConfirmed = getStatus() == EventStatus.CONFIRMED;
+        return isCurrent && isConfirmed;
     }
 
     @Override
