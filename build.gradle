@@ -23,7 +23,7 @@ dependencies {
     implementation group: 'commons-io', name: 'commons-io', version: '2.4'
     implementation group: 'commons-logging', name: 'commons-logging', version: '1.2'
     implementation group: 'org.geotoolkit', name: 'geotk-referencing', version: '3.21'
-    testImplementation group: 'junit', name: 'junit', version: '4.11'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
 }
 
 test {
