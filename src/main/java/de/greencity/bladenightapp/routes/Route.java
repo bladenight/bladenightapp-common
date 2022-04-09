@@ -92,7 +92,16 @@ public final class Route {
     }
 
     public boolean load(File file) {
-        RouteKmlLoader loader = new RouteKmlLoader();
+        RouteLoader loader;
+        if (file.getName().endsWith(".kml")) {
+            loader = new RouteKmlLoader();
+        }
+        else if (file.getName().endsWith(".gpx")) {
+            loader = new RouteGpxLoader();
+        }
+        else {
+            throw new RuntimeException("No loader for " + file.getAbsolutePath());
+        }
         if ( ! loader.load(file))
             return false;
         nodesLatLong = loader.getNodes();

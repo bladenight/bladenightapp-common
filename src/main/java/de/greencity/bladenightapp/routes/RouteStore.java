@@ -75,7 +75,7 @@ public class RouteStore {
 
         String extension = FilenameUtils.getExtension(file.getName());
         // TODO: ask the class Route what suffixes are supported
-        return extension.equals("kml");
+        return extension.equals("kml") || extension.equals("gpx");
     }
 
     private static Log log;

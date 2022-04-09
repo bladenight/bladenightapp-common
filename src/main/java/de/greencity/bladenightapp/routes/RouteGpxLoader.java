@@ -1,17 +1,6 @@
 package de.greencity.bladenightapp.routes;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
+import de.greencity.bladenightapp.routes.Route.LatLong;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -20,11 +9,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import de.greencity.bladenightapp.routes.Route.LatLong;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class RouteKmlLoader implements RouteLoader {
-    public RouteKmlLoader() {
-
+public class RouteGpxLoader implements RouteLoader {
+    public RouteGpxLoader() {
     }
 
     public boolean load(File file) {
@@ -43,10 +36,10 @@ public class RouteKmlLoader implements RouteLoader {
         return nodesLatLong;
     }
 
-    private boolean loadFromStreamAndClose(InputStream kmlInputStream) {
-        boolean result = loadFromOpenStream(kmlInputStream);
+    private boolean loadFromStreamAndClose(InputStream inputStream) {
+        boolean result = loadFromOpenStream(inputStream);
         try {
-            kmlInputStream.close();
+            inputStream.close();
         } catch (IOException e) {
             // Not much to do...
         }
@@ -54,7 +47,7 @@ public class RouteKmlLoader implements RouteLoader {
     }
 
 
-    private boolean loadFromOpenStream(InputStream kmlInputStream) {
+    private boolean loadFromOpenStream(InputStream inputStream) {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder;
         try {
@@ -65,7 +58,7 @@ public class RouteKmlLoader implements RouteLoader {
         }
         Document doc;
         try {
-            doc = documentBuilder.parse(kmlInputStream);
+            doc = documentBuilder.parse(inputStream);
         } catch (SAXException e) {
             getLog().error("Could not read XML from stream (malformed?)", e);
             return false;
@@ -75,38 +68,21 @@ public class RouteKmlLoader implements RouteLoader {
         }
         doc.getDocumentElement().normalize();
 
-        nodesLatLong = new ArrayList<Route.LatLong>();;
+        nodesLatLong = new ArrayList<LatLong>();;
 
-        NodeList nList = doc.getElementsByTagName("Placemark");
-        String coordinatesString = getTagValue("coordinates", (Element) nList.item(0));
-        String[] coordinatesList = coordinatesString.split("[\\s]+");
-        for (String coordinateString : coordinatesList) {
-            if ( coordinateString.matches("[\\s]*"))
-                continue;
-            if ( ! parseAndAddNodeOrLog(coordinateString) )
-                return false;
+        NodeList nList = doc.getElementsByTagName("trkpt");
+        for (int i = 0 ; i < nList.getLength() ; i++) {
+            Node node = nList.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                Element element = (Element)node;
+                double longitude = Double.parseDouble(element.getAttribute("lon"));
+                double latitude = Double.parseDouble(element.getAttribute("lat"));
+                nodesLatLong.add(new LatLong(latitude, longitude));
+            }
         }
         return true;
     }
 
-    private boolean parseAndAddNodeOrLog(String coordinateString) {
-        String[] coordinateFields = coordinateString.split(",");
-
-        double longitude;
-        double latitude;
-        try {
-            longitude = Double.parseDouble(coordinateFields[0]);
-            latitude = Double.parseDouble(coordinateFields[1]);
-        }
-        catch(NumberFormatException e) {
-            getLog().error("Unable to parse coordinates: " + coordinateString, e);
-            return false;
-        }
-
-        nodesLatLong.add(new Route.LatLong(latitude, longitude));
-
-        return true;
-    }
     private static String getTagValue(String sTag, Element eElement) {
         NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
 
@@ -118,15 +94,15 @@ public class RouteKmlLoader implements RouteLoader {
     private static Log log;
 
     public static void setLog(Log log) {
-        RouteKmlLoader.log = log;
+        RouteGpxLoader.log = log;
     }
 
     protected static Log getLog() {
         if (log == null)
-            setLog(LogFactory.getLog(RouteKmlLoader.class));
+            setLog(LogFactory.getLog(RouteGpxLoader.class));
         return log;
     }
 
-    private List<Route.LatLong> nodesLatLong;
+    private List<LatLong> nodesLatLong;
 
 }
