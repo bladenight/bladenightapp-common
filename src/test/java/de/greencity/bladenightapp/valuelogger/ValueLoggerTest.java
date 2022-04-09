@@ -41,10 +41,9 @@ public class ValueLoggerTest {
 
         assertEquals(2, lines.size());
 
-        String matchLine0 = "ts=2012-02-15T18:30:00.000\\+[0-9]{2}:[0-9]{2} ac=12.0 la=48.133333    lo=11.566667    lp=7200.0";
-        assertTrue(lines.get(0).matches(matchLine0));
+        assertTrue(lines.get(0).equals("ts=2012-02-15T18:30:00.000+01:00\tac=12.0\tla=48.133333\tlo=11.566667\tlp=7200.0"));
 
-        String matchLine1 = "ts="+ new DateTime().getYear() + "-.*  ac=24.0 la=48.133333    lo=11.566667    lp=7200.0";
+        String matchLine1 = "ts="+ new DateTime().getYear() + "-.*\tac=24.0\tla=48.133333\tlo=11.566667\tlp=7200.0";
         assertTrue(lines.get(1).matches(matchLine1));
     }
 

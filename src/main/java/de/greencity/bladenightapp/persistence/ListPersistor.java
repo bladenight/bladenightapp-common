@@ -98,6 +98,7 @@ public class ListPersistor<T extends ListItem> {
 
         synchronized(list) {
             File[] files = directory.listFiles();
+            Arrays.sort(files);
             for ( File file : files ) {
                 if ( isPersistenceFile(file) ) {
                     T item = appendFile(file, readItems);

@@ -45,8 +45,9 @@ public class EventsListTest {
 
     @Test
     public void getNextEventWithNoOngoingEvent() throws ParseException {
+        String nextEventTime = "2031-06-01T21:00";
         Event event1 = new Event.Builder().setStartDate("2001-06-01T21:00").build();
-        Event event2 = new Event.Builder().setStartDate("2021-06-01T21:00").build();
+        Event event2 = new Event.Builder().setStartDate(nextEventTime).build();
 
         EventList manager = new EventList();
         manager.addEvent(event1);
@@ -54,8 +55,7 @@ public class EventsListTest {
         Event returnedEvent = manager.getNextEvent();
         assertNotNull(returnedEvent);
 
-        assertEquals(new Event.Builder().setStartDate("2021-06-01T21:00").build(), returnedEvent);
-
+        assertEquals(new Event.Builder().setStartDate(nextEventTime).build(), returnedEvent);
     }
 
     @Test
@@ -123,7 +123,7 @@ public class EventsListTest {
         eventList.read();
         Event returnedEvent = eventList.getNextEvent();
         assertNotNull(returnedEvent);
-        assertEquals( new DateTime("2020-03-03T21:00"), returnedEvent.getStartDate());
+        assertEquals( new DateTime("2030-03-03T21:00"), returnedEvent.getStartDate());
         assertEquals(300, returnedEvent.getParticipants());
         assertEquals("route3.gpx", returnedEvent.getRouteName());
         assertEquals(180, returnedEvent.getDuration().getStandardMinutes());
@@ -132,7 +132,7 @@ public class EventsListTest {
 
     @Test
     public void writeEventsToDir() throws IOException, ParseException, InconsistencyException {
-        String referenceDate = "2020-02-17T23:00";
+        String referenceDate = "2030-02-17T23:00";
         Event event1 = new Event.Builder()
         .setStartDate("2012-02-03T20:00")
         .setDurationInMinutes(60)
@@ -201,7 +201,7 @@ public class EventsListTest {
         eventList.read();
         Event returnedEvent = eventList.getNextEvent();
         assertNotNull(returnedEvent);
-        assertEquals( new DateTime("2020-03-03T21:00"), returnedEvent.getStartDate());
+        assertEquals( new DateTime("2030-03-03T21:00"), returnedEvent.getStartDate());
         assertEquals("route3.gpx", returnedEvent.getRouteName());
 
         String newRouteName = "Changed route";
