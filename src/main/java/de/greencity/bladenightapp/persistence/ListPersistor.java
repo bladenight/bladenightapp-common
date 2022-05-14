@@ -105,7 +105,7 @@ public class ListPersistor<T extends ListItem> {
                     String id = item.getPersistenceId();
                     String baseName = FilenameUtils.getBaseName(file.getName());
                     if ( ! baseName.equals(id) )
-                        throw new InconsistencyException("Discrepency found. Expecting:=" + id + " Got:" + baseName);
+                        throw new InconsistencyException("Discrepency found. Expecting:" + id + " Got:" + baseName);
                 }
             }
             list.clear();
