@@ -1,7 +1,6 @@
 package de.greencity.bladenightapp.network.messages;
 
-import java.io.Serializable;
-
+import de.greencity.bladenightapp.events.Event;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -10,7 +9,7 @@ import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import de.greencity.bladenightapp.events.Event;
+import java.io.Serializable;
 
 public class EventMessage implements Serializable {
 
@@ -19,18 +18,19 @@ public class EventMessage implements Serializable {
     public enum EventStatus {
         PEN,
         CON,
-        CAN;
+        CAN,
+        NOE;
     }
 
-    public String       sta;    // start time: "yyyy-MM-dd'T'HH:mm"
-    public long         dur;    // duration in minutes
-    public String       rou;    // route name
-    public int          par;    // number of participants
-    public EventStatus  sts;    // status
-    public long         len;    // length in meters
+    public String sta;    // start time: "yyyy-MM-dd'T'HH:mm"
+    public long dur;    // duration in minutes
+    public String rou;    // route name
+    public int par;    // number of participants
+    public EventStatus sts;    // status
+    public long len;    // length in meters
 
     public EventMessage() {
-        sts = EventStatus.PEN;
+        sts = EventStatus.NOE;
     }
 
     public EventMessage(Event e) {
@@ -92,6 +92,7 @@ public class EventMessage implements Serializable {
         rou = e.getRouteName();
         par = e.getParticipants();
         sts = convertStatus(e.getStatus());
+        len = e.getRouteLength();
     }
 
     public static EventMessage newFromEvent(Event e) {
@@ -102,39 +103,43 @@ public class EventMessage implements Serializable {
 
     public Event toEvent() {
         return new Event.Builder()
-        .setStartDate(dateFormatter.parseDateTime(sta))
-        .setDuration(new Duration(dur*60*1000))
-        .setRouteName(rou)
-        .setParticipants(par)
-        .setStatus(convertStatus(sts))
-        .build();
+                .setStartDate(dateFormatter.parseDateTime(sta))
+                .setDuration(new Duration(dur * 60 * 1000))
+                .setRouteName(rou)
+                .setParticipants(par)
+                .setStatus(convertStatus(sts))
+                .build();
     }
 
     static public EventStatus convertStatus(Event.EventStatus fromStatus) {
-        switch(fromStatus) {
-        case CANCELLED:
-            return EventStatus.CAN;
-        case CONFIRMED:
-            return EventStatus.CON;
-        case PENDING:
-            return EventStatus.PEN;
-        default:
-            getLog().error("Unknown status: "+fromStatus);
-            return null;
+        switch (fromStatus) {
+            case CANCELLED:
+                return EventStatus.CAN;
+            case CONFIRMED:
+                return EventStatus.CON;
+            case PENDING:
+                return EventStatus.PEN;
+            case NOEVENTPLANNED:
+                return EventStatus.NOE;
+            default:
+                getLog().error("Unknown status: " + fromStatus);
+                return null;
         }
     }
 
     static public Event.EventStatus convertStatus(EventStatus fromStatus) {
-        switch(fromStatus) {
-        case CAN:
-            return Event.EventStatus.CANCELLED;
-        case CON:
-            return Event.EventStatus.CONFIRMED;
-        case PEN:
-            return Event.EventStatus.PENDING;
-        default:
-            getLog().error("Unknown status: "+fromStatus);
-            return null;
+        switch (fromStatus) {
+            case CAN:
+                return Event.EventStatus.CANCELLED;
+            case CON:
+                return Event.EventStatus.CONFIRMED;
+            case PEN:
+                return Event.EventStatus.PENDING;
+            case NOE:
+                return Event.EventStatus.NOEVENTPLANNED;
+            default:
+                getLog().error("Unknown status: " + fromStatus);
+                return null;
         }
     }
 

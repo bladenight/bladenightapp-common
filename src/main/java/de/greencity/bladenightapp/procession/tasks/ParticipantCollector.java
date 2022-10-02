@@ -98,7 +98,7 @@ public class ParticipantCollector implements Runnable {
             Long age = clock.currentTimeMillis() - p.getLastLifeSign();
             Long currentCount = counter.get(age);
             if ( currentCount == null ) {
-                currentCount = new Long(0);
+                currentCount = 0L;
             }
             counter.put(age, currentCount+1);
         }

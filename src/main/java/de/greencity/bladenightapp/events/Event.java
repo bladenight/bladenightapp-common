@@ -23,7 +23,9 @@ public class Event implements ListItem, Serializable {
     public enum EventStatus {
         PENDING("P"),
         CONFIRMED("O"),
-        CANCELLED("A");
+        CANCELLED("A"),
+
+        NOEVENTPLANNED("N");
 
         private final String status;
 
@@ -31,16 +33,16 @@ public class Event implements ListItem, Serializable {
             status = s;
         }
 
-        public boolean equalsName(String otherName){
-            return (otherName == null)? false:status.equals(otherName);
+        public boolean equalsName(String otherName) {
+            return (otherName == null) ? false : status.equals(otherName);
         }
 
         @Override
-        public String toString(){
-            return "EventStatus."+status;
+        public String toString() {
+            return "EventStatus." + status;
         }
 
-        public String asString(){
+        public String asString() {
             return status;
         }
     }
@@ -68,7 +70,7 @@ public class Event implements ListItem, Serializable {
         }
 
         public Builder setDurationInMinutes(int minutes) {
-            event.setDuration(new Duration(minutes*60*1000));
+            event.setDuration(new Duration(minutes * 60 * 1000));
             return this;
         }
 
@@ -122,6 +124,14 @@ public class Event implements ListItem, Serializable {
         this.participants = participants;
     }
 
+    public long getRouteLength() {
+        return routeLength;
+    }
+
+    public void setRouteLength(long routeLength) {
+        this.routeLength = routeLength;
+    }
+
     public void setStartDate(DateTime date) {
         this.startDate = date;
     }
@@ -132,7 +142,7 @@ public class Event implements ListItem, Serializable {
 
     public String getStartDateAsString(String format) {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(format);
-        return dateFormatter.print((DateTime)getStartDate());
+        return dateFormatter.print((DateTime) getStartDate());
     }
 
     public DateTime getEndDate() {
@@ -141,7 +151,7 @@ public class Event implements ListItem, Serializable {
 
     public String getEndDateAsString(String format) {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(format);
-        return dateFormatter.print((DateTime)getEndDate());
+        return dateFormatter.print((DateTime) getEndDate());
     }
 
 
@@ -154,7 +164,7 @@ public class Event implements ListItem, Serializable {
     }
 
     public boolean isActive() {
-        boolean isCurrent = new Interval( getStartDate().minusMinutes( 15 ), getEndDate().plusMinutes(15)).contains( new DateTime() );
+        boolean isCurrent = new Interval(getStartDate().minusMinutes(15), getEndDate().plusMinutes(15)).contains(new DateTime());
         boolean isConfirmed = getStatus() == EventStatus.CONFIRMED;
         return isCurrent && isConfirmed;
     }
@@ -191,6 +201,7 @@ public class Event implements ListItem, Serializable {
     protected String routeName;
     protected int participants;
     protected EventStatus status;
+    protected long routeLength;
 
     protected final static DateTimeFormatter dateFormatter;
     protected final static ToStringStyle toStringStyle;
@@ -203,12 +214,10 @@ public class Event implements ListItem, Serializable {
             @Override
             protected void appendDetail(StringBuffer buffer, String fieldName, Object value) {
                 if (value instanceof DateTime) {
-                    value = dateFormatter.print((DateTime)value);
+                    value = dateFormatter.print((DateTime) value);
                 }
                 buffer.append(value);
             }
         };
     }
-
-
 }

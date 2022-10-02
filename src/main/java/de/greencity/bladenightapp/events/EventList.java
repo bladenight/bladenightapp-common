@@ -1,12 +1,8 @@
 package de.greencity.bladenightapp.events;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-
+import de.greencity.bladenightapp.events.Event.EventStatus;
+import de.greencity.bladenightapp.persistence.InconsistencyException;
+import de.greencity.bladenightapp.persistence.ListPersistor;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -14,9 +10,8 @@ import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 
-import de.greencity.bladenightapp.events.Event.EventStatus;
-import de.greencity.bladenightapp.persistence.InconsistencyException;
-import de.greencity.bladenightapp.persistence.ListPersistor;
+import java.io.IOException;
+import java.util.*;
 
 public class EventList implements Iterable<Event> {
 
@@ -42,20 +37,25 @@ public class EventList implements Iterable<Event> {
     public Event getNextEvent() {
         Event nextEvent = null;
         DateTime now = new DateTime();
-        for ( Event event : events ) {
-            if ( now.isBefore(event.getEndDate()) ) {
-                if ( nextEvent == null || event.getStartDate().isBefore(nextEvent.getStartDate()) )
+        for (Event event : events) {
+            if (now.isBefore(event.getEndDate())) {
+                if (nextEvent == null || event.getStartDate().isBefore(nextEvent.getStartDate()))
                     nextEvent = event;
             }
 
+        }
+        if (nextEvent == null) {
+            //server gives no response when null result
+            nextEvent = new Event();
+            nextEvent.setStatus(EventStatus.NOEVENTPLANNED);
         }
         return nextEvent;
     }
 
     public boolean isLive(Event event) {
-        if ( ! event.equals(getNextEvent()) )
+        if (!event.equals(getNextEvent()))
             return false;
-        if ( event.getStatus() != EventStatus.CONFIRMED )
+        if (event.getStatus() != EventStatus.CONFIRMED)
             return false;
 
         if (event.getStartDate().isBeforeNow() && event.getEndDate().isBeforeNow())
@@ -70,7 +70,7 @@ public class EventList implements Iterable<Event> {
 
     public void setNextRoute(String routeName) {
         Event event = getNextEvent();
-        if ( event == null ) {
+        if (event == null) {
             getLog().error("setActiveRoute: No current event found");
             return;
         }
@@ -79,7 +79,7 @@ public class EventList implements Iterable<Event> {
 
     public void setStatusOfNextEvent(EventStatus newStatus) {
         Event event = getNextEvent();
-        if ( event == null ) {
+        if (event == null) {
             getLog().error("setActiveStatus: No current event found");
             return;
         }
