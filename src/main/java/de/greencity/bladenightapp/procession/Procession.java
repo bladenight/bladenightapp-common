@@ -200,7 +200,9 @@ public class Procession implements ComputeSchedulerClient, ParticipantCollectorC
         }
         double routeLength = route.getLength();
         if ( routeLength == 0 ) {
-            getLog().warn("compute: route has zero length");
+            //getLog().debug("compute: route has zero length");
+            headMovingPoint = new MovingPoint();
+            tailMovingPoint = new MovingPoint();
             return;
         }
 

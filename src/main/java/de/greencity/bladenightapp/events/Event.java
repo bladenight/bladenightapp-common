@@ -109,7 +109,7 @@ public class Event implements ListItem, Serializable {
     }
 
     public String getRouteName() {
-        return routeName;
+        return routeName == null ? "" : routeName; //set empty routename else decoding in flutterapp fails
     }
 
     public void setRouteName(String routeName) {
